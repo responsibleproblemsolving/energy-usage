@@ -3,6 +3,7 @@ import sys
 import operator
 import time
 import json
+import os
 
 import convert
 
@@ -110,6 +111,9 @@ def log_emission(emission):
     sys.stdout.write("{:<24}{:>56}\n".format("Equivalent miles driven:", \
         convert.carbon_to_miles(emission)))
     
+def log_invalid_sys():
+    sys.stdout.write("The energy-usage package only works with Linux kernels. Please "
+        "try again on a different machine. ")
 
 # from https://stackoverflow.com/a/52590238
 def delete_last_lines():
@@ -117,3 +121,6 @@ def delete_last_lines():
     sys.stdout.write('\x1b[1A')
     sys.stdout.write('\x1b[1A')
    
+
+def valid_system():
+    return os.uname().sysname == "Linux"

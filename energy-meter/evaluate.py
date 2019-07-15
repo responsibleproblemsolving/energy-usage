@@ -159,8 +159,11 @@ def energy_mix(location):
         return breakdown # list of % of each
              
 def evaluate(func, *args):
-    location = locate.get()
-    result = energy(func, *args)
-    breakdown = energy_mix(location)
-    emission = emissions(result, breakdown, location)
-    utils.log_formulas()
+    if (utils.valid_system()):
+        location = locate.get()
+        result = energy(func, *args)
+        breakdown = energy_mix(location)
+        emission = emissions(result, breakdown, location)
+        utils.log_formulas()
+    else:
+        utils.log_invalid_sys()

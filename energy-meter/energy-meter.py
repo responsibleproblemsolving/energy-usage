@@ -8,7 +8,7 @@ def fib(n):
 
 
 def main():
-    evaluate.evaluate(fib,40)
+    evaluate.evaluate(fib,35)
 
 
 
