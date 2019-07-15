@@ -10,7 +10,7 @@ import convert
 # TO DO: Function to convert seconds into more reasonable time
 # TO DO: Having something to relate to
 
-# MSR_*FILE*_ENERGY_STATUS 
+# MSR_*FILE*_ENERGY_STATUS
 # Total amount of energy consumed since that last time this register was
 # cleared
 PKG = "/sys/class/powercap/intel-rapl:0/energy_uj"
@@ -37,7 +37,7 @@ def measure(file, delay=1):
     start = read(file)
     time.sleep(delay)
     end = read(file)
-   
+
     return end-start
 
 def measure_packages(packages, delay = 1):
@@ -64,10 +64,10 @@ def measure_all(delay=1):
 
 def get_num_packages():
     num = 0
-    files = [] 
+    files = []
     while True:
         file = "/sys/class/powercap/intel-rapl:" + str(num) +"/energy_uj"
-        try: 
+        try:
             read(file)
             num+=1
             files.append(file)
@@ -101,16 +101,16 @@ def log_formulas():
     sys.stdout.write("{:<14} {:>65}\n".format("Coal:", ".3248635 kg CO2/kWh"))
     sys.stdout.write("{:<14} {:>65}\n".format("Oil/Petroleum:", ".23 kg CO2/kWh"))
     sys.stdout.write("{:<14} {:>65}\n".format("Natural gas:", ".0885960 kg CO2/kwh"))
-    
+
 def log_emission(emission):
     log_header('Emissions')
     sys.stdout.write("{:<19}{:>54} kg CO2\n".format("Effective emission:", \
         emission))
-    sys.stdout.write("{:<37}{:>42}%\n".format("% of CO2 used in a US"
+    sys.stdout.write("{:<37}{:>42.2e}%\n".format("% of CO2 used in a US"
     " household/day:",convert.carbon_to_home(emission)))
-    sys.stdout.write("{:<24}{:>56}\n".format("Equivalent miles driven:", \
+    sys.stdout.write("{:<24}{:>56.2e}\n".format("Equivalent miles driven:", \
         convert.carbon_to_miles(emission)))
-    
+
 def log_invalid_sys():
     sys.stdout.write("The energy-usage package only works with Linux kernels. Please "
         "try again on a different machine. ")
@@ -120,7 +120,7 @@ def delete_last_lines():
     # Moves cursor up one line
     sys.stdout.write('\x1b[1A')
     sys.stdout.write('\x1b[1A')
-   
+
 
 def valid_system():
     return os.uname().sysname == "Linux"
