@@ -13,6 +13,7 @@ import locate
 # MSR_*FILE*_ENERGY_STATUS
 # Total amount of energy consumed since that last time this register was
 # cleared
+BASE = "/sys/class/powercap/"
 PKG = "/sys/class/powercap/intel-rapl:0/energy_uj"
 CORE = "/sys/class/powercap/intel-rapl:0:0/energy_uj"
 UNCORE = "/sys/class/powercap/intel-rapl:0:1/energy_uj"
@@ -66,7 +67,7 @@ def get_num_packages():
     num = 0
     files = []
     while True:
-        file = "/sys/class/powercap/intel-rapl:" + str(num) +"/energy_uj"
+        file = BASE + "intel-rapl:" + str(num) +"/energy_uj"
         try:
             read(file)
             num+=1
@@ -166,4 +167,4 @@ def get_data(file):
     return data
 
 def valid_system():
-    return os.uname().sysname == "Linux"
+    return os.path.exists(BASE) and bool(os.listdir(BASE))

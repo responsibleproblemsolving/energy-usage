@@ -1,1 +1,1 @@
-name = "energy-meter"
+name = "energy-usage"

@@ -12,7 +12,7 @@ LONG_DESCRIPTION = long_description
 URL = "https://github.com/responsibleproblemsolving/energy-usage"
 AUTHOR = "Silvia Susai, Kadan Lottick"
 
-AUTHOR_EMAIL = "fairness@haverford.edu"
+AUTHOR_EMAIL = "<todo>@haverford.edu"
 LICENSE = "Apache 2.0"
 
 CLASSIFIERS = [
