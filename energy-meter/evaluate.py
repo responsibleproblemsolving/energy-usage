@@ -1,7 +1,7 @@
 import time
 import statistics
 from timeit import default_timer as timer
-from multiprocessing import Process
+from multiprocessing import Process, Queue
 import os
 import datetime
 
@@ -11,7 +11,13 @@ import locate
 
 DELAY = .1 # in seconds
 
-def energy(func, *args):
+
+def func(user_func, q, *args):
+    value = user_func(*args)
+    q.put(value)
+
+
+def energy(user_func, *args):
     """ Evaluates the kwh needed for your code to run
 
     Parameters:
@@ -31,7 +37,8 @@ def energy(func, *args):
     baseline_average = statistics.mean(baseline_watts)
 
     # Running the process and measuring wattage
-    p = Process(target = func, args = (*args,))
+    q = Queue()
+    p = Process(target = func, args = (user_func, q, *args,))
     process_watts = []
     start = timer()
     p.start()
@@ -48,9 +55,11 @@ def energy(func, *args):
     # Subtracting baseline wattage to get more accurate result
     process_kwh = convert.to_kwh((process_average - baseline_average)*time, time)
 
+    return_value = q.get()
+
     # Logging
     utils.log("Final Readings", baseline_average, process_average, timedelta)
-    return process_kwh
+    return (process_kwh, return_value)
 
 
 def energy_mix(location):
@@ -132,7 +141,7 @@ def emissions(process_kwh, breakdown, location):
     utils.log("Emissions", emission)
     return emission
 
-def evaluate(func, *args):
+def evaluate(user_func, *args):
     """ Calculates effective emissions of the function
 
         Parameters:
@@ -141,10 +150,11 @@ def evaluate(func, *args):
 
     if (utils.valid_system()):
         location = locate.get()
-        result = energy(func, *args)
+        result, return_value = energy(user_func, *args)
         breakdown = energy_mix(location)
         emission = emissions(result, breakdown, location)
         utils.log("Assumed Carbon Equivalencies")
+        return return_value
     else:
         raise OSError("The energy-usage package only works with Linux kernels. \
          Please try again on a different machine.")
