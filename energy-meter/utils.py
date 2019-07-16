@@ -6,7 +6,7 @@ import json
 import os
 
 import convert
-
+import locate
 # TO DO: Function to convert seconds into more reasonable time
 # TO DO: Having something to relate to
 
@@ -83,6 +83,77 @@ def round_up(n, decimals=4):
     return math.floor(n*multiplier + 0.5) / multiplier
 
 
+""" LOGGING UTILS """
+
+def log_header(text):
+    if len(text) > 16:
+        sys.stdout.write("-"*80 + "\n" + "-"*25 + " {:^28} ".format(text) +
+            "-"*25 + "\n" + "-"*80+ "\n")
+    else:
+        sys.stdout.write("-"*80 + "\n" + "-"*31 + " {:^16} ".format(text) +
+            "-"*31 + "\n" + "-"*80+ "\n")
+
+# from https://stackoverflow.com/a/52590238
+def delete_last_lines():
+    # Moves cursor up one line
+    sys.stdout.write('\x1b[1A')
+    sys.stdout.write('\x1b[1A')
+
+
+def log(*args):
+    if args[0] == "Baseline wattage":
+        measurement = args[1]
+        sys.stdout.write("\r{:<17} {:>56.2f} {:5<}".format(args[0]+":", measurement, "watts"))
+
+    elif args[0] == "Process wattage":
+        measurement = args[1]
+        sys.stdout.write("\r{:<17} {:>56.2f} {:5<}".format(args[0]+":", measurement, "watts"))
+
+    elif args[0] == "Final Readings":
+        sys.stdout.write("\n")
+        baseline_average, process_average, timedelta = args[1], args[2], args[3]
+        delete_last_lines()
+        log_header(args[0])
+        sys.stdout.write("{:<25} {:>48.2f} {:5<}\n".format("Average baseline wattage:", baseline_average, "watts"))
+        sys.stdout.write("{:<25} {:>48.2f} {:5<}\n".format("Average process wattage:", process_average, "watts"))
+        sys.stdout.write("{:<17} {:>62}\n".format("Process duration:", timedelta))
+
+    elif args[0] == "Energy Data":
+        location = args[2]
+        log_header('Energy Data')
+        if location == "Unknown" or locate.in_US(location):
+            coal, oil, gas, low_carbon = args[1]
+            if location == "Unknown":
+                location = "United States"
+                sys.stdout.write("{:^80}\n{:<13}{:>66.2f}%\n{:<13}{:>66.2f}%\n{:<13}{:>66.2f}%\n"
+                    "{:<13}{:>66.2f}%\n".format("Location unknown, default energy mix in "+location+":", "Coal:", coal, "Oil:", oil,
+                    "Natural Gas:", gas, "Low Carbon:", low_carbon))
+            elif locate.in_US(location):
+                sys.stdout.write("{:^80}\n{:<13}{:>66.2f}%\n{:<13}{:>66.2f}%\n{:<13}{:>66.2f}%\n"
+                    "{:<13}{:>66.2f}%\n".format("Energy mix in "+location, "Coal:", coal, "Oil:", oil,
+                    "Natural Gas:", gas, "Low Carbon:", low_carbon))
+        else:
+            coal, natural_gas, petroleum, low_carbon = args[1]
+            sys.stdout.write("{:^80}\n{:<13}{:>66.2f}%\n{:<13}{:>66.2f}%\n{:<13}{:>66.2f}%\n"
+                    "{:<13}{:>66.2f}%\n".format("Energy mix in "+location, "Coal:", coal, "Petroleum:", petroleum,
+                    "Natural Gas:", natural_gas, "Low Carbon:", low_carbon))
+
+    elif args[0] == "Emissions":
+        emission = args[1]
+        log_header('Emissions')
+        sys.stdout.write("{:<19}{:>54.2e} kg CO2\n".format("Effective emission:", \
+            emission))
+        sys.stdout.write("{:<37}{:>42.2e}%\n".format("% of CO2 used in a US"
+        " household/day:",convert.carbon_to_home(emission)))
+        sys.stdout.write("{:<24}{:>56.2e}\n".format("Equivalent miles driven:", \
+            convert.carbon_to_miles(emission)))
+
+    elif args[0] == "Assumed Carbon Equivalencies":
+        log_header('Assumed Carbon Equivalencies')
+        sys.stdout.write("{:<14} {:>65}\n".format("Coal:", ".3248635 kg CO2/kWh"))
+        sys.stdout.write("{:<14} {:>65}\n".format("Oil/Petroleum:", ".23 kg CO2/kWh"))
+        sys.stdout.write("{:<14} {:>65}\n".format("Natural gas:", ".0885960 kg CO2/kwh"))
+
 
 """ MISC UTILS """
 
@@ -91,37 +162,6 @@ def get_data(file):
     with open(file) as f:
             data = json.load(f)
     return data
-
-def log_header(text):
-    sys.stdout.write("-"*80 + "\n" + "-"*31 + " {:^16} ".format(text) +
-        "-"*31 + "\n" + "-"*80+ "\n"
-       )
-
-def log_formulas():
-    log_header('Formulas Used')
-    sys.stdout.write("{:<14} {:>65}\n".format("Coal:", ".3248635 kg CO2/kWh"))
-    sys.stdout.write("{:<14} {:>65}\n".format("Oil/Petroleum:", ".23 kg CO2/kWh"))
-    sys.stdout.write("{:<14} {:>65}\n".format("Natural gas:", ".0885960 kg CO2/kwh"))
-
-def log_emission(emission):
-    log_header('Emissions')
-    sys.stdout.write("{:<19}{:>54} kg CO2\n".format("Effective emission:", \
-        emission))
-    sys.stdout.write("{:<37}{:>42.2e}%\n".format("% of CO2 used in a US"
-    " household/day:",convert.carbon_to_home(emission)))
-    sys.stdout.write("{:<24}{:>56.2e}\n".format("Equivalent miles driven:", \
-        convert.carbon_to_miles(emission)))
-
-def log_invalid_sys():
-    sys.stdout.write("The energy-usage package only works with Linux kernels. Please "
-        "try again on a different machine. ")
-
-# from https://stackoverflow.com/a/52590238
-def delete_last_lines():
-    # Moves cursor up one line
-    sys.stdout.write('\x1b[1A')
-    sys.stdout.write('\x1b[1A')
-
 
 def valid_system():
     return os.uname().sysname == "Linux"
