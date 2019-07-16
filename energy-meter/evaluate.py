@@ -156,5 +156,5 @@ def evaluate(user_func, *args):
         utils.log("Assumed Carbon Equivalencies")
         return return_value
     else:
-        raise OSError("The energy-usage package only works on Linux kernels \
-        that support the RAPL interface. Please try again on a different machine.")
+        raise OSError("The energy-usage package only works on Linux kernels"
+        "that support the RAPL interface. Please try again on a different machine.")
