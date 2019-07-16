@@ -11,7 +11,7 @@ import convert
 import locate
 
 DELAY = .1 # in seconds
-DIR_PATH = os.path.dirname(os.path.realpath(__file__))
+
 
 
 """ EMISSION UTILS """
@@ -99,7 +99,8 @@ def emissions(process_kwh, breakdown, location):
                 "Natural Gas:", gas, "Low Carbon:", low_carbon))
 
         # US Emissions data is in lbs
-        data = utils.get_data('../data/json/us-emissions.json')
+
+        data = utils.get_data("../data/json/us-emissions.json")
         emission = convert.lbs_to_kgs(data[location]*convert.to_Mwh(process_kwh))
         utils.log_emission(emission)
         return emission
@@ -134,10 +135,8 @@ def energy_mix(location):
         if location == "Unknown":
             location = "United States"
 
-        file = os.path.join(DIR_PATH, "../data/json/energy-mix-us.json")
-        #data = utils.get_data('../data/json/energy-mix-us.json')
-        print(file)
-        data = utils.get_data(file)
+        
+        data = utils.get_data("../data/json/energy-mix-us.json")
         s = data[location]['mix'] # get state
         coal, oil, gas = s['coal'], s['oil'], s['gas']
         nuclear, hydro, biomass, wind, solar, geo, \

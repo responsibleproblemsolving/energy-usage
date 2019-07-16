@@ -19,7 +19,7 @@ UNCORE = "/sys/class/powercap/intel-rapl:0:1/energy_uj"
 DRAM = "/sys/class/powercap/intel-rapl:0:2/energy_uj"
 
 DELAY = .1 # in seconds
-
+DIR_PATH = os.path.dirname(os.path.realpath(__file__))
 
 
 """ MEASUREMENT UTILS """
@@ -87,6 +87,7 @@ def round_up(n, decimals=4):
 """ MISC UTILS """
 
 def get_data(file):
+    file = os.path.join(DIR_PATH, file)
     with open(file) as f:
             data = json.load(f)
     return data
