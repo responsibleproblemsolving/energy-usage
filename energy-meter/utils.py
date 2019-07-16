@@ -99,6 +99,8 @@ def delete_last_lines():
     sys.stdout.write('\x1b[1A')
     sys.stdout.write('\x1b[1A')
 
+def newline():
+    sys.stdout.write('\n')
 
 def log(*args):
     if args[0] == "Baseline wattage":

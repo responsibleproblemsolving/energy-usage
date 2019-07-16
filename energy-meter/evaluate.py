@@ -1,4 +1,3 @@
-import sys
 import time
 import statistics
 from timeit import default_timer as timer
@@ -28,8 +27,7 @@ def energy(func, *args):
         # LOGGING
         utils.log("Baseline wattage", measurement)
         baseline_watts.append(measurement)
-    # NEW LINE
-    sys.stdout.write("\n")
+    utils.newline()
     baseline_average = statistics.mean(baseline_watts)
 
     # Running the process and measuring wattage
