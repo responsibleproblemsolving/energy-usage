@@ -3,16 +3,16 @@ from setuptools import setup, find_packages
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
-NAME = "energy-meter"
+NAME = "energy-usage"
 VERSION = "0.0.1"
 
 DESCRIPTION = "Measuring the environmental impact of computation"
 LONG_DESCRIPTION = long_description
 
-URL = "https://github.com/algofairness/energy-meter"
+URL = "https://github.com/responsibleproblemsolving/energy-usage"
 AUTHOR = "Silvia Susai, Kadan Lottick"
 
-AUTHOR_EMAIL = "fairness@haverford.edu"
+AUTHOR_EMAIL = "<todo>@haverford.edu"
 LICENSE = "Apache 2.0"
 
 CLASSIFIERS = [

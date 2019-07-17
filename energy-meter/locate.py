@@ -1,7 +1,5 @@
 import requests
 
-import utils
-
 STATES = ['Alabama','Alaska','Arizona','Arkansas','California','Colorado', \
 'Connecticut','Delaware', 'Florida','Georgia','Hawaii','Idaho', \
 'Illinois','Indiana','Iowa','Kansas','Kentucky','Louisiana', \
@@ -17,18 +15,18 @@ STATES = ['Alabama','Alaska','Arizona','Arkansas','California','Colorado', \
 """ LOCATION UTILS """
 
 def get():
-    """ Gets user's location via GeoJS API 
+    """ Gets user's location via GeoJS API
 
-    Returns: 
+    Returns:
         location (str): location of user's IP address
     """
-    
+
     location = "Unknown"
     # TEST FOR UNKNOWN LOCATION geo = requests.get("https://get.geojs.io/v1/ip/geo/2.20.135.10.json").json()
     geo = requests.get("https://get.geojs.io/v1/ip/geo.json").json()
     try:
         if geo["country"] == "United States":
-            try: 
+            try:
                 location = geo["region"]
             except:
                 location = "United States"
@@ -42,4 +40,3 @@ def get():
 
 def in_US(location):
     return (location in STATES or location == "United States")
-
