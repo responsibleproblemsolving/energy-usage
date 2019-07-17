@@ -6,6 +6,6 @@ def fib(n):
     else: return fib(n-1) + fib(n-2)
 
 def main():
-    return evaluate.evaluate(fib,35)
+    return evaluate.evaluate(fib,40)
 
 if __name__ == '__main__': main()
