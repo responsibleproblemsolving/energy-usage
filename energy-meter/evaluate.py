@@ -4,6 +4,7 @@ from timeit import default_timer as timer
 from multiprocessing import Process, Queue
 import os
 import datetime
+import subprocess
 
 import utils
 import convert
@@ -25,6 +26,7 @@ def energy(user_func, *args):
 
     """
 
+<<<<<<< HEAD
     # this should give us a list of the files needed
     # but how to know which one is which???
     # if single cpu: [core(cpu), uncore(gpu), DRAM ]
@@ -38,26 +40,62 @@ def energy(user_func, *args):
     
 
     # Get baseline wattage reading
+=======
+    packages = utils.get_num_packages()
+    # Get baseline wattage reading (FOR WHAT? PKG for now, DELAY? default .1 second)
+
+    is_nvidia_gpu = True
+    try:
+        bash_command = "nvidia-smi"
+        output = subprocess.check_output(['bash','-c', bash_command])
+    except: 
+        is_nvidia_gpu =False
+
+    bash_command = "nvidia-smi --query-gpu=,power.draw --format=csv,noheader,nounits"
+
+    gpu_baseline_watts =[]
+>>>>>>> e6f67919488c0e186e2db7fc5058d94735dbd9d3
     baseline_watts = []
     for i in range(50):
+
+        if is_nvidia_gpu:
+            output = subprocess.check_output(['bash','-c', bash_command])
+            output = float(output.decode("utf-8")[:-1])
+            gpu_baseline_watts.append(output)
+            
+
         measurement = utils.measure_packages(packages, DELAY) / DELAY # dividing by delay to give per second reading
         # LOGGING
+        measurement += gpu_baseline_watts[-1]
         utils.log("Baseline wattage", measurement)
         baseline_watts.append(measurement)
     utils.newline()
     baseline_average = statistics.mean(baseline_watts)
 
+    
+
+
     # Running the process and measuring wattage
     q = Queue()
     p = Process(target = func, args = (user_func, q, *args,))
     process_watts = []
+    gpu_watts =[]
+    
     start = timer()
     p.start()
     while(p.is_alive()):
+        if is_nvidia_gpu:
+            output = subprocess.check_output(['bash','-c', bash_command])
+            output = float(output.decode("utf-8")[:-1])
+            gpu_watts.append(output)
+        
         measurement = utils.measure_packages(packages, DELAY) / DELAY
-        if measurement > 0: # In case file reaches the end
+        if measurement > 0 or output: # In case file reaches the end
+            measurement += gpu_watts[-1]
             utils.log("Process wattage", measurement)
             process_watts.append(measurement)
+        
+
     end = timer()
     time = end-start # seconds
     process_average = statistics.mean(process_watts)
@@ -159,7 +197,11 @@ def evaluate(user_func, *args):
             func: user inputtted function
     """
 
+<<<<<<< HEAD
     if (utils.valid_cpu()):
+=======
+    if (utils.valid_system() or True):
+>>>>>>> e6f67919488c0e186e2db7fc5058d94735dbd9d3
         location = locate.get()
         result, return_value = energy(user_func, *args)
         breakdown = energy_mix(location)
