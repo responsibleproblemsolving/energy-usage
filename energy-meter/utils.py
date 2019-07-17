@@ -14,10 +14,17 @@ import locate
 # Total amount of energy consumed since that last time this register was
 # cleared
 BASE = "/sys/class/powercap/"
+
 PKG = "/sys/class/powercap/intel-rapl:0/energy_uj"
 CORE = "/sys/class/powercap/intel-rapl:0:0/energy_uj"
 UNCORE = "/sys/class/powercap/intel-rapl:0:1/energy_uj"
-DRAM = "/sys/class/powercap/intel-rapl:0:2/energy_uj"
+
+DRAM = "/sys/class/powercap/intel-rapl:1:0/energy_uj"# if has_multiple_cpus() \
+    #else "/sys/class/powercap/intel-rapl:0:2/energy_uj"
+
+
+## MULTIPLE processors
+# DRAM = "/sys/class/powercap/intel-rapl:1:0/energy_uj"
 
 DELAY = .1 # in seconds
 DIR_PATH = os.path.dirname(os.path.realpath(__file__))
@@ -42,15 +49,25 @@ def measure(file, delay=1):
     return end-start
 
 def measure_packages(packages, delay = 1):
-    """ Measures the energy output of all packages which should give total CPU power usage """
+    """ Measures the energy output of all packages which should give total power usage
+
+    Parameters:
+        packages (list):
+        delay (int): RAPL file reading rate in ms
+
+    Returns:
+        measurement (float):
+
+
+    """
 
     start = list(map(read, packages))
     time.sleep(delay)
     end = list(map(read, packages))
-    measurement = sum(list(map(round_up,(map(operator.sub, end, start)))))
+    measurement = sum(map(round_up,(map(operator.sub, end, start))))
     return measurement
 
-
+# kinda deprecated
 def measure_all(delay=1):
     """ Measures the energy output of all files in a single processor setup """
 
@@ -59,11 +76,57 @@ def measure_all(delay=1):
     time.sleep(delay)
     end = list(map(read,files))
     # Calculates end - start for each file, then rounds result
-    measurement = list(map(round_up,(map(operator.sub, end, start))))
+    measurement = map(round_up,(map(operator.sub, end, start)))
 
     return measurement
 
-def get_num_packages():
+def reformat(name):
+    if has_multiple_cpus():
+        if 'package' in name:
+            name = "CPU" + name[-1] #renaming it to CPU-x
+        else:
+            name = "Package"
+    elif name == 'core':
+        name = "CPU"
+    elif name == 'uncore':
+        name = "GPU"
+    elif name == 'dram':
+        upper(name)
+
+
+
+def get_files():
+    """ Gets all the intel-rapl files with their names
+
+        Returns:
+            files (dict): Dictionary of file paths indexed by name
+    """
+    # Removing the intel-rapl folder that has no info
+    files = list(filter(lambda x: ':' in x, os.listdir(BASE)))
+    # for each file get the name??
+    names = {}
+    for file in new:
+     path = BASE + '/' + file + '/name'
+     with open(path) as f:
+        name = f.read()[:-1]
+        reformat(name)
+
+
+     names[name] = file
+
+     #ppend((file, name)) # eg: [('intel-rapl:0', 'package-0'),...]
+
+
+
+
+def get_packages():
+
+    # this should give us a list of the files needed
+    # but how to know which one is which???
+    # if single cpu: [core(cpu), uncore(gpu), DRAM ]
+    # if multiple cpus: [cpu1, cpu2, .. , cpun , dram]
+
+
     num = 0
     files = []
     while True:
@@ -75,6 +138,12 @@ def get_num_packages():
         except:
             break
     return files
+
+
+def has_multiple_cpus():
+    packages = get_packages()
+    return len(packages) > 1
+
 
 # from realpython.com/python-rounding
 def round_up(n, decimals=4):
@@ -166,5 +235,10 @@ def get_data(file):
             data = json.load(f)
     return data
 
-def valid_system():
+def valid_cpu():
     return os.path.exists(BASE) and bool(os.listdir(BASE))
+
+def valid_gpu():
+    # checks that there is a valid gpu: either integrated graphics
+    # or nvidia
+    return True

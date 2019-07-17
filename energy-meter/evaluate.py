@@ -25,8 +25,19 @@ def energy(user_func, *args):
 
     """
 
-    packages = utils.get_num_packages()
-    # Get baseline wattage reading (FOR WHAT? PKG for now, DELAY? default .1 second)
+    # this should give us a list of the files needed
+    # but how to know which one is which???
+    # if single cpu: [core(cpu), uncore(gpu), DRAM ]
+    # if multiple cpus: [cpu1, cpu2, .. , cpun , dram]
+    print(utils.get_files())
+    packages = utils.get_packages()
+    # print(packages) ---> ['/sys/class/powercap/intel-rapl:0/energy_uj']
+
+    # If multiple CPUs, there's no Core/Uncore differentiation, so just get
+    # energy data from each of the processors and then the RAM
+    
+
+    # Get baseline wattage reading
     baseline_watts = []
     for i in range(50):
         measurement = utils.measure_packages(packages, DELAY) / DELAY # dividing by delay to give per second reading
@@ -148,7 +159,7 @@ def evaluate(user_func, *args):
             func: user inputtted function
     """
 
-    if (utils.valid_system()):
+    if (utils.valid_cpu()):
         location = locate.get()
         result, return_value = energy(user_func, *args)
         breakdown = energy_mix(location)
