@@ -4,9 +4,15 @@ import operator
 import time
 import json
 import os
+import re
+
 
 import convert
 import locate
+from RAPLFile import RAPLFile
+
+
+
 # TO DO: Function to convert seconds into more reasonable time
 # TO DO: Having something to relate to
 
@@ -48,19 +54,58 @@ def measure(file, delay=1):
 
     return end-start
 
-def measure_packages(packages, delay = 1):
+
+### CHECK NEGATIVE VALUES
+def start(raplfile):
+    measurement = read(raplfile.path)
+    raplfile.recent = measurement
+    return raplfile
+
+def baseline_end(raplfile, delay):
+    measurement = read(raplfile.path)
+    raplfile.recent = (measurement -raplfile.recent) / delay
+    raplfile.baseline += raplfile.recent
+    return raplfile
+
+def process_end(raplfile, delay):
+    measurement = read(raplfile.path)
+    raplfile.recent = (measurement -raplfile.recent) /delay
+    raplfile.process += raplfile.recent
+    raplfile.num_process_checks += 1
+    return raplfile
+
+def measure_files(files, delay = 1, process = False):
     """ Measures the energy output of all packages which should give total power usage
 
     Parameters:
-        packages (list):
+        files (list): list of RAPLFiles
         delay (int): RAPL file reading rate in ms
 
     Returns:
-        measurement (float):
-
-
+        files (list): list of RAPLfiles with updated measurements
     """
 
+    files = list(map(start, files))
+    time.sleep(delay)
+    if process:
+        files = list(map(lambda x: process_end(x, delay), files))
+    else:
+        files = list(map(lambda x: baseline_end(x, delay), files))
+
+    return files
+
+    '''
+    for k,v in files.items():
+        files[k][2] = read(files[k][0])
+    time.sleep(delay)
+    for k,v in files.items():
+        files[k][2] = read(files[k][0]) - files[k][2]
+        files[k][1] += files[k][2]
+
+    return files
+'''
+#deprecated
+def measure_packages(packages, delay):
     start = list(map(read, packages))
     time.sleep(delay)
     end = list(map(read, packages))
@@ -81,51 +126,51 @@ def measure_all(delay=1):
     return measurement
 
 def reformat(name):
-    if has_multiple_cpus():
-        if 'package' in name:
-            name = "CPU" + name[-1] #renaming it to CPU-x
+    if 'package' in name:
+        if has_multiple_cpus():
+            name = "CPU" + name[-1] # renaming it to CPU-x
         else:
             name = "Package"
-    elif name == 'core':
+    if name == 'core':
         name = "CPU"
     elif name == 'uncore':
         name = "GPU"
     elif name == 'dram':
-        upper(name)
+        name = name.upper()
 
+    return name
 
 
 def get_files():
     """ Gets all the intel-rapl files with their names
 
         Returns:
-            files (dict): Dictionary of file paths indexed by name
+            filenames (list): list of RAPLFiles
     """
     # Removing the intel-rapl folder that has no info
     files = list(filter(lambda x: ':' in x, os.listdir(BASE)))
-    # for each file get the name??
     names = {}
-    for file in new:
-     path = BASE + '/' + file + '/name'
-     with open(path) as f:
-        name = f.read()[:-1]
-        reformat(name)
 
+    for file in files:
+        path = BASE + '/' + file + '/name'
+        with open(path) as f:
+           name = f.read()[:-1]
+           renamed = reformat(name)
+        names[renamed] = BASE + file + '/energy_uj'
 
-     names[name] = file
+    filenames = []
+    for name, path in names.items():
 
-     #ppend((file, name)) # eg: [('intel-rapl:0', 'package-0'),...]
+        name = RAPLFile(name, path)
+        filenames.append(name)
 
-
+    return filenames
 
 
 def get_packages():
-
     # this should give us a list of the files needed
-    # but how to know which one is which???
     # if single cpu: [core(cpu), uncore(gpu), DRAM ]
     # if multiple cpus: [cpu1, cpu2, .. , cpun , dram]
-
 
     num = 0
     files = []
@@ -173,16 +218,22 @@ def newline():
     sys.stdout.write('\n')
 
 def log(*args):
+    # use regex here
+    if (re.search("Package|CPU.*|GPU|DRAM", args[0])):
+        measurement = args[1]
+        sys.stdout.write("\r{:<24} {:>49.2f} {:5<}".format(args[0]+":", measurement, "watts"))
+
+
     if args[0] == "Baseline wattage":
         measurement = args[1]
-        sys.stdout.write("\r{:<17} {:>56.2f} {:5<}".format(args[0]+":", measurement, "watts"))
+        sys.stdout.write("\r{:<24} {:>49.2f} {:5<}".format(args[0]+":", measurement, "watts"))
 
     elif args[0] == "Process wattage":
         measurement = args[1]
         sys.stdout.write("\r{:<17} {:>56.2f} {:5<}".format(args[0]+":", measurement, "watts"))
 
     elif args[0] == "Final Readings":
-        sys.stdout.write("\n")
+        newline()
         baseline_average, process_average, timedelta = args[1], args[2], args[3]
         delete_last_lines()
         log_header(args[0])
@@ -225,6 +276,7 @@ def log(*args):
         sys.stdout.write("{:<14} {:>65}\n".format("Coal:", ".3248635 kg CO2/kWh"))
         sys.stdout.write("{:<14} {:>65}\n".format("Oil/Petroleum:", ".23 kg CO2/kWh"))
         sys.stdout.write("{:<14} {:>65}\n".format("Natural gas:", ".0885960 kg CO2/kwh"))
+
 
 
 """ MISC UTILS """
