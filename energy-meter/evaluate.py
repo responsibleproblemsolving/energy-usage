@@ -38,7 +38,7 @@ def energy(user_func, *args):
 
     baseline_checks = 50
     files = utils.get_files()
-    packages = utils.get_packages()
+    #packages = utils.get_packages()
     # Get baseline wattage reading (FOR WHAT? PKG for now, DELAY? default .1 second)
 
     # GPU handling if Nvidia
@@ -46,34 +46,31 @@ def energy(user_func, *args):
     try:
         bash_command = "nvidia-smi > /dev/null 2>&1"
         output = subprocess.check_call(['bash','-c', bash_command])
+        if "GPU" not in files:
+            files.append(RAPLFile("GPU", ""))
+
     except:
         is_nvidia_gpu = False
 
     bash_command = "nvidia-smi --query-gpu=,power.draw --format=csv,noheader,nounits"
 
-    gpu_baseline_watts =[]
-    baseline_watts = []
-
     for i in range(baseline_checks):
         if is_nvidia_gpu:
             output = subprocess.check_output(['bash','-c', bash_command])
             output = float(output.decode("utf-8")[:-1])
-            gpu_baseline_watts.append(output)
 
-        measurement = utils.measure_files(files, DELAY)
 
-        for file in measurement:
+        files = utils.measure_files(files, DELAY)
+        files = utils.update_baseline(files)
+        for file in files:
 
             if file.name == "Package":
                 package = file.recent
+        if package >=0:
+            utils.log("Baseline wattage", package)
 
-        utils.log("Baseline wattage", package)
-        baseline_watts.append(package)
 
     utils.newline()
-
-
-
     measurement_breakdown = []
 
 
@@ -82,7 +79,7 @@ def energy(user_func, *args):
     p = Process(target = func, args = (user_func, q, *args,))
     process_watts = []
     gpu_watts =[]
-
+    num_measurements = 0
     start = timer()
     p.start()
     while(p.is_alive()):
@@ -91,26 +88,31 @@ def energy(user_func, *args):
             output = float(output.decode("utf-8")[:-1])
             gpu_watts.append(output)
 
-        measurement = utils.measure_packages(packages, DELAY) / DELAY
-        if measurement > 0: # In case file reaches the end
-            utils.log("Process wattage", measurement)
-            process_watts.append(measurement)
-
-
+        files = utils.measure_files(files, DELAY)
+        files = utils.update_process(files)
+        for file in files:
+            if file.name == "Package":
+                package = file.recent
+        if package >=0:
+            utils.log("Process wattage", package)
     end = timer()
     time = end-start # seconds
-    measurement.average()
-    process_average = statistics.mean(process_watts)
+    files = utils.average_files(files)
+    #process_average = statistics.mean(process_watts)
     timedelta = str(datetime.timedelta(seconds=time)).split('.')[0]
 
+    for file in files:
+
+        if file.name == "Package":
+            package = file
     # Subtracting baseline wattage to get more accurate result
-    process_kwh = convert.to_kwh((process_average - baseline_average)*time, time)
+    process_kwh = convert.to_kwh((package.process_average - package.baseline_average)*time, time)
 
     # Getting the return value of the user's function
     return_value = q.get()
 
     # Logging
-    utils.log("Final Readings", baseline_average, process_average, timedelta)
+    utils.log("Final Readings", package.baseline_average, package.process_average, timedelta)
     return (process_kwh, return_value)
 
 

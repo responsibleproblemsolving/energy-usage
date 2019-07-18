@@ -2,8 +2,8 @@ class RAPLFile:
     def __init__(self, name, path):
         self.name = name
         self.path = path
-        self.baseline = 0
-        self.process = 0
+        self.baseline = []
+        self.process = []
         self.recent = 0
         self.num_process_checks =0
         self.process_average = 0

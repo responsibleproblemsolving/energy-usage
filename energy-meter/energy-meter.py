@@ -13,7 +13,7 @@ def sleep(n):
 
 
 def main():
-    evaluate.evaluate(sleep, 10)
+    evaluate.evaluate(fib, 35)
 
 
 

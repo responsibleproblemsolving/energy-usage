@@ -5,7 +5,7 @@ import time
 import json
 import os
 import re
-
+import statistics
 
 import convert
 import locate
@@ -40,9 +40,17 @@ DIR_PATH = os.path.dirname(os.path.realpath(__file__))
 
 def read(file):
     """ Opens file and reads energy measurement """
+    if file == "":
+        return 0
+    else:
+        with open(file, 'r') as f:
+            return convert.to_joules(int(f.read()))
 
-    with open(file, 'r') as f:
-        return convert.to_joules(int(f.read()))
+def average_files(raplfiles):
+    for file in raplfiles:
+        file.process_average = statistics.mean(file.process)
+        file.baseline_average = statistics.mean(file.baseline)
+    return raplfiles
 
 def measure(file, delay=1):
     """ Measures the energy output of FILE """
@@ -54,6 +62,18 @@ def measure(file, delay=1):
 
     return end-start
 
+def update_process(raplfiles):
+    for file in raplfiles:
+        if file.recent >= 0:
+            file.process.append(file.recent)
+            
+    return raplfiles
+
+def update_baseline(raplfiles):
+    for file in raplfiles:
+        if file.recent >= 0:
+            file.baseline.append(file.recent)
+    return raplfiles
 
 ### CHECK NEGATIVE VALUES
 def start(raplfile):
@@ -61,18 +81,11 @@ def start(raplfile):
     raplfile.recent = measurement
     return raplfile
 
-def baseline_end(raplfile, delay):
+def end(raplfile, delay):
     measurement = read(raplfile.path)
     raplfile.recent = (measurement -raplfile.recent) / delay
-    raplfile.baseline += raplfile.recent
     return raplfile
 
-def process_end(raplfile, delay):
-    measurement = read(raplfile.path)
-    raplfile.recent = (measurement -raplfile.recent) /delay
-    raplfile.process += raplfile.recent
-    raplfile.num_process_checks += 1
-    return raplfile
 
 def measure_files(files, delay = 1, process = False):
     """ Measures the energy output of all packages which should give total power usage
@@ -87,11 +100,7 @@ def measure_files(files, delay = 1, process = False):
 
     files = list(map(start, files))
     time.sleep(delay)
-    if process:
-        files = list(map(lambda x: process_end(x, delay), files))
-    else:
-        files = list(map(lambda x: baseline_end(x, delay), files))
-
+    files = list(map(lambda x: end(x, delay), files))
     return files
 
     '''
@@ -165,6 +174,7 @@ def get_files():
         filenames.append(name)
 
     return filenames
+
 
 
 def get_packages():
