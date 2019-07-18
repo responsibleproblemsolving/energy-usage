@@ -4,9 +4,15 @@ import operator
 import time
 import json
 import os
+import re
+
 
 import convert
 import locate
+from RAPLFile import RAPLFile
+
+
+
 # TO DO: Function to convert seconds into more reasonable time
 # TO DO: Having something to relate to
 
@@ -14,10 +20,17 @@ import locate
 # Total amount of energy consumed since that last time this register was
 # cleared
 BASE = "/sys/class/powercap/"
+
 PKG = "/sys/class/powercap/intel-rapl:0/energy_uj"
 CORE = "/sys/class/powercap/intel-rapl:0:0/energy_uj"
 UNCORE = "/sys/class/powercap/intel-rapl:0:1/energy_uj"
-DRAM = "/sys/class/powercap/intel-rapl:0:2/energy_uj"
+
+DRAM = "/sys/class/powercap/intel-rapl:1:0/energy_uj"# if has_multiple_cpus() \
+    #else "/sys/class/powercap/intel-rapl:0:2/energy_uj"
+
+
+## MULTIPLE processors
+# DRAM = "/sys/class/powercap/intel-rapl:1:0/energy_uj"
 
 DELAY = .1 # in seconds
 DIR_PATH = os.path.dirname(os.path.realpath(__file__))
@@ -41,16 +54,65 @@ def measure(file, delay=1):
 
     return end-start
 
-def measure_packages(packages, delay = 1):
-    """ Measures the energy output of all packages which should give total CPU power usage """
 
+### CHECK NEGATIVE VALUES
+def start(raplfile):
+    measurement = read(raplfile.path)
+    raplfile.recent = measurement
+    return raplfile
+
+def baseline_end(raplfile, delay):
+    measurement = read(raplfile.path)
+    raplfile.recent = (measurement -raplfile.recent) / delay
+    raplfile.baseline += raplfile.recent
+    return raplfile
+
+def process_end(raplfile, delay):
+    measurement = read(raplfile.path)
+    raplfile.recent = (measurement -raplfile.recent) /delay
+    raplfile.process += raplfile.recent
+    raplfile.num_process_checks += 1
+    return raplfile
+
+def measure_files(files, delay = 1, process = False):
+    """ Measures the energy output of all packages which should give total power usage
+
+    Parameters:
+        files (list): list of RAPLFiles
+        delay (int): RAPL file reading rate in ms
+
+    Returns:
+        files (list): list of RAPLfiles with updated measurements
+    """
+
+    files = list(map(start, files))
+    time.sleep(delay)
+    if process:
+        files = list(map(lambda x: process_end(x, delay), files))
+    else:
+        files = list(map(lambda x: baseline_end(x, delay), files))
+
+    return files
+
+    '''
+    for k,v in files.items():
+        files[k][2] = read(files[k][0])
+    time.sleep(delay)
+    for k,v in files.items():
+        files[k][2] = read(files[k][0]) - files[k][2]
+        files[k][1] += files[k][2]
+
+    return files
+'''
+#deprecated
+def measure_packages(packages, delay):
     start = list(map(read, packages))
     time.sleep(delay)
     end = list(map(read, packages))
-    measurement = sum(list(map(round_up,(map(operator.sub, end, start)))))
+    measurement = sum(map(round_up,(map(operator.sub, end, start))))
     return measurement
 
-
+# kinda deprecated
 def measure_all(delay=1):
     """ Measures the energy output of all files in a single processor setup """
 
@@ -59,11 +121,57 @@ def measure_all(delay=1):
     time.sleep(delay)
     end = list(map(read,files))
     # Calculates end - start for each file, then rounds result
-    measurement = list(map(round_up,(map(operator.sub, end, start))))
+    measurement = map(round_up,(map(operator.sub, end, start)))
 
     return measurement
 
-def get_num_packages():
+def reformat(name):
+    if 'package' in name:
+        if has_multiple_cpus():
+            name = "CPU" + name[-1] # renaming it to CPU-x
+        else:
+            name = "Package"
+    if name == 'core':
+        name = "CPU"
+    elif name == 'uncore':
+        name = "GPU"
+    elif name == 'dram':
+        name = name.upper()
+
+    return name
+
+
+def get_files():
+    """ Gets all the intel-rapl files with their names
+
+        Returns:
+            filenames (list): list of RAPLFiles
+    """
+    # Removing the intel-rapl folder that has no info
+    files = list(filter(lambda x: ':' in x, os.listdir(BASE)))
+    names = {}
+
+    for file in files:
+        path = BASE + '/' + file + '/name'
+        with open(path) as f:
+           name = f.read()[:-1]
+           renamed = reformat(name)
+        names[renamed] = BASE + file + '/energy_uj'
+
+    filenames = []
+    for name, path in names.items():
+
+        name = RAPLFile(name, path)
+        filenames.append(name)
+
+    return filenames
+
+
+def get_packages():
+    # this should give us a list of the files needed
+    # if single cpu: [core(cpu), uncore(gpu), DRAM ]
+    # if multiple cpus: [cpu1, cpu2, .. , cpun , dram]
+
     num = 0
     files = []
     while True:
@@ -75,6 +183,12 @@ def get_num_packages():
         except:
             break
     return files
+
+
+def has_multiple_cpus():
+    packages = get_packages()
+    return len(packages) > 1
+
 
 # from realpython.com/python-rounding
 def round_up(n, decimals=4):
@@ -104,16 +218,22 @@ def newline():
     sys.stdout.write('\n')
 
 def log(*args):
+    # use regex here
+    if (re.search("Package|CPU.*|GPU|DRAM", args[0])):
+        measurement = args[1]
+        sys.stdout.write("\r{:<24} {:>49.2f} {:5<}".format(args[0]+":", measurement, "watts"))
+
+
     if args[0] == "Baseline wattage":
         measurement = args[1]
-        sys.stdout.write("\r{:<17} {:>56.2f} {:5<}".format(args[0]+":", measurement, "watts"))
+        sys.stdout.write("\r{:<24} {:>49.2f} {:5<}".format(args[0]+":", measurement, "watts"))
 
     elif args[0] == "Process wattage":
         measurement = args[1]
         sys.stdout.write("\r{:<17} {:>56.2f} {:5<}".format(args[0]+":", measurement, "watts"))
 
     elif args[0] == "Final Readings":
-        sys.stdout.write("\n")
+        newline()
         baseline_average, process_average, timedelta = args[1], args[2], args[3]
         delete_last_lines()
         log_header(args[0])
@@ -158,6 +278,7 @@ def log(*args):
         sys.stdout.write("{:<14} {:>65}\n".format("Natural gas:", ".0885960 kg CO2/kwh"))
 
 
+
 """ MISC UTILS """
 
 def get_data(file):
@@ -166,5 +287,10 @@ def get_data(file):
             data = json.load(f)
     return data
 
-def valid_system():
+def valid_cpu():
     return os.path.exists(BASE) and bool(os.listdir(BASE))
+
+def valid_gpu():
+    # checks that there is a valid gpu: either integrated graphics
+    # or nvidia
+    return True

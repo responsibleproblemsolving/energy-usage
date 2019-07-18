@@ -25,38 +25,56 @@ def energy(user_func, *args):
         func (function): user's function
 
     """
+    # this should give us a list of the files needed
+    # but how to know which one is which???
+    # if single cpu: [core(cpu), uncore(gpu), DRAM ]
+    # if multiple cpus: [cpu1, cpu2, .. , cpun , dram]
+    #print(utils.get_files())
+    #packages = utils.get_packages()
+    # print(packages) ---> ['/sys/class/powercap/intel-rapl:0/energy_uj']
 
-    packages = utils.get_num_packages()
+    # If multiple CPUs, there's no Core/Uncore differentiation, so just get
+    # energy data from each of the processors and then the RAM
+
+    baseline_checks = 50
+    files = utils.get_files()
+    packages = utils.get_packages()
     # Get baseline wattage reading (FOR WHAT? PKG for now, DELAY? default .1 second)
 
+    # GPU handling if Nvidia
     is_nvidia_gpu = True
     try:
-        bash_command = "nvidia-smi"
-        output = subprocess.check_output(['bash','-c', bash_command])
-    except: 
-        is_nvidia_gpu =False
+        bash_command = "nvidia-smi > /dev/null 2>&1"
+        output = subprocess.check_call(['bash','-c', bash_command])
+    except:
+        is_nvidia_gpu = False
 
     bash_command = "nvidia-smi --query-gpu=,power.draw --format=csv,noheader,nounits"
 
     gpu_baseline_watts =[]
     baseline_watts = []
-    for i in range(50):
 
+    for i in range(baseline_checks):
         if is_nvidia_gpu:
             output = subprocess.check_output(['bash','-c', bash_command])
             output = float(output.decode("utf-8")[:-1])
             gpu_baseline_watts.append(output)
-            
 
-        measurement = utils.measure_packages(packages, DELAY) / DELAY # dividing by delay to give per second reading
-        # LOGGING
-        measurement += gpu_baseline_watts[-1]
-        utils.log("Baseline wattage", measurement)
-        baseline_watts.append(measurement)
+        measurement = utils.measure_files(files, DELAY)
+
+        for file in measurement:
+
+            if file.name == "Package":
+                package = file.recent
+
+        utils.log("Baseline wattage", package)
+        baseline_watts.append(package)
+
     utils.newline()
-    baseline_average = statistics.mean(baseline_watts)
 
-    
+
+
+    measurement_breakdown = []
 
 
     # Running the process and measuring wattage
@@ -64,7 +82,7 @@ def energy(user_func, *args):
     p = Process(target = func, args = (user_func, q, *args,))
     process_watts = []
     gpu_watts =[]
-    
+
     start = timer()
     p.start()
     while(p.is_alive()):
@@ -72,22 +90,23 @@ def energy(user_func, *args):
             output = subprocess.check_output(['bash','-c', bash_command])
             output = float(output.decode("utf-8")[:-1])
             gpu_watts.append(output)
-        
+
         measurement = utils.measure_packages(packages, DELAY) / DELAY
-        if measurement > 0 or output: # In case file reaches the end
-            measurement += gpu_watts[-1]
+        if measurement > 0: # In case file reaches the end
             utils.log("Process wattage", measurement)
             process_watts.append(measurement)
-        
+
 
     end = timer()
     time = end-start # seconds
+    measurement.average()
     process_average = statistics.mean(process_watts)
     timedelta = str(datetime.timedelta(seconds=time)).split('.')[0]
 
     # Subtracting baseline wattage to get more accurate result
     process_kwh = convert.to_kwh((process_average - baseline_average)*time, time)
 
+    # Getting the return value of the user's function
     return_value = q.get()
 
     # Logging
@@ -181,7 +200,7 @@ def evaluate(user_func, *args):
             func: user inputtted function
     """
 
-    if (utils.valid_system() or True):
+    if (utils.valid_cpu()):
         location = locate.get()
         result, return_value = energy(user_func, *args)
         breakdown = energy_mix(location)
@@ -189,5 +208,6 @@ def evaluate(user_func, *args):
         utils.log("Assumed Carbon Equivalencies")
         return return_value
     else:
-        raise OSError("The energy-usage package only works on Linux kernels"
-        "that support the RAPL interface. Please try again on a different machine.")
+        raise OSError("The energy-usage package only works on Linux kernels "
+        "with Intel processors that support the RAPL interface. Please try again"
+        " on a different machine.")
