@@ -25,21 +25,9 @@ def energy(user_func, *args):
         func (function): user's function
 
     """
-    # this should give us a list of the files needed
-    # but how to know which one is which???
-    # if single cpu: [core(cpu), uncore(gpu), DRAM ]
-    # if multiple cpus: [cpu1, cpu2, .. , cpun , dram]
-    #print(utils.get_files())
-    #packages = utils.get_packages()
-    # print(packages) ---> ['/sys/class/powercap/intel-rapl:0/energy_uj']
-
-    # If multiple CPUs, there's no Core/Uncore differentiation, so just get
-    # energy data from each of the processors and then the RAM
 
     baseline_checks = 50
     files = utils.get_files()
-    #packages = utils.get_packages()
-    # Get baseline wattage reading (FOR WHAT? PKG for now, DELAY? default .1 second)
 
     # GPU handling if Nvidia
     is_nvidia_gpu = True
@@ -63,15 +51,11 @@ def energy(user_func, *args):
         files = utils.measure_files(files, DELAY)
         files = utils.update_baseline(files)
         for file in files:
-
             if file.name == "Package":
                 package = file.recent
         if package >=0:
             utils.log("Baseline wattage", package)
-
-
     utils.newline()
-    measurement_breakdown = []
 
 
     # Running the process and measuring wattage
@@ -102,7 +86,6 @@ def energy(user_func, *args):
     timedelta = str(datetime.timedelta(seconds=time)).split('.')[0]
 
     for file in files:
-
         if file.name == "Package":
             package = file
     # Subtracting baseline wattage to get more accurate result
@@ -111,7 +94,6 @@ def energy(user_func, *args):
     # Getting the return value of the user's function
     return_value = q.get()
 
-    # Logging
     utils.log("Final Readings", package.baseline_average, package.process_average, timedelta)
     return (process_kwh, return_value)
 

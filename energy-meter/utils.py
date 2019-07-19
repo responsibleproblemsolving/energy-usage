@@ -9,8 +9,8 @@ import statistics
 
 import convert
 import locate
+import report
 from RAPLFile import RAPLFile
-
 
 
 # TO DO: Function to convert seconds into more reasonable time
@@ -24,13 +24,8 @@ BASE = "/sys/class/powercap/"
 PKG = "/sys/class/powercap/intel-rapl:0/energy_uj"
 CORE = "/sys/class/powercap/intel-rapl:0:0/energy_uj"
 UNCORE = "/sys/class/powercap/intel-rapl:0:1/energy_uj"
-
 DRAM = "/sys/class/powercap/intel-rapl:1:0/energy_uj"# if has_multiple_cpus() \
     #else "/sys/class/powercap/intel-rapl:0:2/energy_uj"
-
-
-## MULTIPLE processors
-# DRAM = "/sys/class/powercap/intel-rapl:1:0/energy_uj"
 
 DELAY = .1 # in seconds
 DIR_PATH = os.path.dirname(os.path.realpath(__file__))
@@ -66,7 +61,7 @@ def update_process(raplfiles):
     for file in raplfiles:
         if file.recent >= 0:
             file.process.append(file.recent)
-            
+
     return raplfiles
 
 def update_baseline(raplfiles):
@@ -75,7 +70,7 @@ def update_baseline(raplfiles):
             file.baseline.append(file.recent)
     return raplfiles
 
-### CHECK NEGATIVE VALUES
+
 def start(raplfile):
     measurement = read(raplfile.path)
     raplfile.recent = measurement
@@ -100,41 +95,13 @@ def measure_files(files, delay = 1, process = False):
 
     files = list(map(start, files))
     time.sleep(delay)
+    # need lambda to pass in delay
     files = list(map(lambda x: end(x, delay), files))
     return files
 
-    '''
-    for k,v in files.items():
-        files[k][2] = read(files[k][0])
-    time.sleep(delay)
-    for k,v in files.items():
-        files[k][2] = read(files[k][0]) - files[k][2]
-        files[k][1] += files[k][2]
-
-    return files
-'''
-#deprecated
-def measure_packages(packages, delay):
-    start = list(map(read, packages))
-    time.sleep(delay)
-    end = list(map(read, packages))
-    measurement = sum(map(round_up,(map(operator.sub, end, start))))
-    return measurement
-
-# kinda deprecated
-def measure_all(delay=1):
-    """ Measures the energy output of all files in a single processor setup """
-
-    files = [PKG, CORE, UNCORE, DRAM]
-    start = list(map(read, files))
-    time.sleep(delay)
-    end = list(map(read,files))
-    # Calculates end - start for each file, then rounds result
-    measurement = map(round_up,(map(operator.sub, end, start)))
-
-    return measurement
 
 def reformat(name):
+    """ Renames the RAPL files for better readability/understanding """
     if 'package' in name:
         if has_multiple_cpus():
             name = "CPU" + name[-1] # renaming it to CPU-x
@@ -146,12 +113,11 @@ def reformat(name):
         name = "GPU"
     elif name == 'dram':
         name = name.upper()
-
     return name
 
 
 def get_files():
-    """ Gets all the intel-rapl files with their names
+    """ Gets all the RAPL files with their names on the machine
 
         Returns:
             filenames (list): list of RAPLFiles
@@ -169,30 +135,11 @@ def get_files():
 
     filenames = []
     for name, path in names.items():
-
         name = RAPLFile(name, path)
         filenames.append(name)
 
     return filenames
 
-
-
-def get_packages():
-    # this should give us a list of the files needed
-    # if single cpu: [core(cpu), uncore(gpu), DRAM ]
-    # if multiple cpus: [cpu1, cpu2, .. , cpun , dram]
-
-    num = 0
-    files = []
-    while True:
-        file = BASE + "intel-rapl:" + str(num) +"/energy_uj"
-        try:
-            read(file)
-            num+=1
-            files.append(file)
-        except:
-            break
-    return files
 
 
 def has_multiple_cpus():
@@ -228,11 +175,9 @@ def newline():
     sys.stdout.write('\n')
 
 def log(*args):
-    # use regex here
     if (re.search("Package|CPU.*|GPU|DRAM", args[0])):
         measurement = args[1]
         sys.stdout.write("\r{:<24} {:>49.2f} {:5<}".format(args[0]+":", measurement, "watts"))
-
 
     if args[0] == "Baseline wattage":
         measurement = args[1]
