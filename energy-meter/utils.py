@@ -56,9 +56,10 @@ def measure(file, delay=1):
 
     return end-start
 def get_process_average(raplfiles, multiple_cpus):
+    total = 0
     if multiple_cpus:
         for file in raplfiles:
-            if file.name.contains("CPU"):
+            if "CPU" in file.name:
                 total+= file.process_average
         return total
     else:
@@ -67,9 +68,10 @@ def get_process_average(raplfiles, multiple_cpus):
                 return file.process_average
     return -1
 def get_baseline_average(raplfiles, multiple_cpus):
+    total = 0
     if multiple_cpus:
         for file in raplfiles:
-            if file.name.contains("CPU"):
+            if "CPU" in file.name:
                 total+= file.baseline_average
         return total
     else:
@@ -82,7 +84,7 @@ def get_total(raplfiles, multiple_cpus):
     total = 0
     if multiple_cpus:
         for file in raplfiles:
-            if file.name.contains("CPU"):
+            if "CPU" in file.name:
                 total+= file.recent
         return total
     else:
@@ -133,7 +135,7 @@ def measure_files(files, delay = 1):
     return files
 
 
-def reformat(name):
+def reformat(name, multiple_cpus):
     """ Renames the RAPL files for better readability/understanding """
     if 'package' in name:
         if multiple_cpus:
@@ -161,8 +163,9 @@ def get_files():
     cpu_count = 0
     multiple_cpus = False
     for file in files:
-        if (re.search("intel-rapl:.", file)):
+        if (re.fullmatch("intel-rapl:.", file)):
             cpu_count += 1
+            
     if cpu_count > 1:
         multiple_cpus = True
 

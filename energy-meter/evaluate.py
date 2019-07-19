@@ -72,6 +72,7 @@ def energy(user_func, *args):
 
         files = utils.measure_files(files, DELAY)
         files = utils.update_files(files, True)
+        
         package = utils.get_total(files, multiple_cpus)
         if package >=0:
             utils.log("Process wattage", package)

@@ -7,7 +7,7 @@ def to_joules(ujoules):
 
     return ujoules*10**(-6)
 
-def to_kwh(joules, seconds):
+def to_kwh(joules):
     """ Converts from watts used in a timeframe (in seconds) to kwh """
 
     watt_hours = joules / 3600
