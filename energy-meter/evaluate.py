@@ -36,50 +36,44 @@ def energy(user_func, *args):
     # If multiple CPUs, there's no Core/Uncore differentiation, so just get
     # energy data from each of the processors and then the RAM
 
-    baseline_checks = 50
-    files = utils.get_files()
+    baseline_checks_in_seconds = 5
+    files, multiple_cpus = utils.get_files()
+
     #packages = utils.get_packages()
     # Get baseline wattage reading (FOR WHAT? PKG for now, DELAY? default .1 second)
 
     # GPU handling if Nvidia
     is_nvidia_gpu = True
     try:
-        bash_command = "nvidia-smi > /dev/null 2>&1"
+        bash_command = "nvidia-smi > /dev/null 2>&1" #we must pipe to ignore error message
         output = subprocess.check_call(['bash','-c', bash_command])
         if "GPU" not in files:
             files.append(RAPLFile("GPU", ""))
+        bash_command = "nvidia-smi --query-gpu=,power.draw --format=csv,noheader,nounits"
 
     except:
         is_nvidia_gpu = False
 
-    bash_command = "nvidia-smi --query-gpu=,power.draw --format=csv,noheader,nounits"
 
-    for i in range(baseline_checks):
+
+    for i in range(int(baseline_checks_in_seconds / DELAY)):
         if is_nvidia_gpu:
             output = subprocess.check_output(['bash','-c', bash_command])
             output = float(output.decode("utf-8")[:-1])
 
-
         files = utils.measure_files(files, DELAY)
-        files = utils.update_baseline(files)
-        for file in files:
-
-            if file.name == "Package":
-                package = file.recent
+        files = utils.update_files(files)
+        package = utils.get_total(files, multiple_cpus)
         if package >=0:
             utils.log("Baseline wattage", package)
-
 
     utils.newline()
     measurement_breakdown = []
 
-
     # Running the process and measuring wattage
     q = Queue()
     p = Process(target = func, args = (user_func, q, *args,))
-    process_watts = []
-    gpu_watts =[]
-    num_measurements = 0
+
     start = timer()
     p.start()
     while(p.is_alive()):
@@ -89,10 +83,8 @@ def energy(user_func, *args):
             gpu_watts.append(output)
 
         files = utils.measure_files(files, DELAY)
-        files = utils.update_process(files)
-        for file in files:
-            if file.name == "Package":
-                package = file.recent
+        files = utils.update_files(files, True)
+        package = utils.get_total(files, multiple_cpus)
         if package >=0:
             utils.log("Process wattage", package)
     end = timer()
@@ -101,18 +93,16 @@ def energy(user_func, *args):
     #process_average = statistics.mean(process_watts)
     timedelta = str(datetime.timedelta(seconds=time)).split('.')[0]
 
-    for file in files:
-
-        if file.name == "Package":
-            package = file
+    process_average = utils.get_process_average(files, multiple_cpus)
+    baseline_average = utils.get_baseline_average(files, multiple_cpus)
     # Subtracting baseline wattage to get more accurate result
-    process_kwh = convert.to_kwh((package.process_average - package.baseline_average)*time, time)
+    process_kwh = convert.to_kwh((process_average - baseline_average)*time, time)
 
     # Getting the return value of the user's function
     return_value = q.get()
 
     # Logging
-    utils.log("Final Readings", package.baseline_average, package.process_average, timedelta)
+    utils.log("Final Readings", baseline_average, process_average, timedelta)
     return (process_kwh, return_value)
 
 
