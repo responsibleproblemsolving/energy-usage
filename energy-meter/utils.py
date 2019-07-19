@@ -56,19 +56,53 @@ def measure(file, delay=1):
     end = read(file)
 
     return end-start
+def get_process_average(raplfiles, multiple_cpus):
+    if multiple_cpus:
+        for file in raplfiles:
+            if file.name.contains("CPU"):
+                total+= file.process_average
+        return total
+    else:
+        for file in raplfiles:
+            if file.name == "Package":
+                return file.process_average
+    return -1
+def get_baseline_average(raplfiles, multiple_cpus):
+    if multiple_cpus:
+        for file in raplfiles:
+            if file.name.contains("CPU"):
+                total+= file.baseline_average
+        return total
+    else:
+        for file in raplfiles:
+            if file.name == "Package":
+                return file.baseline_average
+    return -1
 
-def update_process(raplfiles):
-    for file in raplfiles:
-        if file.recent >= 0:
-            file.process.append(file.recent)
+def get_total(raplfiles, multiple_cpus):
+    total = 0
+    if multiple_cpus:
+        for file in raplfiles:
+            if file.name.contains("CPU"):
+                total+= file.recent
+        return total
+    else:
+        for file in raplfiles:
+            if file.name == "Package":
+                return file.recent
+    return -1
 
+def update_files(raplfiles, process = False):
+    if process:
+        for file in raplfiles:
+            if file.recent >= 0:
+                file.process.append(file.recent)
+    else:
+        for file in raplfiles:
+            if file.recent >= 0:
+                file.baseline.append(file.recent)
     return raplfiles
 
-def update_baseline(raplfiles):
-    for file in raplfiles:
-        if file.recent >= 0:
-            file.baseline.append(file.recent)
-    return raplfiles
 
 
 def start(raplfile):
@@ -82,7 +116,7 @@ def end(raplfile, delay):
     return raplfile
 
 
-def measure_files(files, delay = 1, process = False):
+def measure_files(files, delay = 1):
     """ Measures the energy output of all packages which should give total power usage
 
     Parameters:
@@ -103,7 +137,7 @@ def measure_files(files, delay = 1, process = False):
 def reformat(name):
     """ Renames the RAPL files for better readability/understanding """
     if 'package' in name:
-        if has_multiple_cpus():
+        if multiple_cpus:
             name = "CPU" + name[-1] # renaming it to CPU-x
         else:
             name = "Package"
@@ -125,12 +159,12 @@ def get_files():
     # Removing the intel-rapl folder that has no info
     files = list(filter(lambda x: ':' in x, os.listdir(BASE)))
     names = {}
-
+    multiple_cpus = has_multiple_cpus()
     for file in files:
         path = BASE + '/' + file + '/name'
         with open(path) as f:
            name = f.read()[:-1]
-           renamed = reformat(name)
+           renamed = reformat(name, multiple_cpus)
         names[renamed] = BASE + file + '/energy_uj'
 
     filenames = []
@@ -138,7 +172,7 @@ def get_files():
         name = RAPLFile(name, path)
         filenames.append(name)
 
-    return filenames
+    return filenames, multiple_cpus
 
 
 
