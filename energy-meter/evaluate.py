@@ -25,16 +25,6 @@ def energy(user_func, *args):
         func (function): user's function
 
     """
-    # this should give us a list of the files needed
-    # but how to know which one is which???
-    # if single cpu: [core(cpu), uncore(gpu), DRAM ]
-    # if multiple cpus: [cpu1, cpu2, .. , cpun , dram]
-    #print(utils.get_files())
-    #packages = utils.get_packages()
-    # print(packages) ---> ['/sys/class/powercap/intel-rapl:0/energy_uj']
-
-    # If multiple CPUs, there's no Core/Uncore differentiation, so just get
-    # energy data from each of the processors and then the RAM
 
     baseline_checks_in_seconds = 2
     files, multiple_cpus = utils.get_files()
@@ -66,9 +56,7 @@ def energy(user_func, *args):
         package = utils.get_total(files, multiple_cpus)
         if package >=0:
             utils.log("Baseline wattage", package)
-
     utils.newline()
-    measurement_breakdown = []
 
     # Running the process and measuring wattage
     q = Queue()
