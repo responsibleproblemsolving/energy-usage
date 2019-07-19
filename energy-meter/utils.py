@@ -158,7 +158,14 @@ def get_files():
     # Removing the intel-rapl folder that has no info
     files = list(filter(lambda x: ':' in x, os.listdir(BASE)))
     names = {}
-    multiple_cpus = has_multiple_cpus()
+    cpu_count = 0
+    multiple_cpus = False
+    for file in files:
+        if (re.search("intel-rapl:.", file)):
+            cpu_count += 1
+    if cpu_count > 1:
+        multiple_cpus = True
+
     for file in files:
         path = BASE + '/' + file + '/name'
         with open(path) as f:
@@ -176,6 +183,7 @@ def get_files():
 
 
 def has_multiple_cpus():
+
     packages = get_packages()
     return len(packages) > 1
 
