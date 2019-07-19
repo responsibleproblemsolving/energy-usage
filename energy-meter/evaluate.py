@@ -36,7 +36,7 @@ def energy(user_func, *args):
     # If multiple CPUs, there's no Core/Uncore differentiation, so just get
     # energy data from each of the processors and then the RAM
 
-    baseline_checks_in_seconds = 5
+    baseline_checks_in_seconds = 2
     files, multiple_cpus = utils.get_files()
 
     #packages = utils.get_packages()
@@ -88,15 +88,20 @@ def energy(user_func, *args):
         if package >=0:
             utils.log("Process wattage", package)
     end = timer()
+    for file in files:
+        file.process = file.process[1:-1]
+        file.baseline = file.baseline[1:-1]
     time = end-start # seconds
+
     files = utils.average_files(files)
     #process_average = statistics.mean(process_watts)
     timedelta = str(datetime.timedelta(seconds=time)).split('.')[0]
 
+
     process_average = utils.get_process_average(files, multiple_cpus)
     baseline_average = utils.get_baseline_average(files, multiple_cpus)
     # Subtracting baseline wattage to get more accurate result
-    process_kwh = convert.to_kwh((process_average - baseline_average)*time, time)
+    process_kwh = convert.to_kwh((process_average - baseline_average)*time)
 
     # Getting the return value of the user's function
     return_value = q.get()
@@ -198,7 +203,7 @@ def evaluate(user_func, *args):
         breakdown = energy_mix(location)
         emission = emissions(result, breakdown, location)
         utils.log("Assumed Carbon Equivalencies")
-        return return_value
+        return result, return_value
     else:
         raise OSError("The energy-usage package only works on Linux kernels "
         "with Intel processors that support the RAPL interface. Please try again"

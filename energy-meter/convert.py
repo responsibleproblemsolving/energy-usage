@@ -1,4 +1,4 @@
-""" UNIT OF MEASUREMENT CONVERSIONS """ 
+""" UNIT OF MEASUREMENT CONVERSIONS """
 
 # TO DO: Added formulas in a comment - refactor code to make it direct conversion?
 
@@ -7,11 +7,11 @@ def to_joules(ujoules):
 
     return ujoules*10**(-6)
 
-def to_kwh(watts, seconds):
+def to_kwh(watts):
     """ Converts from watts used in a timeframe (in seconds) to kwh """
 
-    hours = seconds / 3600
-    return watts * hours / 1000
+    watt_hours = watts / 3600
+    return watt_hours / 1000
 
 def to_Mwh(kwh):
     """ Converts from kilowatt-hours to megawatt-hours """
@@ -23,18 +23,18 @@ def kwh_to_mmbtu(kwh):
 def coal_to_carbon(kwh):
     '''
     Coal: 21.11 mmbtu/metric ton coal × 26.05 kg C/mmbtu
-     × 44 kg CO2/12 kg C × 90.89 metric tons coal/railcar 
+     × 44 kg CO2/12 kg C × 90.89 metric tons coal/railcar
      × 1 metric ton/1,000 kg = 183.29 metric tons CO2/railcar
 
     Source: EPA
     '''
-    
+
     return (44/12) * ((kwh_to_mmbtu(kwh) / 21.11) * 26.05)
 
 def natural_gas_to_carbon(kwh):
     '''
-    Natural gas: 0.1 mmbtu/1 therm × 14.46 kg C/mmbtu 
-    × 44 kg CO2/12 kg C × 1 metric ton/1,000 kg 
+    Natural gas: 0.1 mmbtu/1 therm × 14.46 kg C/mmbtu
+    × 44 kg CO2/12 kg C × 1 metric ton/1,000 kg
     = 0.0053 metric tons CO2/therm
 
     Source: EPA
@@ -61,10 +61,10 @@ def lbs_to_kgs(lbs):
 
 def carbon_to_miles(kg_carbon):
     '''
-    8.89 × 10-3 metric tons CO2/gallon gasoline × 
+    8.89 × 10-3 metric tons CO2/gallon gasoline ×
     1/22.0 miles per gallon car/truck average ×
     1 CO2, CH4, and N2O/0.988 CO2 = 4.09 x 10-4 metric tons CO2E/mile
-    
+
     Source: EPA
     '''
 
@@ -72,9 +72,9 @@ def carbon_to_miles(kg_carbon):
 
 def carbon_to_home(kg_carbon):
     '''
-    Total CO2 emissions for energy use per home: 5.734 metric tons CO2 for electricity 
+    Total CO2 emissions for energy use per home: 5.734 metric tons CO2 for electricity
     + 2.06 metric tons CO2 for natural gas + 0.26 metric tons CO2 for liquid petroleum gas
-     + 0.30 metric tons CO2 for fuel oil  = 8.35 metric tons CO2 per home per year / 52 weeks 
+     + 0.30 metric tons CO2 for fuel oil  = 8.35 metric tons CO2 per home per year / 52 weeks
      = 160.58 kg CO2/week on average
 
     Source: EPA

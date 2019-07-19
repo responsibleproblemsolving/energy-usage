@@ -335,6 +335,14 @@ def valid_cpu():
     return os.path.exists(BASE) and bool(os.listdir(BASE))
 
 def valid_gpu():
+
     # checks that there is a valid gpu: either integrated graphics
     # or nvidia
-    return True
+
+    try:
+        bash_command = "nvidia-smi > /dev/null 2>&1" #we must pipe to ignore error message
+        output = subprocess.check_call(['bash','-c', bash_command])
+        return True
+
+    except:
+        return False
