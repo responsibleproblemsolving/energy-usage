@@ -9,7 +9,6 @@ import statistics
 
 import convert
 import locate
-import report
 from RAPLFile import RAPLFile
 
 
