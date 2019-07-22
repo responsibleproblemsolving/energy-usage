@@ -37,6 +37,5 @@ def get():
     print("Location: {:>70}".format(location))
     return location
 
-
 def in_US(location):
     return (location in STATES or location == "United States")

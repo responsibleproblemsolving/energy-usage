@@ -7,28 +7,16 @@ import os
 import re
 import statistics
 
-import convert
-import locate
-from RAPLFile import RAPLFile
+import energy_usage.convert as convert
+import energy_usage.locate as locate
+from energy_usage.RAPLFile import RAPLFile
 
 
 # TO DO: Function to convert seconds into more reasonable time
 # TO DO: Having something to relate to
-
-# MSR_*FILE*_ENERGY_STATUS
-# Total amount of energy consumed since that last time this register was
-# cleared
 BASE = "/sys/class/powercap/"
-
-PKG = "/sys/class/powercap/intel-rapl:0/energy_uj"
-CORE = "/sys/class/powercap/intel-rapl:0:0/energy_uj"
-UNCORE = "/sys/class/powercap/intel-rapl:0:1/energy_uj"
-DRAM = "/sys/class/powercap/intel-rapl:1:0/energy_uj"# if has_multiple_cpus() \
-    #else "/sys/class/powercap/intel-rapl:0:2/energy_uj"
-
 DELAY = .1 # in seconds
 DIR_PATH = os.path.dirname(os.path.realpath(__file__))
-
 
 """ MEASUREMENT UTILS """
 
@@ -55,6 +43,7 @@ def measure(file, delay=1):
     end = read(file)
 
     return end-start
+
 def get_process_average(raplfiles, multiple_cpus):
     total = 0
     if multiple_cpus:
@@ -67,6 +56,7 @@ def get_process_average(raplfiles, multiple_cpus):
             if file.name == "Package":
                 return file.process_average
     return -1
+
 def get_baseline_average(raplfiles, multiple_cpus):
     total = 0
     if multiple_cpus:
@@ -78,7 +68,7 @@ def get_baseline_average(raplfiles, multiple_cpus):
         for file in raplfiles:
             if file.name == "Package":
                 return file.baseline_average
-    return -1
+
 
 def get_total(raplfiles, multiple_cpus):
     total = 0
@@ -91,7 +81,7 @@ def get_total(raplfiles, multiple_cpus):
         for file in raplfiles:
             if file.name == "Package":
                 return file.recent
-    return -1
+
 
 def update_files(raplfiles, process = False):
     if process:
@@ -103,7 +93,6 @@ def update_files(raplfiles, process = False):
             if file.recent >= 0:
                 file.baseline.append(file.recent)
     return raplfiles
-
 
 
 def start(raplfile):
@@ -130,8 +119,7 @@ def measure_files(files, delay = 1):
 
     files = list(map(start, files))
     time.sleep(delay)
-    # need lambda to pass in delay
-    files = list(map(lambda x: end(x, delay), files))
+    files = list(map(lambda x: end(x, delay), files)) # need lambda to pass in delay
     return files
 
 
@@ -165,7 +153,7 @@ def get_files():
     for file in files:
         if (re.fullmatch("intel-rapl:.", file)):
             cpu_count += 1
-            
+
     if cpu_count > 1:
         multiple_cpus = True
 
@@ -182,13 +170,6 @@ def get_files():
         filenames.append(name)
 
     return filenames, multiple_cpus
-
-
-
-def has_multiple_cpus():
-
-    packages = get_packages()
-    return len(packages) > 1
 
 
 # from realpython.com/python-rounding
@@ -277,7 +258,6 @@ def log(*args):
         sys.stdout.write("{:<14} {:>65}\n".format("Natural gas:", ".0885960 kg CO2/kwh"))
 
 
-
 """ MISC UTILS """
 
 def get_data(file):
@@ -290,10 +270,7 @@ def valid_cpu():
     return os.path.exists(BASE) and bool(os.listdir(BASE))
 
 def valid_gpu():
-
-    # checks that there is a valid gpu: either integrated graphics
-    # or nvidia
-
+    """ Checks that there is a valid Nvidia GPU """
     try:
         bash_command = "nvidia-smi > /dev/null 2>&1" #we must pipe to ignore error message
         output = subprocess.check_call(['bash','-c', bash_command])

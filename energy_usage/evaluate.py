@@ -6,17 +6,17 @@ import os
 import datetime
 import subprocess
 
-import utils
-import convert
-import locate
+import energy_usage.utils as utils
+import energy_usage.convert as convert
+import energy_usage.locate as locate
 
 DELAY = .1 # in seconds
 
-
 def func(user_func, q, *args):
+    """ Runs the user's function and gets return value """
+
     value = user_func(*args)
     q.put(value)
-
 
 def energy(user_func, *args):
     """ Evaluates the kwh needed for your code to run
@@ -28,23 +28,8 @@ def energy(user_func, *args):
 
     baseline_checks_in_seconds = 2
     files, multiple_cpus = utils.get_files()
-
-    #packages = utils.get_packages()
-    # Get baseline wattage reading (FOR WHAT? PKG for now, DELAY? default .1 second)
-
     # GPU handling if Nvidia
-    is_nvidia_gpu = True
-    try:
-        bash_command = "nvidia-smi > /dev/null 2>&1" #we must pipe to ignore error message
-        output = subprocess.check_call(['bash','-c', bash_command])
-        if "GPU" not in files:
-            files.append(RAPLFile("GPU", ""))
-        bash_command = "nvidia-smi --query-gpu=,power.draw --format=csv,noheader,nounits"
-
-    except:
-        is_nvidia_gpu = False
-
-
+    is_nvidia_gpu = utils.valid_gpu()
 
     for i in range(int(baseline_checks_in_seconds / DELAY)):
         if is_nvidia_gpu:
@@ -72,7 +57,6 @@ def energy(user_func, *args):
 
         files = utils.measure_files(files, DELAY)
         files = utils.update_files(files, True)
-        
         package = utils.get_total(files, multiple_cpus)
         if package >=0:
             utils.log("Process wattage", package)
@@ -115,7 +99,7 @@ def energy_mix(location):
         if location == "Unknown":
             location = "United States"
 
-        data = utils.get_data("../data/json/energy-mix-us.json")
+        data = utils.get_data("data/json/energy-mix-us.json")
         s = data[location]['mix'] # get state
         coal, oil, gas = s['coal'], s['oil'], s['gas']
         nuclear, hydro, biomass, wind, solar, geo, = \
@@ -128,7 +112,7 @@ def energy_mix(location):
         return breakdown # list of % of each
 
     else:
-        data = utils.get_data('../data/json/energy-mix-intl.json')
+        data = utils.get_data('data/json/energy-mix-intl.json')
         c = data[location] # get country
         total, breakdown =  c['total'], [c['coal'], c['naturalGas'], \
             c['petroleum'], c['lowCarbon']]
@@ -164,7 +148,7 @@ def emissions(process_kwh, breakdown, location):
         if location == "Unknown":
             location = "United States"
         # US Emissions data is in lbs/Mwh
-        data = utils.get_data("../data/json/us-emissions.json")
+        data = utils.get_data("data/json/us-emissions.json")
         emission = convert.lbs_to_kgs(data[location]*convert.to_Mwh(process_kwh))
 
     # Case 3: International location

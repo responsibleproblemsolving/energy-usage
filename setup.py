@@ -3,16 +3,17 @@ from setuptools import setup, find_packages
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
-NAME = "energy-usage"
+NAME = "energy_usage"
 VERSION = "0.0.1"
 
 DESCRIPTION = "Measuring the environmental impact of computation"
 LONG_DESCRIPTION = long_description
 
 URL = "https://github.com/responsibleproblemsolving/energy-usage"
-AUTHOR = "Silvia Susai, Kadan Lottick"
 
-AUTHOR_EMAIL = "<todo>@haverford.edu"
+AUTHOR = "Sorelle Friedler, Kadan Lottick, Silvia Susai"
+AUTHOR_EMAIL = "sorelle@cs.haverford.edu"
+
 LICENSE = "Apache 2.0"
 
 CLASSIFIERS = [
@@ -21,32 +22,30 @@ CLASSIFIERS = [
     "Operating System :: OS Independent",
 ]
 
-PACKAGES = find_packages()
+PACKAGES = ['energy_usage']
+
 PACKAGE_DATA = {
-    'energy.data.csv' : ['*.csv']
-    'energy.data.json' : ['*.json']
+    'energy_usage.data.csv' : ['*.csv'],
+    'energy_usage.data.json' : ['*.json']
 }
 INCLUDE_PACKAGE_DATA = True
+
 PACKAGE_DIR = {
-    'energy.data' : 'energy/data'
+    'energy_usage.data' : 'data'
 }
 
 INSTALL_REQUIRES = [
     'requests'
 ]
 
-
-
-
 setup(
     name= NAME,
     version=VERSION,
     description=DESCRIPTION,
     long_description=LONG_DESCRIPTION,
-    long_description_content_type="text/markdown",
     url=URL,
     author=AUTHOR,
-    author_email=AUTHOR_EMAIL,
+    author_email = AUTHOR_EMAIL,
     license = LICENSE,
     classifiers=CLASSIFIERS,
     packages = PACKAGES,

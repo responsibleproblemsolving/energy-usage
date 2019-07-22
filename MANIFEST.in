@@ -1,0 +1,12 @@
+recursive-include energy_usage *.py *.md *.txt
+
+include requirements*.*
+include README.*
+
+graft energy_usage/data/json
+graft energy_usage/data/csv
+
+recursive-exclude ./dist *.py *.R *.Rmd *.md *.txt
+recursive-exclude ./build *.py *.R *.Rmd *.md *.txt
+
+prune venv

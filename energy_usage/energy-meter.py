@@ -1,3 +1,5 @@
+#import energy_usage.evaluate as evaluate
+from . import evaluate
 import evaluate
 import time
 
