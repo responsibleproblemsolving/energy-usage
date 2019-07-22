@@ -11,9 +11,6 @@ import energy_usage.convert as convert
 import energy_usage.locate as locate
 from energy_usage.RAPLFile import RAPLFile
 
-
-# TO DO: Function to convert seconds into more reasonable time
-# TO DO: Having something to relate to
 BASE = "/sys/class/powercap/"
 DELAY = .1 # in seconds
 DIR_PATH = os.path.dirname(os.path.realpath(__file__))
@@ -55,7 +52,6 @@ def get_process_average(raplfiles, multiple_cpus):
         for file in raplfiles:
             if file.name == "Package":
                 return file.process_average
-    return -1
 
 def get_baseline_average(raplfiles, multiple_cpus):
     total = 0
@@ -68,7 +64,6 @@ def get_baseline_average(raplfiles, multiple_cpus):
         for file in raplfiles:
             if file.name == "Package":
                 return file.baseline_average
-
 
 def get_total(raplfiles, multiple_cpus):
     total = 0
@@ -94,7 +89,6 @@ def update_files(raplfiles, process = False):
                 file.baseline.append(file.recent)
     return raplfiles
 
-
 def start(raplfile):
     measurement = read(raplfile.path)
     raplfile.recent = measurement
@@ -104,7 +98,6 @@ def end(raplfile, delay):
     measurement = read(raplfile.path)
     raplfile.recent = (measurement -raplfile.recent) / delay
     return raplfile
-
 
 def measure_files(files, delay = 1):
     """ Measures the energy output of all packages which should give total power usage
@@ -122,7 +115,6 @@ def measure_files(files, delay = 1):
     files = list(map(lambda x: end(x, delay), files)) # need lambda to pass in delay
     return files
 
-
 def reformat(name, multiple_cpus):
     """ Renames the RAPL files for better readability/understanding """
     if 'package' in name:
@@ -137,7 +129,6 @@ def reformat(name, multiple_cpus):
     elif name == 'dram':
         name = name.upper()
     return name
-
 
 def get_files():
     """ Gets all the RAPL files with their names on the machine
