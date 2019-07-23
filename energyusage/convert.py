@@ -1,7 +1,5 @@
 """ UNIT OF MEASUREMENT CONVERSIONS """
 
-# TO DO: Added formulas in a comment - refactor code to make it direct conversion?
-
 def to_joules(ujoules):
     """ Converts from microjoules to joules """
 

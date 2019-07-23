@@ -6,9 +6,9 @@ import os
 import datetime
 import subprocess
 
-import energy_usage.utils as utils
-import energy_usage.convert as convert
-import energy_usage.locate as locate
+import energyusage.utils as utils
+import energyusage.convert as convert
+import energyusage.locate as locate
 
 DELAY = .1 # in seconds
 
@@ -178,6 +178,6 @@ def evaluate(user_func, *args):
         utils.log("Assumed Carbon Equivalencies")
         return result, return_value
     else:
-        raise OSError("The energy-usage package only works on Linux kernels "
+        utils.log("The energy-usage package only works on Linux kernels "
         "with Intel processors that support the RAPL interface. Please try again"
         " on a different machine.")
