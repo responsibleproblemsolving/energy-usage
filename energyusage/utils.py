@@ -7,9 +7,9 @@ import os
 import re
 import statistics
 
-import energy_usage.convert as convert
-import energy_usage.locate as locate
-from energy_usage.RAPLFile import RAPLFile
+import energyusage.convert as convert
+import energyusage.locate as locate
+from energyusage.RAPLFile import RAPLFile
 
 BASE = "/sys/class/powercap/"
 DELAY = .1 # in seconds
@@ -247,6 +247,9 @@ def log(*args):
         sys.stdout.write("{:<14} {:>65}\n".format("Coal:", ".3248635 kg CO2/kWh"))
         sys.stdout.write("{:<14} {:>65}\n".format("Oil/Petroleum:", ".23 kg CO2/kWh"))
         sys.stdout.write("{:<14} {:>65}\n".format("Natural gas:", ".0885960 kg CO2/kwh"))
+
+    else:
+        sys.stdout.write(args[0])
 
 
 """ MISC UTILS """
