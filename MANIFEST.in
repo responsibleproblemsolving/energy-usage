@@ -3,8 +3,8 @@ recursive-include energyusage *.py *.md *.txt
 include requirements*.*
 include README.*
 
-graft energy_usage/data/json
-graft energy_usage/data/csv
+graft energyusage/data/json
+graft energyusage/data/csv
 
 recursive-exclude ./dist *.py *.R *.Rmd *.md *.txt
 recursive-exclude ./build *.py *.R *.Rmd *.md *.txt
