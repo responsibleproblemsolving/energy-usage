@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
-NAME = "energy_usage"
+NAME = "energyusage"
 VERSION = "0.0.1"
 
 DESCRIPTION = "Measuring the environmental impact of computation"
@@ -22,11 +22,11 @@ CLASSIFIERS = [
     "Operating System :: OS Independent",
 ]
 
-PACKAGES = ['energy_usage']
+PACKAGES = ['energyusage']
 
 PACKAGE_DATA = {
-    'energy_usage.data.csv' : ['*.csv'],
-    'energy_usage.data.json' : ['*.json']
+    'energyusage.data.csv' : ['*.csv'],
+    'energyusage.data.json' : ['*.json']
 }
 INCLUDE_PACKAGE_DATA = True
 
