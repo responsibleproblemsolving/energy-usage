@@ -31,16 +31,19 @@ def energy(user_func, *args):
     # GPU handling if Nvidia
     is_nvidia_gpu = utils.valid_gpu()
 
+    gpu_baseline =[0]
+    gpu_process = [0]
     for i in range(int(baseline_checks_in_seconds / DELAY)):
         if is_nvidia_gpu:
             output = subprocess.check_output(['bash','-c', bash_command])
             output = float(output.decode("utf-8")[:-1])
+            gpu_baseline.append(output)
 
         files = utils.measure_files(files, DELAY)
         files = utils.update_files(files)
-        package = utils.get_total(files, multiple_cpus)
-        if package >=0:
-            utils.log("Baseline wattage", package)
+        last_reading = utils.get_total(files, multiple_cpus) + gpu_baseline[-1]
+        if last_reading >=0:
+            utils.log("Baseline wattage", last_reading)
     utils.newline()
 
     # Running the process and measuring wattage
@@ -53,17 +56,20 @@ def energy(user_func, *args):
         if is_nvidia_gpu:
             output = subprocess.check_output(['bash','-c', bash_command])
             output = float(output.decode("utf-8")[:-1])
-            gpu_watts.append(output)
+            gpu_process.append(output)
 
         files = utils.measure_files(files, DELAY)
         files = utils.update_files(files, True)
-        package = utils.get_total(files, multiple_cpus)
-        if package >=0:
-            utils.log("Process wattage", package)
+        last_reading = utils.get_total(files, multiple_cpus) + gpu_process[-1]
+        if last_reading >=0:
+            utils.log("Process wattage", last_reading)
     end = timer()
     for file in files:
         file.process = file.process[1:-1]
         file.baseline = file.baseline[1:-1]
+    gpu_baseline_average = statistics.mean(gpu_baseline[2:-1])
+    gpu_process_average = statistics.mean(gpu_process[2:-1])
+
     time = end-start # seconds
 
     files = utils.average_files(files)
@@ -71,8 +77,8 @@ def energy(user_func, *args):
     timedelta = str(datetime.timedelta(seconds=time)).split('.')[0]
 
 
-    process_average = utils.get_process_average(files, multiple_cpus)
-    baseline_average = utils.get_baseline_average(files, multiple_cpus)
+    process_average = utils.get_process_average(files, multiple_cpus, gpu_process_average)
+    baseline_average = utils.get_baseline_average(files, multiple_cpus, gpu_baseline_average)
     # Subtracting baseline wattage to get more accurate result
     process_kwh = convert.to_kwh((process_average - baseline_average)*time)
 

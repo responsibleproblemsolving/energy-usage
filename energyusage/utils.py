@@ -41,29 +41,29 @@ def measure(file, delay=1):
 
     return end-start
 
-def get_process_average(raplfiles, multiple_cpus):
+def get_process_average(raplfiles, multiple_cpus, gpu):
     total = 0
     if multiple_cpus:
         for file in raplfiles:
             if "CPU" in file.name:
                 total+= file.process_average
-        return total
+        return total + gpu
     else:
         for file in raplfiles:
             if file.name == "Package":
-                return file.process_average
+                return file.process_average + gpu
 
-def get_baseline_average(raplfiles, multiple_cpus):
+def get_baseline_average(raplfiles, multiple_cpus, gpu):
     total = 0
     if multiple_cpus:
         for file in raplfiles:
             if "CPU" in file.name:
                 total+= file.baseline_average
-        return total
+        return total + gpu
     else:
         for file in raplfiles:
             if file.name == "Package":
-                return file.baseline_average
+                return file.baseline_average + gpu
 
 def get_total(raplfiles, multiple_cpus):
     total = 0

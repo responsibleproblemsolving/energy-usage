@@ -22,7 +22,6 @@ def get():
     """
 
     location = "Unknown"
-    # TEST FOR UNKNOWN LOCATION geo = requests.get("https://get.geojs.io/v1/ip/geo/2.20.135.10.json").json()
     geo = requests.get("https://get.geojs.io/v1/ip/geo.json").json()
     try:
         if geo["country"] == "United States":
