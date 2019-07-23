@@ -11,7 +11,8 @@ To install, simply `pip install energyusage`.
 
 ## Usage
 
-To evaluate the emissions of a function, simply:
+To evaluate the emissions of a function, just call `energyusage.evaluate` with the function
+name and the arguments it requires. 
 
 ```python
 import energyusage
@@ -27,4 +28,4 @@ energyusage.evaluate(power,10,10)
 
 Due to the methods in which the energy measurement is being done (through the Intel RAPL
 interface and NVIDIA-smi), our package is only available on Linux kernels that have the
-RAPL interface and/or machines with an Nvidia GPU. 
+RAPL interface and/or machines with an Nvidia GPU.

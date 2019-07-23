@@ -1,1 +1,3 @@
-name = "energy_usage"
+name = "energyusage"
+
+from .evaluate import evaluate
