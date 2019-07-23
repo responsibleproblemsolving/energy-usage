@@ -30,6 +30,7 @@ def energy(user_func, *args):
     files, multiple_cpus = utils.get_files()
     # GPU handling if Nvidia
     is_nvidia_gpu = utils.valid_gpu()
+    is_valid_cpu = utils.valid_cpu()
 
     gpu_baseline =[0]
     gpu_process = [0]
@@ -38,9 +39,11 @@ def energy(user_func, *args):
             output = subprocess.check_output(['bash','-c', bash_command])
             output = float(output.decode("utf-8")[:-1])
             gpu_baseline.append(output)
-
-        files = utils.measure_files(files, DELAY)
-        files = utils.update_files(files)
+        if is_valid_cpu:
+            files = utils.measure_files(files, DELAY)
+            files = utils.update_files(files)
+        else:
+            time.sleep(DELAY)
         last_reading = utils.get_total(files, multiple_cpus) + gpu_baseline[-1]
         if last_reading >=0:
             utils.log("Baseline wattage", last_reading)
@@ -57,9 +60,11 @@ def energy(user_func, *args):
             output = subprocess.check_output(['bash','-c', bash_command])
             output = float(output.decode("utf-8")[:-1])
             gpu_process.append(output)
-
-        files = utils.measure_files(files, DELAY)
-        files = utils.update_files(files, True)
+        if is_valid_cpu:
+            files = utils.measure_files(files, DELAY)
+            files = utils.update_files(files, True)
+        else:
+            time.sleep(DELAY)
         last_reading = utils.get_total(files, multiple_cpus) + gpu_process[-1]
         if last_reading >=0:
             utils.log("Process wattage", last_reading)
@@ -67,20 +72,24 @@ def energy(user_func, *args):
     for file in files:
         file.process = file.process[1:-1]
         file.baseline = file.baseline[1:-1]
-    gpu_baseline_average = statistics.mean(gpu_baseline[2:-1])
-    gpu_process_average = statistics.mean(gpu_process[2:-1])
+    if is_nvidia_gpu:
+        gpu_baseline_average = statistics.mean(gpu_baseline[2:-1])
+        gpu_process_average = statistics.mean(gpu_process[2:-1])
+    else:
+        gpu_baseline_average = 0
+        gpu_process_average = 0
 
-    time = end-start # seconds
+    total_time = end-start # seconds
 
     files = utils.average_files(files)
     #process_average = statistics.mean(process_watts)
-    timedelta = str(datetime.timedelta(seconds=time)).split('.')[0]
+    timedelta = str(datetime.timedelta(seconds=total_time)).split('.')[0]
 
 
     process_average = utils.get_process_average(files, multiple_cpus, gpu_process_average)
     baseline_average = utils.get_baseline_average(files, multiple_cpus, gpu_baseline_average)
     # Subtracting baseline wattage to get more accurate result
-    process_kwh = convert.to_kwh((process_average - baseline_average)*time)
+    process_kwh = convert.to_kwh((process_average - baseline_average)*total_time)
 
     # Getting the return value of the user's function
     return_value = q.get()
