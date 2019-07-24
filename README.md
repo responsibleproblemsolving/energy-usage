@@ -89,7 +89,6 @@ Since the international data only contained an energy mix, and no emission data,
 	* *Petroleum*: .23 kgCO2/kWh
 
 
-
 ## Limitations
 
 * Due to the methods in which the energy measurement is being done (through the Intel RAPL
