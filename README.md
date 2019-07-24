@@ -1,4 +1,5 @@
 
+
 # energyusage
 
 
@@ -88,11 +89,17 @@ Since the international data only contained an energy mix, and no emission data,
 * volker-quaschning.de:
 	* *Petroleum*: .23 kgCO2/kWh
 
+## Related Work
+* In their paper [*Energy and Policy Considerations for Deep Learning in NLP*](https://arxiv.org/abs/1906.02243), Strubell et. al not only analyze the computational power needed for training deep learning models in NLP, but further convert the data into carbon emissions and cost. Our tool aims to facilitate this analysis for developers in a single package. We do not consider cost, instead choosing to focus solely on the environmental impact. Further, we do not focus on a specific computational area. We also extend their analysis of carbon emissions by including international data on energy consumption and CO<sub>2</sub> emissions for localized analysis of the carbon footprint of the tested program.
 
 ## Limitations
-
 * Due to the methods in which the energy measurement is being done (through the Intel RAPL
 interface and NVIDIA-smi), our package is only available on Linux kernels that have the
 RAPL interface and/or machines with an Nvidia GPU.
 
 *  A country’s overall energy consumption mix is not necessarily representative of the mix of energy sources used to produce electricity (and even electricity production is not necessarily representative of electricity consumption due to imports/exports). However, the E.I.A. data is the most geographically comprehensive that we have found. We are working on obtaining even more accurate data.
+
+
+
+## Acknowledgements
+We would like to thank [Jon Wilson](https://www.haverford.edu/users/jwilson) for all his valuable insight with regards to the environmental aspect of our project.
