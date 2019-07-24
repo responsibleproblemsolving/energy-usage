@@ -12,17 +12,17 @@ To install, simply `pip install energyusage`.
 ## Usage
 
 To evaluate the emissions of a function, just call `energyusage.evaluate` with the function
-name and the arguments it requires. 
+name and the arguments it requires.
 
-```python
-import energyusage
 
-# User defined function to be evaluated
-def power(base, exp):
-  return base**exp
+  import energyusage
 
-energyusage.evaluate(power,10,10)
-```
+  # User defined function to be evaluated
+  def power(base, exp):
+    return base**exp
+
+  energyusage.evaluate(power,10,10)
+
 
 ## Notes
 

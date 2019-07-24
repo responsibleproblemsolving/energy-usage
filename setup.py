@@ -31,7 +31,7 @@ PACKAGE_DATA = {
 INCLUDE_PACKAGE_DATA = True
 
 PACKAGE_DIR = {
-    'energy_usage.data' : 'data'
+    'energyusage.data' : 'data'
 }
 
 INSTALL_REQUIRES = [
