@@ -44,6 +44,7 @@ def energy(user_func, *args):
             files = utils.update_files(files)
         else:
             time.sleep(DELAY)
+        # Adds the most recent value of GPU; 0 if not Nvidia
         last_reading = utils.get_total(files, multiple_cpus) + gpu_baseline[-1]
         if last_reading >=0:
             utils.log("Baseline wattage", last_reading)
@@ -191,7 +192,7 @@ def evaluate(user_func, *args):
         breakdown = energy_mix(location)
         emission = emissions(result, breakdown, location)
         utils.log("Assumed Carbon Equivalencies")
-        return result, return_value
+        return return_value
     else:
         utils.log("The energy-usage package only works on Linux kernels "
         "with Intel processors that support the RAPL interface. Please try again"
