@@ -58,7 +58,7 @@ As outlined by [Vince Weaver](http://web.eece.maine.edu/~vweaver/projects/rapl/)
 
 We elected to use the final method because it is the only one that does not require sudo access.  We read the `energy_uj.txt` files inside the package folder(s) `intel-rapl:*`. These files represent the energy used in microjoules, and they update roughly every millisecond. The value in the file increases to the point of overflow and then resets. We take 2 readings with a delay in-between, and then calculate the wattage based on the difference (energy) and the delay (time). To avoid errors due to the reset of the file, we discard negative values.
 
-For more information on the RAPL interface, consult the [Intel (R) 64 and IA-32 Architectures Software Developer's Manual](https://software.intel.com/sites/default/files/managed/39/c5/325462-sdm-vol-1-2abcd-3abcd.pdf).
+For more information on the RAPL interface, consult the [Intel® 64 and IA-32 Architectures Software Developer's Manual](https://software.intel.com/sites/default/files/managed/39/c5/325462-sdm-vol-1-2abcd-3abcd.pdf).
 
 #### GPU
 To the package measurement we also add the power usage of the GPU for machines that have an Nvidia GPU that support the NVIDIA-smi program.
