@@ -26,7 +26,7 @@ energyusage.evaluate(recursive_fib, 40, pdf=True)
 # returns 102,334,155
 ```
 It will return the value of your function, while also printing out the energy usage report on the command line.
-If the keyword argument `pdf` is set to `True`, then a pdf report will also be generated, alongside the command-line
+If the keyword argument `pdf` is set to `True`, then a PDF report will also be generated, alongside the command-line
 utility.
 
 ### Energy Report
@@ -59,9 +59,9 @@ Equivalent miles driven:                                                1.01e-11
 --------------------------------------------------------------------------------
 ------------------------- Assumed Carbon Equivalencies -------------------------
 --------------------------------------------------------------------------------
-Coal:                                                        .3248635 kg CO2/kwh
-Petroleum:                                                    .23 kg CO2/kwh
-Natural gas:                                                 .0885960 kg CO2/kwh
+Coal:                                                       0.3248635 kg CO2/kwh
+Petroleum:                                                       0.23 kg CO2/kwh
+Natural gas:                                                0.0885960 kg CO2/kwh
 ```
 The report is divided into several sections.
 * **Final Readings**: Presents an average of:
