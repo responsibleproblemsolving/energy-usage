@@ -205,11 +205,12 @@ def log(*args):
 
     elif args[0] == "Final Readings":
         newline()
-        baseline_average, process_average, timedelta = args[1], args[2], args[3]
+        baseline_average, process_average, difference_average, timedelta = args[1], args[2], args[3], args[4]
         delete_last_lines()
         log_header(args[0])
         sys.stdout.write("{:<25} {:>48.2f} {:5<}\n".format("Average baseline wattage:", baseline_average, "watts"))
-        sys.stdout.write("{:<25} {:>48.2f} {:5<}\n".format("Average process wattage:", process_average, "watts"))
+        sys.stdout.write("{:<25} {:>48.2f} {:5<}\n".format("Average total wattage:", process_average, "watts"))
+        sys.stdout.write("{:<25} {:>48.2f} {:5<}\n".format("Average process wattage:", difference_average, "watts"))
         sys.stdout.write("{:<17} {:>62}\n".format("Process duration:", timedelta))
 
     elif args[0] == "Energy Data":
@@ -237,16 +238,16 @@ def log(*args):
         log_header('Emissions')
         sys.stdout.write("{:<19}{:>54.2e} kg CO2\n".format("Effective emission:", \
             emission))
-        sys.stdout.write("{:<37}{:>42.2e}%\n".format("% of CO2 used in a US"
+        sys.stdout.write("{:<45}{:>34.2e}%\n".format("Percentage of CO2 used in a US"
         " household/day:",convert.carbon_to_home(emission)))
         sys.stdout.write("{:<24}{:>56.2e}\n".format("Equivalent miles driven:", \
             convert.carbon_to_miles(emission)))
 
     elif args[0] == "Assumed Carbon Equivalencies":
         log_header('Assumed Carbon Equivalencies')
-        sys.stdout.write("{:<14} {:>65}\n".format("Coal:", ".3248635 kg CO2/kWh"))
-        sys.stdout.write("{:<14} {:>65}\n".format("Oil/Petroleum:", ".23 kg CO2/kWh"))
-        sys.stdout.write("{:<14} {:>65}\n".format("Natural gas:", ".0885960 kg CO2/kwh"))
+        sys.stdout.write("{:<14} {:>65}\n".format("Coal:", "0.3248635 kg CO2/kwh"))
+        sys.stdout.write("{:<14} {:>65}\n".format("Petroleum:", "0.23 kg CO2/kwh"))
+        sys.stdout.write("{:<14} {:>65}\n".format("Natural gas:", "0.0885960 kg CO2/kwh"))
 
     else:
         sys.stdout.write(args[0])

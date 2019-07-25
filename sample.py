@@ -1,11 +1,12 @@
 import energyusage
 
-# User function to be evaluated
-def fib(n):
+# user function to be evaluated
+def recursive_fib(n):
     if (n<=2): return 1
-    else: return fib(n-1) + fib(n-2)
+    else: return recursive_fib(n-1) + recursive_fib(n-2)
 
 def main():
-    energyusage.evaluate(fib,40)
+    energyusage.evaluate(recursive_fib, 35, pdf=True)
+    # returns 102,334,155
 
 if __name__ == '__main__': main()
