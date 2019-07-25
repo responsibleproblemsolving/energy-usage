@@ -238,16 +238,16 @@ def log(*args):
         log_header('Emissions')
         sys.stdout.write("{:<19}{:>54.2e} kg CO2\n".format("Effective emission:", \
             emission))
-        sys.stdout.write("{:<37}{:>42.2e}%\n".format("% of CO2 used in a US"
+        sys.stdout.write("{:<45}{:>34.2e}%\n".format("Percentage of CO2 used in a US"
         " household/day:",convert.carbon_to_home(emission)))
         sys.stdout.write("{:<24}{:>56.2e}\n".format("Equivalent miles driven:", \
             convert.carbon_to_miles(emission)))
 
     elif args[0] == "Assumed Carbon Equivalencies":
         log_header('Assumed Carbon Equivalencies')
-        sys.stdout.write("{:<14} {:>65}\n".format("Coal:", ".3248635 kg CO2/kWh"))
-        sys.stdout.write("{:<14} {:>65}\n".format("Petroleum:", ".23 kg CO2/kWh"))
-        sys.stdout.write("{:<14} {:>65}\n".format("Natural gas:", ".0885960 kg CO2/kwh"))
+        sys.stdout.write("{:<14} {:>65}\n".format("Coal:", "0.3248635 kg CO2/kwh"))
+        sys.stdout.write("{:<14} {:>65}\n".format("Petroleum:", "0.23 kg CO2/kwh"))
+        sys.stdout.write("{:<14} {:>65}\n".format("Natural gas:", "0.0885960 kg CO2/kwh"))
 
     else:
         sys.stdout.write(args[0])

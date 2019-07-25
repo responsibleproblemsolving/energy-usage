@@ -1,8 +1,4 @@
-
-
-
 # energyusage
-
 
 A Python package that measures the environmental impact of computation. Provides a function to
 evaluate the energy usage and related carbon emissions of another function.
@@ -26,11 +22,12 @@ def recursive_fib(n):
     if (n <= 2): return 1
     else: return recursive_fib(n-1) + recursive_fib(n-2)
 
-def main():
-    energyusage.evaluate(recursive_fib, 40)
-    # returns 102,334,155
+energyusage.evaluate(recursive_fib, 40, pdf=True)
+# returns 102,334,155
 ```
 It will return the value of your function, while also printing out the energy usage report on the command line.
+If the keyword argument `pdf` is set to `True`, then a pdf report will also be generated, alongside the command-line
+utility.
 
 ### Energy Report
 The report that will be printed out will look like the one below. The second and third lines will show a real-time reading that disappears once the process has finished evaluating.
@@ -57,13 +54,13 @@ Low Carbon:                                                               42.50%
 -------------------------------    Emissions     -------------------------------
 --------------------------------------------------------------------------------
 Effective emission:                                              2.46e-05 kg CO2
-% of CO2 used in a US household/day:                                   8.09e-12%
+Percentage of CO2 used in a US household/day:                          8.09e-12%
 Equivalent miles driven:                                                1.01e-11
 --------------------------------------------------------------------------------
 ------------------------- Assumed Carbon Equivalencies -------------------------
 --------------------------------------------------------------------------------
-Coal:                                                        .3248635 kg CO2/kWh
-Petroleum:                                                    .23 kg CO2/kWh
+Coal:                                                        .3248635 kg CO2/kwh
+Petroleum:                                                    .23 kg CO2/kwh
 Natural gas:                                                 .0885960 kg CO2/kwh
 ```
 The report is divided into several sections.
@@ -72,10 +69,14 @@ The report is divided into several sections.
 	* *Average total wattage*: your computer's average power usage while the process runs
 	* *Average process usage*: the difference between the baseline and total, highlighting the usage solely from the specific process you evaluated
 	* *Process duration*: how long your program ran for
+
 * **Energy Data**: The energy mix of the location.
+
 * **Emissions**: The effective CO<sub>2</sub> emissions of running the program one time and some real-world equivalents to those emissions.
+
 * **Assumed Carbon Equivalencies**: The formulas used to convert from kWh to CO<sub>2</sub> based on the energy mix of the location (for international locations, see below for more information).
 
+The PDF report contains the same sections, but does not include the process duration.
 
 ## Methodology
 ### Power Measurement

@@ -9,6 +9,7 @@ import subprocess
 import energyusage.utils as utils
 import energyusage.convert as convert
 import energyusage.locate as locate
+import energyusage.report as report
 
 DELAY = .1 # in seconds
 
@@ -24,9 +25,12 @@ def energy(user_func, *args):
     Parameters:
         func (function): user's function
 
+    Returns:
+        (process_kwh, return_value, watt_averages)
+
     """
 
-    baseline_checks_in_seconds = 2
+    baseline_check_seconds = 10
     files, multiple_cpus = utils.get_files()
     # GPU handling if Nvidia
     is_nvidia_gpu = utils.valid_gpu()
@@ -34,7 +38,7 @@ def energy(user_func, *args):
 
     gpu_baseline =[0]
     gpu_process = [0]
-    for i in range(int(baseline_checks_in_seconds / DELAY)):
+    for i in range(int(baseline_check_seconds / DELAY)):
         if is_nvidia_gpu:
             output = subprocess.check_output(['bash','-c', bash_command])
             output = float(output.decode("utf-8")[:-1])
@@ -81,15 +85,15 @@ def energy(user_func, *args):
         gpu_process_average = 0
 
     total_time = end-start # seconds
-
-    files = utils.average_files(files)
-    #process_average = statistics.mean(process_watts)
+    # Formatting the time nicely
     timedelta = str(datetime.timedelta(seconds=total_time)).split('.')[0]
 
-
+    files = utils.average_files(files)
     process_average = utils.get_process_average(files, multiple_cpus, gpu_process_average)
     baseline_average = utils.get_baseline_average(files, multiple_cpus, gpu_baseline_average)
     difference_average = process_average - baseline_average
+    watt_averages = [baseline_average, process_average, difference_average]
+
     # Subtracting baseline wattage to get more accurate result
     process_kwh = convert.to_kwh((process_average - baseline_average)*total_time)
 
@@ -98,7 +102,7 @@ def energy(user_func, *args):
 
     # Logging
     utils.log("Final Readings", baseline_average, process_average, difference_average, timedelta)
-    return (process_kwh, return_value)
+    return (process_kwh, return_value, watt_averages)
 
 
 def energy_mix(location):
@@ -131,8 +135,8 @@ def energy_mix(location):
     else:
         data = utils.get_data('data/json/energy-mix-intl.json')
         c = data[location] # get country
-        total, breakdown =  c['total'], [c['coal'], c['naturalGas'], \
-            c['petroleum'], c['lowCarbon']]
+        total, breakdown =  c['total'], [c['coal'], c['petroleum'], \
+        c['naturalGas'], c['lowCarbon']]
 
         # Get percentages
         breakdown = list(map(lambda x: 100*x/total, breakdown))
@@ -173,27 +177,30 @@ def emissions(process_kwh, breakdown, location):
         # Breaking down energy mix
         coal, natural_gas, petroleum, low_carbon = breakdown
         breakdown = [convert.coal_to_carbon(process_kwh * coal/100),
-                     convert.natural_gas_to_carbon(process_kwh * natural_gas/100),
-                     convert.petroleum_to_carbon(process_kwh * petroleum/100), 0]
+                     convert.petroleum_to_carbon(process_kwh * petroleum/100),
+                     convert.natural_gas_to_carbon(process_kwh * natural_gas/100), 0]
         emission = sum(breakdown)
 
     utils.log("Emissions", emission)
     return emission
 
-def evaluate(user_func, *args):
+def evaluate(user_func, *args, pdf=False):
     """ Calculates effective emissions of the function
 
         Parameters:
             func: user inputtted function
     """
-
     if (utils.valid_cpu()):
         location = locate.get()
-        result, return_value = energy(user_func, *args)
+        result, return_value, watt_averages = energy(user_func, *args)
         breakdown = energy_mix(location)
         emission = emissions(result, breakdown, location)
         utils.log("Assumed Carbon Equivalencies")
+        if pdf:
+            report.generate(location, watt_averages, breakdown, emission)
+            # all data to pdf as well
         return return_value
+
     else:
         utils.log("The energy-usage package only works on Linux kernels "
         "with Intel processors that support the RAPL interface. Please try again"
