@@ -8,6 +8,7 @@ VERSION = "0.0.1"
 
 DESCRIPTION = "Measuring the environmental impact of computation"
 LONG_DESCRIPTION = long_description
+LONG_DESCRIPTION_CONTENT_TYPE = 'text/markdown'
 
 URL = "https://github.com/responsibleproblemsolving/energy-usage"
 
@@ -43,6 +44,7 @@ setup(
     version=VERSION,
     description=DESCRIPTION,
     long_description=LONG_DESCRIPTION,
+    long_description_content_type = LONG_DESCRIPTION_CONTENT_TYPE,
     url=URL,
     author=AUTHOR,
     author_email = AUTHOR_EMAIL,
