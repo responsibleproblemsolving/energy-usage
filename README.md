@@ -1,5 +1,6 @@
 
 
+
 # energyusage
 
 
@@ -18,16 +19,63 @@ To evaluate the emissions of a function, just call `energyusage.evaluate` with t
 name and the arguments it requires.
 
 ```python
-  import energyusage
+import energyusage
 
-  # user defined function to be evaluated
-  def power(base, exp):
-    return base**exp
+# user function to be evaluated
+def recursive_fib(n):
+    if (n <= 2): return 1
+    else: return recursive_fib(n-1) + recursive_fib(n-2)
 
-  energyusage.evaluate(power,10,2)
-  # returns 100
+def main():
+    energyusage.evaluate(recursive_fib, 40)
+    # returns 102,334,155
 ```
 It will return the value of your function, while also printing out the energy usage report on the command line.
+
+### Energy Report
+The report that will be printed out will look like the one below. The second and third lines will show a real-time reading that disappears once the process has finished evaluating.
+```
+Location:                                                           Pennsylvania
+Baseline wattage:                                                     1.58 watts
+Process wattage:                                                     15.95 watts
+--------------------------------------------------------------------------------
+-------------------------------  Final Readings  -------------------------------
+--------------------------------------------------------------------------------
+Average baseline wattage:                                             2.09 watts
+Average total wattage:                                               15.77 watts
+Average process wattage:                                             13.67 watts
+Process duration:                                                        0:00:16
+--------------------------------------------------------------------------------
+-------------------------------   Energy Data    -------------------------------
+--------------------------------------------------------------------------------
+                           Energy mix in Pennsylvania                           
+Coal:                                                                     25.40%
+Oil:                                                                       0.20%
+Natural Gas:                                                              31.60%
+Low Carbon:                                                               42.50%
+--------------------------------------------------------------------------------
+-------------------------------    Emissions     -------------------------------
+--------------------------------------------------------------------------------
+Effective emission:                                              2.46e-05 kg CO2
+% of CO2 used in a US household/day:                                   8.09e-12%
+Equivalent miles driven:                                                1.01e-11
+--------------------------------------------------------------------------------
+------------------------- Assumed Carbon Equivalencies -------------------------
+--------------------------------------------------------------------------------
+Coal:                                                        .3248635 kg CO2/kWh
+Petroleum:                                                    .23 kg CO2/kWh
+Natural gas:                                                 .0885960 kg CO2/kwh
+```
+The report is divided into several sections.
+* **Final Readings**: Presents an average of:
+	* *Average baseline wattage*: your computer's average power usage minus the process, ran for 10 seconds before starting your process
+	* *Average total wattage*: your computer's average power usage while the process runs
+	* *Average process usage*: the difference between the baseline and total, highlighting the usage solely from the specific process you evaluated
+	* *Process duration*: how long your program ran for
+* **Energy Data**: The energy mix of the location.
+* **Emissions**: The effective CO<sub>2</sub> emissions of running the program one time and some real-world equivalents to those emissions.
+* **Assumed Carbon Equivalencies**: The formulas used to convert from kWh to CO<sub>2</sub> based on the energy mix of the location (for international locations, see below for more information).
+
 
 ## Methodology
 ### Power Measurement
@@ -76,10 +124,11 @@ In order to accurately calculate the CO₂ emissions associated with the computa
 Location is especially important as the emissions differ based on the country's (and, in the case of the United States, the state's) energy mix.
 
 #### Energy Mix Information
-We obtained international energy mix data from the [U.S. Energy Information Administration data](https://www.eia.gov/beta/international/data/browser/#/?pa=0000000010000000000000000000000000000000000000000000000000u&c=ruvvvvvfvsujvv1vrvvvvfvvvvvvfvvvou20evvvfvrvvvvvvurs&ct=0&vs=INTL.44-2-AFG-QBTU.A&cy=2016&vo=0&v=H&start=2014&end=2016) for the year 2016. Specifically, we looked at the energy consumption of countries worldwide, broken down by energy source. For the data points labeled *(s)* (meaning that the value is too small for the number of decimal places shown), we approximated those amounts to 0. We also removed the following from consideration: Former Czechoslovakia, Former Serbia and Montenegro, Former U.S.S.R., Former Yugoslavia, Hawaiian Trade Zone, East Germany and West Germany.
+We obtained international energy mix data from the [U.S. Energy Information Administration data](https://www.eia.gov/beta/international/data/browser/#/?pa=0000000010000000000000000000000000000000000000000000000000u&c=ruvvvvvfvsujvv1vrvvvvfvvvvvvfvvvou20evvvfvrvvvvvvurs&ct=0&vs=INTL.44-2-AFG-QBTU.A&cy=2016&vo=0&v=H&start=2014&end=2016) for the year 2016. Specifically, we looked at the energy consumption of countries worldwide, broken down by energy source. For the data points labeled *(s)* (meaning that the value is too small for the number of decimal places shown), we approximated those amounts to 0. No data was available for, and thus we removed from consideration, the following: Former Czechoslovakia, Former Serbia and Montenegro, Former U.S.S.R., Former Yugoslavia, Hawaiian Trade Zone, East Germany and West Germany.
 
 Our United States energy mix and emissions data was obtained from the [U.S. Environmental Protection Agency eGRID data](https://www.epa.gov/sites/production/files/2018-02/egrid2016_summarytables.xlsx) for the year 2016. We used the *State Resource Mix* section for displaying the energy mix, and the *State Output Emission Rates* section for calculating emissions in the United States. We did not use the *otherFossil* data as the values were predominantly 0 (and in cases in which the value was nonzero, it was below 1%).
 
+As of July 2019, the most recent eGRID data was from the year 2016. We elected to use 2016 U.S. E.I.A. data for consistency between the data sources.
 
 #### Conversion to CO<sub>2</sub>
 Since the international data only contained an energy mix, and no emission data, we used formulas from the [Environmental Protection Agency](https://www.epa.gov/energy/greenhouse-gases-equivalencies-calculator-calculations-and-references) and [volker-quaschning.de](https://www.volker-quaschning.de/datserv/CO2-spez/index_e.php) to convert from energy to CO₂ emitted based on which fossil fuel was used.
@@ -98,7 +147,6 @@ interface and NVIDIA-smi), our package is only available on Linux kernels that h
 RAPL interface and/or machines with an Nvidia GPU.
 
 *  A country’s overall energy consumption mix is not necessarily representative of the mix of energy sources used to produce electricity (and even electricity production is not necessarily representative of electricity consumption due to imports/exports). However, the E.I.A. data is the most geographically comprehensive that we have found. We are working on obtaining even more accurate data.
-
 
 
 ## Acknowledgements

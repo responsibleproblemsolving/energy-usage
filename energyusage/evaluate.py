@@ -89,6 +89,7 @@ def energy(user_func, *args):
 
     process_average = utils.get_process_average(files, multiple_cpus, gpu_process_average)
     baseline_average = utils.get_baseline_average(files, multiple_cpus, gpu_baseline_average)
+    difference_average = process_average - baseline_average
     # Subtracting baseline wattage to get more accurate result
     process_kwh = convert.to_kwh((process_average - baseline_average)*total_time)
 
@@ -96,7 +97,7 @@ def energy(user_func, *args):
     return_value = q.get()
 
     # Logging
-    utils.log("Final Readings", baseline_average, process_average, timedelta)
+    utils.log("Final Readings", baseline_average, process_average, difference_average, timedelta)
     return (process_kwh, return_value)
 
 
