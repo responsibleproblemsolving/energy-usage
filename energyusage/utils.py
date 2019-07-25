@@ -238,10 +238,13 @@ def log(*args):
         log_header('Emissions')
         sys.stdout.write("{:<19}{:>54.2e} kg CO2\n".format("Effective emission:", \
             emission))
-        sys.stdout.write("{:<45}{:>34.2e}%\n".format("Percentage of CO2 used in a US"
-        " household/day:",convert.carbon_to_home(emission)))
         sys.stdout.write("{:<24}{:>56.2e}\n".format("Equivalent miles driven:", \
             convert.carbon_to_miles(emission)))
+        sys.stdout.write("{:<45}{:>35.2e}\n".format("Equivalent minutes of 32-inch LCD TV watched:", \
+            convert.carbon_to_tv(emission)))
+        sys.stdout.write("{:<45}{:>34.2e}%\n".format("Percentage of CO2 used in a US"
+        " household/day:",convert.carbon_to_home(emission)))
+
 
     elif args[0] == "Assumed Carbon Equivalencies":
         log_header('Assumed Carbon Equivalencies')

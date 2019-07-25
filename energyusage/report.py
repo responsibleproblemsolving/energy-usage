@@ -118,6 +118,7 @@ def generate(location, watt_averages, breakdown, emission):
     emissions = [['Emission', 'Amount'],
                  ['Effective emission', "{:.2e} kg CO2".format(emission)],
                  ['Equivalent miles driven', "{:.2e} kg CO2".format(convert.carbon_to_miles(emission))],
+                 ['Equivalent minutes of 32-inch LCD TV watched', "{:.2e} kg CO2".format(convert.carbon_to_tv(emission))],
                  ['Percentage of CO2 used in a US household/day', \
                    "{:.2e} kg CO2".format(convert.carbon_to_home(emission))]]
     header("Emissions", spaceAfter=True)

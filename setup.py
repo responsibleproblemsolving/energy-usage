@@ -36,7 +36,8 @@ PACKAGE_DIR = {
 }
 
 INSTALL_REQUIRES = [
-    'requests'
+    'requests',
+    'reportlab'
 ]
 
 setup(
