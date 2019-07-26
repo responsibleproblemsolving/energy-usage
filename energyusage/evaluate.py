@@ -35,13 +35,16 @@ def energy(user_func, *args):
     # GPU handling if Nvidia
     is_nvidia_gpu = utils.valid_gpu()
     is_valid_cpu = utils.valid_cpu()
+    print(is_nvidia_gpu)
 
     gpu_baseline =[0]
     gpu_process = [0]
+    bash_command = "nvidia-smi -i 0 --format=csv,noheader --query-gpu=power.draw"
+
     for i in range(int(baseline_check_seconds / DELAY)):
         if is_nvidia_gpu:
             output = subprocess.check_output(['bash','-c', bash_command])
-            output = float(output.decode("utf-8")[:-1])
+            output = float(output.decode("utf-8")[:-2])
             gpu_baseline.append(output)
         if is_valid_cpu:
             files = utils.measure_files(files, DELAY)
@@ -63,7 +66,7 @@ def energy(user_func, *args):
     while(p.is_alive()):
         if is_nvidia_gpu:
             output = subprocess.check_output(['bash','-c', bash_command])
-            output = float(output.decode("utf-8")[:-1])
+            output = float(output.decode("utf-8")[:-2])
             gpu_process.append(output)
         if is_valid_cpu:
             files = utils.measure_files(files, DELAY)
@@ -89,6 +92,7 @@ def energy(user_func, *args):
     timedelta = str(datetime.timedelta(seconds=total_time)).split('.')[0]
 
     files = utils.average_files(files)
+
     process_average = utils.get_process_average(files, multiple_cpus, gpu_process_average)
     baseline_average = utils.get_baseline_average(files, multiple_cpus, gpu_baseline_average)
     difference_average = process_average - baseline_average
@@ -190,7 +194,7 @@ def evaluate(user_func, *args, pdf=False):
         Parameters:
             func: user inputtted function
     """
-    if (utils.valid_cpu()):
+    if (utils.valid_cpu() or True):
         location = locate.get()
         result, return_value, watt_averages = energy(user_func, *args)
         breakdown = energy_mix(location)

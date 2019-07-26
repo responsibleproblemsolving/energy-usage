@@ -6,6 +6,7 @@ import json
 import os
 import re
 import statistics
+import subprocess
 
 import energyusage.convert as convert
 import energyusage.locate as locate
@@ -44,14 +45,15 @@ def measure(file, delay=1):
 def get_process_average(raplfiles, multiple_cpus, gpu):
     total = 0
     if multiple_cpus:
+
         for file in raplfiles:
             if "CPU" in file.name:
                 total+= file.process_average
-        return total + gpu
     else:
         for file in raplfiles:
             if file.name == "Package":
-                return file.process_average + gpu
+                total+=file.name
+    return total + gpu
 
 def get_baseline_average(raplfiles, multiple_cpus, gpu):
     total = 0
@@ -59,11 +61,11 @@ def get_baseline_average(raplfiles, multiple_cpus, gpu):
         for file in raplfiles:
             if "CPU" in file.name:
                 total+= file.baseline_average
-        return total + gpu
     else:
         for file in raplfiles:
             if file.name == "Package":
-                return file.baseline_average + gpu
+                total+=file.name
+    return total + gpu
 
 def get_total(raplfiles, multiple_cpus):
     total = 0
@@ -71,11 +73,13 @@ def get_total(raplfiles, multiple_cpus):
         for file in raplfiles:
             if "CPU" in file.name:
                 total+= file.recent
-        return total
     else:
         for file in raplfiles:
             if file.name == "Package":
-                return file.recent
+                total =  file.recent
+    if (total):
+        return total
+    return 0
 
 
 def update_files(raplfiles, process = False):
@@ -269,6 +273,8 @@ def valid_cpu():
 
 def valid_gpu():
     """ Checks that there is a valid Nvidia GPU """
+
+    
     try:
         bash_command = "nvidia-smi > /dev/null 2>&1" #we must pipe to ignore error message
         output = subprocess.check_call(['bash','-c', bash_command])
@@ -276,3 +282,4 @@ def valid_gpu():
 
     except:
         return False
+        
