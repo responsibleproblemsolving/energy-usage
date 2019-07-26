@@ -33,13 +33,15 @@ utility.
 The report that will be printed out will look like the one below. The second and third lines will show a real-time reading that disappears once the process has finished evaluating.
 ```
 Location:                                                           Pennsylvania
+Baseline wattage:                                                     1.61 watts
+Process wattage:                                                     17.27 watts
 --------------------------------------------------------------------------------
 -------------------------------  Final Readings  -------------------------------
 --------------------------------------------------------------------------------
-Average baseline wattage:                                             2.15 watts
-Average total wattage:                                               20.66 watts
-Average process wattage:                                             18.51 watts
-Process duration:                                                        0:00:01
+Average baseline wattage:                                             1.75 watts
+Average total wattage:                                               19.18 watts
+Average process wattage:                                             17.42 watts
+Process duration:                                                        0:00:19
 --------------------------------------------------------------------------------
 -------------------------------   Energy Data    -------------------------------
 --------------------------------------------------------------------------------
@@ -51,10 +53,10 @@ Low Carbon:                                                               42.50%
 --------------------------------------------------------------------------------
 -------------------------------    Emissions     -------------------------------
 --------------------------------------------------------------------------------
-Effective emission:                                              3.82e-06 kg CO2
-Equivalent miles driven:                                                1.56e-12
-Equivalent minutes of 32-inch LCD TV watched:                           2.36e-03
-Percentage of CO2 used in a US household/day:                          1.26e-12%
+Effective emission:                                              3.66e-05 kg CO2
+Equivalent miles driven:                                          1.50e-11 miles
+Equivalent minutes of 32-inch LCD TV watched:                   2.27e-02 minutes
+Percentage of CO2 used in a US household/day:                          1.20e-11%
 --------------------------------------------------------------------------------
 ------------------------- Assumed Carbon Equivalencies -------------------------
 --------------------------------------------------------------------------------

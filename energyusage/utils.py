@@ -238,9 +238,9 @@ def log(*args):
         log_header('Emissions')
         sys.stdout.write("{:<19}{:>54.2e} kg CO2\n".format("Effective emission:", \
             emission))
-        sys.stdout.write("{:<24}{:>56.2e}\n".format("Equivalent miles driven:", \
+        sys.stdout.write("{:<24}{:>50.2e} miles\n".format("Equivalent miles driven:", \
             convert.carbon_to_miles(emission)))
-        sys.stdout.write("{:<45}{:>35.2e}\n".format("Equivalent minutes of 32-inch LCD TV watched:", \
+        sys.stdout.write("{:<45}{:>27.2e} minutes\n".format("Equivalent minutes of 32-inch LCD TV watched:", \
             convert.carbon_to_tv(emission)))
         sys.stdout.write("{:<45}{:>34.2e}%\n".format("Percentage of CO2 used in a US"
         " household/day:",convert.carbon_to_home(emission)))

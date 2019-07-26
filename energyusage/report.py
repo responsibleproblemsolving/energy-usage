@@ -8,7 +8,7 @@ from reportlab.lib import colors
 import energyusage.locate as locate
 import energyusage.convert as convert
 
-
+year = "2016"
 equivs = [['Coal', '0.3248635 kg CO2/kwh'],
            ['Petroleum', '0.23 kg CO2/kwh'],
            ['Natural gas', '0.0885960 kg CO2/kwh']]
@@ -104,23 +104,25 @@ def generate(location, watt_averages, breakdown, emission):
                       ['Oil', "{}%".format(oil)],
                       ['Natural gas', "{}%".format(natural_gas)],
                       ['Low carbon', "{}%".format(low_carbon)]]
+        source = "eGRID"
     else:
         coal, petroleum, natural_gas, low_carbon = breakdown
         energy_mix = [['Coal',  "{}%".format(coal)],
                       ['Petroleum', "{}%".format(petroleum)],
                       ['Natural gas', "{}%".format(natural_gas)],
                       ['Low carbon', "{}%".format(low_carbon)]]
+        source = "US EIA"
 
     table(readings)
     header("Energy Data")
-    descriptor("Energy mix in {}".format(location))
+    descriptor("Energy mix in {} based on {} {} data".format(location, year, source))
     table(energy_mix)
     emissions = [['Emission', 'Amount'],
                  ['Effective emission', "{:.2e} kg CO2".format(emission)],
-                 ['Equivalent miles driven', "{:.2e} kg CO2".format(convert.carbon_to_miles(emission))],
-                 ['Equivalent minutes of 32-inch LCD TV watched', "{:.2e} kg CO2".format(convert.carbon_to_tv(emission))],
+                 ['Equivalent miles driven', "{:.2e} miles".format(convert.carbon_to_miles(emission))],
+                 ['Equivalent minutes of 32-inch LCD TV watched', "{:.2e} minutes".format(convert.carbon_to_tv(emission))],
                  ['Percentage of CO2 used in a US household/day', \
-                   "{:.2e} kg CO2".format(convert.carbon_to_home(emission))]]
+                   "{:.2e}%".format(convert.carbon_to_home(emission))]]
     header("Emissions", spaceAfter=True)
     table(emissions)
     header("Assumed Carbon Equivalencies")
