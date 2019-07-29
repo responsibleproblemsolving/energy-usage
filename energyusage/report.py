@@ -5,7 +5,6 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.enums import TA_RIGHT, TA_CENTER
 from reportlab.lib import colors
 
-import energyusage.locate as locate
 import energyusage.convert as convert
 
 year = "2016"
@@ -45,34 +44,46 @@ def subheader(text, style=SubheaderStyle, klass=Paragraph, sep=0.2):
     sh = klass(bold(text), style)
     Elements.append(sh)
 
-def descriptor(text, style=DescriptorStyle, klass=Paragraph, sep=0.05, spaceBefore=True):
+def descriptor(text, style=DescriptorStyle, klass=Paragraph, sep=0.05, spaceBefore=True, spaceAfter = True):
     """ Creates descriptor text for a (sub)section; sp adds space before text """
     s = Spacer(0, 1.5*sep*inch)
     if spaceBefore:
         Elements.append(s)
     d = klass(text, style)
     Elements.append(d)
-    Elements.append(s)
+    if spaceAfter:
+        Elements.append(s)
 
-def table(data, header=True): # argument: data?
+def table(data, header=True):
     no_cols = len(data[0])
     no_rows = len(data)
     col_size = 6.5/no_cols
     t = Table(data,no_cols*[col_size*inch], hAlign='LEFT')
     t.setStyle(TableStyle([('ALIGN', (0,0), (0,-1), "LEFT"),
-                           ('ALIGN', (1,0), (-1,-1), "CENTER"),
-                           ('INNERGRID',(0,0),(-1,-1),0.25, colors.black),
-                           ('BOX', (0,0), (-1,-1), 0.25, colors.black),]))
+                       ('ALIGN', (1,0), (-1,-1), "CENTER"),
+                       ('INNERGRID',(0,0),(-1,-1),0.25, colors.black),
+                       ('BOX', (0,0), (-1,-1), 0.25, colors.black),]))
     if header:
         t.setStyle(TableStyle([('ALIGN',(0,0), (-1,0), "CENTER"),
                                ('FONT', (0,0), (-1,0), "Helvetica-Bold"),
                                ('ALIGN', (0,1), (0, -1), "LEFT"),
                                ('ALIGN', (1,1), (-1, -1), "CENTER"),]))
+
     Elements.append(t)
 
 
+def addendum(data, style=DescriptorStyle, klass=Paragraph, sep=0.05):
+    process_time, process_kwh = data
+    time_text = bold("Process time: ") + str(process_time)
+    kwh_text = bold("Kilowatt hours used: ") + str(process_kwh)
+    s = Spacer(0, sep*inch)
+    a = klass(time_text, style)
+    a2 = klass(kwh_text, style)
+    Elements.append(a), Elements.append(a2)
+    Elements.append(s)
 
-def generate(location, watt_averages, breakdown, emission):
+
+def generate(location, watt_averages, breakdown, emission, state_emission):
     """ Generates pdf report
 
     Parameters:
@@ -90,14 +101,14 @@ def generate(location, watt_averages, breakdown, emission):
 
     title("Energy Usage Report")
     header("Final Readings")
-    # Kadan check this please
-    descriptor("Readings shown are averages of wattage over the time period")
+    descriptor("Readings shown are averages of wattage over the time period", spaceAfter=False)
+    addendum(('00:00:17', 0.45))
     baseline_average, process_average, difference_average = watt_averages
     readings = [['Measurement', 'Wattage'],
                 ['Baseline', "{:.2f} watts".format(baseline_average)],
                 ['Total', "{:.2f} watts".format(process_average)],
                 ['Process', "{:.2f} watts".format(difference_average)]]
-    if locate.in_US(location):
+    if state_emission:
         coal, oil, natural_gas, low_carbon = breakdown
         energy_mix = [['Energy Source', 'Percentage'],
                       ['Coal', "{}%".format(coal)],
@@ -105,6 +116,7 @@ def generate(location, watt_averages, breakdown, emission):
                       ['Natural gas', "{}%".format(natural_gas)],
                       ['Low carbon', "{}%".format(low_carbon)]]
         source = "eGRID"
+        equivs = [['Carbon Equivalency', str(state_emission) + ' lbs/MWh']]
     else:
         coal, petroleum, natural_gas, low_carbon = breakdown
         energy_mix = [['Coal',  "{}%".format(coal)],

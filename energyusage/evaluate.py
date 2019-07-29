@@ -19,7 +19,7 @@ def func(user_func, q, *args):
     value = user_func(*args)
     q.put(value)
 
-def energy(user_func, *args):
+def energy(user_func, *args, powerLoss = 0.8):
     """ Evaluates the kwh needed for your code to run
 
     Parameters:
@@ -35,7 +35,6 @@ def energy(user_func, *args):
     # GPU handling if Nvidia
     is_nvidia_gpu = utils.valid_gpu()
     is_valid_cpu = utils.valid_cpu()
-    print(is_nvidia_gpu)
 
     gpu_baseline =[0]
     gpu_process = [0]
@@ -73,7 +72,8 @@ def energy(user_func, *args):
             files = utils.update_files(files, True)
         else:
             time.sleep(DELAY)
-        last_reading = utils.get_total(files, multiple_cpus) + gpu_process[-1]
+        # Just output, not added
+        last_reading = (utils.get_total(files, multiple_cpus) + gpu_process[-1]) / powerLoss
         if last_reading >=0:
             utils.log("Process wattage", last_reading)
     end = timer()
@@ -99,7 +99,7 @@ def energy(user_func, *args):
     watt_averages = [baseline_average, process_average, difference_average]
 
     # Subtracting baseline wattage to get more accurate result
-    process_kwh = convert.to_kwh((process_average - baseline_average)*total_time)
+    process_kwh = convert.to_kwh((process_average - baseline_average)*total_time) / powerLoss
 
     # Getting the return value of the user's function
     return_value = q.get()
@@ -166,6 +166,7 @@ def emissions(process_kwh, breakdown, location):
          " during the evaluation, or try evaluating a more resource-intensive process.")
 
     utils.log("Energy Data", breakdown, location)
+    state_emission = 0
 
     # Case 1: Unknown location, default to US data
     # Case 2: United States location
@@ -174,7 +175,8 @@ def emissions(process_kwh, breakdown, location):
             location = "United States"
         # US Emissions data is in lbs/Mwh
         data = utils.get_data("data/json/us-emissions.json")
-        emission = convert.lbs_to_kgs(data[location]*convert.to_Mwh(process_kwh))
+        state_emission = data[location]
+        emission = convert.lbs_to_kgs(state_emission*convert.to_Mwh(process_kwh))
 
     # Case 3: International location
     else:
@@ -186,9 +188,9 @@ def emissions(process_kwh, breakdown, location):
         emission = sum(breakdown)
 
     utils.log("Emissions", emission)
-    return emission
+    return (emission, state_emission)
 
-def evaluate(user_func, *args, pdf=False):
+def evaluate(user_func, *args, pdf=False, powerLoss = 0.8):
     """ Calculates effective emissions of the function
 
         Parameters:
@@ -198,10 +200,10 @@ def evaluate(user_func, *args, pdf=False):
         location = locate.get()
         result, return_value, watt_averages = energy(user_func, *args)
         breakdown = energy_mix(location)
-        emission = emissions(result, breakdown, location)
+        emission, state_emission = emissions(result, breakdown, location)
         utils.log("Assumed Carbon Equivalencies")
         if pdf:
-            report.generate(location, watt_averages, breakdown, emission)
+            report.generate(location, watt_averages, breakdown, emission, state_emission)
             # all data to pdf as well
         return return_value
 

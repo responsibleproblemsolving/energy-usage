@@ -52,7 +52,7 @@ def get_process_average(raplfiles, multiple_cpus, gpu):
     else:
         for file in raplfiles:
             if file.name == "Package":
-                total+=file.name
+                total+=file.process_average
     return total + gpu
 
 def get_baseline_average(raplfiles, multiple_cpus, gpu):
@@ -64,7 +64,7 @@ def get_baseline_average(raplfiles, multiple_cpus, gpu):
     else:
         for file in raplfiles:
             if file.name == "Package":
-                total+=file.name
+                total+=file.baseline_average
     return total + gpu
 
 def get_total(raplfiles, multiple_cpus):
@@ -274,7 +274,7 @@ def valid_cpu():
 def valid_gpu():
     """ Checks that there is a valid Nvidia GPU """
 
-    
+
     try:
         bash_command = "nvidia-smi > /dev/null 2>&1" #we must pipe to ignore error message
         output = subprocess.check_call(['bash','-c', bash_command])
@@ -282,4 +282,3 @@ def valid_gpu():
 
     except:
         return False
-        
