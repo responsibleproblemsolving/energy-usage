@@ -12,6 +12,10 @@ class RAPLFile:
     def set_recent(val):
         self.recent = val
 
+    def create_gpu(baseline_average, process_average):
+        self.baseline_average = baseline_average
+        self.process_average = process_average
+
     def average(baseline_checks):
         self.process_average = sum(self.process)/self.num_process_checks
         self.baseline_average = sum(self.baseline)/baseline_checks

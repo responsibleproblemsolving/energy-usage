@@ -4,6 +4,7 @@ from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, Tabl
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.enums import TA_RIGHT, TA_CENTER
 from reportlab.lib import colors
+from energyusage.RAPLFile import RAPLFile
 
 import energyusage.locate as locate
 import energyusage.convert as convert
@@ -72,7 +73,7 @@ def table(data, header=True): # argument: data?
 
 
 
-def generate(location, watt_averages, breakdown, emission):
+def generate(location, watt_averages, raplfiles, breakdown, emission):
     """ Generates pdf report
 
     Parameters:
@@ -93,10 +94,24 @@ def generate(location, watt_averages, breakdown, emission):
     # Kadan check this please
     descriptor("Readings shown are averages of wattage over the time period")
     baseline_average, process_average, difference_average = watt_averages
+    '''
     readings = [['Measurement', 'Wattage'],
                 ['Baseline', "{:.2f} watts".format(baseline_average)],
                 ['Total', "{:.2f} watts".format(process_average)],
                 ['Process', "{:.2f} watts".format(difference_average)]]
+    '''
+    readings = [['Component', 'Baseline', 'Total', 'Process']]
+    for file in raplfiles:
+        line = ["{}".format(file.name), "{:.2f} watts".format(file.baseline_average),
+                "{:.2f} watts".format(file.process_average),
+                "{:.2f} watts".format(file.process_average-file.baseline_average)]
+        if "Package" in file.name:
+            readings.insert(1, line)
+        else:
+            readings.append(line)
+        print(line)
+    print(readings)
+
     if locate.in_US(location):
         coal, oil, natural_gas, low_carbon = breakdown
         energy_mix = [['Energy Source', 'Percentage'],

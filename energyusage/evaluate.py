@@ -100,9 +100,15 @@ def energy(user_func, *args):
     # Getting the return value of the user's function
     return_value = q.get()
 
+
+    if is_nvidia_gpu:
+        gpu_file = file("GPU", "")
+        gpu_file.create_gpu(gpu_baseline_average, gpu_process_average)
+        files.append(file("GPU", ""))
+
     # Logging
     utils.log("Final Readings", baseline_average, process_average, difference_average, timedelta)
-    return (process_kwh, return_value, watt_averages)
+    return (process_kwh, return_value, watt_averages, files)
 
 
 def energy_mix(location):
@@ -192,12 +198,13 @@ def evaluate(user_func, *args, pdf=False):
     """
     if (utils.valid_cpu()):
         location = locate.get()
-        result, return_value, watt_averages = energy(user_func, *args)
+        #location = "Saudi Arabia"
+        result, return_value, watt_averages, files = energy(user_func, *args)
         breakdown = energy_mix(location)
         emission = emissions(result, breakdown, location)
         utils.log("Assumed Carbon Equivalencies")
         if pdf:
-            report.generate(location, watt_averages, breakdown, emission)
+            report.generate(location, watt_averages, files, breakdown, emission)
             # all data to pdf as well
         return return_value
 
