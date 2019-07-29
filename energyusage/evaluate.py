@@ -19,7 +19,7 @@ def func(user_func, q, *args):
     value = user_func(*args)
     q.put(value)
 
-def energy(user_func, *args):
+def energy(user_func, *args, powerLoss = 0.8):
     """ Evaluates the kwh needed for your code to run
 
     Parameters:
@@ -38,10 +38,12 @@ def energy(user_func, *args):
 
     gpu_baseline =[0]
     gpu_process = [0]
+    bash_command = "nvidia-smi -i 0 --format=csv,noheader --query-gpu=power.draw"
+
     for i in range(int(baseline_check_seconds / DELAY)):
         if is_nvidia_gpu:
             output = subprocess.check_output(['bash','-c', bash_command])
-            output = float(output.decode("utf-8")[:-1])
+            output = float(output.decode("utf-8")[:-2])
             gpu_baseline.append(output)
         if is_valid_cpu:
             files = utils.measure_files(files, DELAY)
@@ -63,14 +65,15 @@ def energy(user_func, *args):
     while(p.is_alive()):
         if is_nvidia_gpu:
             output = subprocess.check_output(['bash','-c', bash_command])
-            output = float(output.decode("utf-8")[:-1])
+            output = float(output.decode("utf-8")[:-2])
             gpu_process.append(output)
         if is_valid_cpu:
             files = utils.measure_files(files, DELAY)
             files = utils.update_files(files, True)
         else:
             time.sleep(DELAY)
-        last_reading = utils.get_total(files, multiple_cpus) + gpu_process[-1]
+        # Just output, not added
+        last_reading = (utils.get_total(files, multiple_cpus) + gpu_process[-1]) / powerLoss
         if last_reading >=0:
             utils.log("Process wattage", last_reading)
     end = timer()
@@ -89,13 +92,14 @@ def energy(user_func, *args):
     timedelta = str(datetime.timedelta(seconds=total_time)).split('.')[0]
 
     files = utils.average_files(files)
+
     process_average = utils.get_process_average(files, multiple_cpus, gpu_process_average)
     baseline_average = utils.get_baseline_average(files, multiple_cpus, gpu_baseline_average)
     difference_average = process_average - baseline_average
     watt_averages = [baseline_average, process_average, difference_average]
 
     # Subtracting baseline wattage to get more accurate result
-    process_kwh = convert.to_kwh((process_average - baseline_average)*total_time)
+    process_kwh = convert.to_kwh((process_average - baseline_average)*total_time) / powerLoss
 
     # Getting the return value of the user's function
     return_value = q.get()
@@ -168,6 +172,7 @@ def emissions(process_kwh, breakdown, location):
          " during the evaluation, or try evaluating a more resource-intensive process.")
 
     utils.log("Energy Data", breakdown, location)
+    state_emission = 0
 
     # Case 1: Unknown location, default to US data
     # Case 2: United States location
@@ -176,7 +181,8 @@ def emissions(process_kwh, breakdown, location):
             location = "United States"
         # US Emissions data is in lbs/Mwh
         data = utils.get_data("data/json/us-emissions.json")
-        emission = convert.lbs_to_kgs(data[location]*convert.to_Mwh(process_kwh))
+        state_emission = data[location]
+        emission = convert.lbs_to_kgs(state_emission*convert.to_Mwh(process_kwh))
 
     # Case 3: International location
     else:
@@ -188,20 +194,20 @@ def emissions(process_kwh, breakdown, location):
         emission = sum(breakdown)
 
     utils.log("Emissions", emission)
-    return emission
+    return (emission, state_emission)
 
-def evaluate(user_func, *args, pdf=False):
+def evaluate(user_func, *args, pdf=False, powerLoss = 0.8):
     """ Calculates effective emissions of the function
 
         Parameters:
             func: user inputtted function
     """
-    if (utils.valid_cpu()):
+    if (utils.valid_cpu() or True):
         location = locate.get()
         #location = "Saudi Arabia"
         result, return_value, watt_averages, files = energy(user_func, *args)
         breakdown = energy_mix(location)
-        emission = emissions(result, breakdown, location)
+        emission, state_emission = emissions(result, breakdown, location)
         utils.log("Assumed Carbon Equivalencies")
         if pdf:
             report.generate(location, watt_averages, files, breakdown, emission)
