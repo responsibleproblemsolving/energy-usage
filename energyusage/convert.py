@@ -79,3 +79,10 @@ def carbon_to_home(kg_carbon):
     '''
 
     return kg_carbon * 10**(-3) / 8.35 / 52 / 7 #percent of CO2 used in an avg US household in a week
+
+def carbon_to_tv(kg_carbon):
+    '''
+    Gives the amount of minutes of watching a 32-inch LCD flat screen tv required to emit and
+    equivalent amount of carbon. Ratio is 0.097 kg CO2 / 1 hour tv
+    '''
+    return kg_carbon * (1 / .097) * 60
