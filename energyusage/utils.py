@@ -81,7 +81,6 @@ def get_total(raplfiles, multiple_cpus):
         return total
     return 0
 
-
 def update_files(raplfiles, process = False):
     if process:
         for file in raplfiles:

@@ -108,7 +108,7 @@ def generate(location, watt_averages, breakdown, emission, state_emission):
                 ['Baseline', "{:.2f} watts".format(baseline_average)],
                 ['Total', "{:.2f} watts".format(process_average)],
                 ['Process', "{:.2f} watts".format(difference_average)]]
-    if state_emission:
+    if state_emission: # nonzero only if in US
         coal, oil, natural_gas, low_carbon = breakdown
         energy_mix = [['Energy Source', 'Percentage'],
                       ['Coal', "{}%".format(coal)],
