@@ -34,7 +34,7 @@ def energy(user_func, *args, powerLoss = 0.8):
     files, multiple_cpus = utils.get_files()
     is_nvidia_gpu = utils.valid_gpu()
     is_valid_cpu = utils.valid_cpu()
-    
+
     # GPU handling if Nvidia
     gpu_baseline =[0]
     gpu_process = [0]
@@ -214,7 +214,7 @@ def evaluate(user_func, *args, pdf=False, powerLoss=0.8):
         emission, state_emission = emissions(result, breakdown, location)
         utils.log("Assumed Carbon Equivalencies")
         if pdf:
-            report.generate(location, watt_averages, files, breakdown, emission, state_emission)
+            report.generate(location, watt_averages, breakdown, emission, state_emission)
             # all data to pdf as well
         return return_value
 

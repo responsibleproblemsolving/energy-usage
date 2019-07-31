@@ -93,7 +93,7 @@ def generate(location, watt_averages, breakdown, emission, state_emission):
     header("Final Readings")
     descriptor("Readings shown are averages of wattage over the time period", spaceAfter=True)
     baseline_average, process_average, difference_average = watt_averages
-    '''
+
     readings = [['Measurement', 'Wattage'],
                 ['Baseline', "{:.2f} watts".format(baseline_average)],
                 ['Total', "{:.2f} watts".format(process_average)],
@@ -108,7 +108,7 @@ def generate(location, watt_averages, breakdown, emission, state_emission):
             readings.insert(1, line)
         else:
             readings.append(line)
-
+    '''
 
     if state_emission:
         coal, oil, natural_gas, low_carbon = breakdown
@@ -126,6 +126,7 @@ def generate(location, watt_averages, breakdown, emission, state_emission):
                       ['Natural gas', "{}%".format(natural_gas)],
                       ['Low carbon', "{}%".format(low_carbon)]]
         source = "US EIA"
+
     table(readings)
     header("Energy Data")
     descriptor("Energy mix in {} based on {} {} data".format(location, year, source))
