@@ -210,7 +210,7 @@ def evaluate(user_func, *args, pdf=False, powerLoss = 0.8):
         emission, state_emission = emissions(result, breakdown, location)
         utils.log("Assumed Carbon Equivalencies")
         if pdf:
-            report.generate(location, watt_averages, files, breakdown, emission)
+            report.generate(location, watt_averages, files, breakdown, emission, state_emission)
             # all data to pdf as well
         return return_value
 

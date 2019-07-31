@@ -84,7 +84,7 @@ def addendum(data, style=DescriptorStyle, klass=Paragraph, sep=0.05):
     Elements.append(s)
 
 
-def generate(location, watt_averages, raplfiles, breakdown, emission):
+def generate(location, watt_averages, raplfiles, breakdown, emission, state_emission):
     """ Generates pdf report
 
     Parameters:
@@ -120,10 +120,9 @@ def generate(location, watt_averages, raplfiles, breakdown, emission):
             readings.insert(1, line)
         else:
             readings.append(line)
-        print(line)
-    print(readings)
+        
 
-    if locate.in_US(location):
+    if state_emission:
         coal, oil, natural_gas, low_carbon = breakdown
         energy_mix = [['Energy Source', 'Percentage'],
                       ['Coal', "{}%".format(coal)],
