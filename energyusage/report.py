@@ -112,7 +112,6 @@ def generate(location, watt_averages, breakdown, emission, state_emission):
                       ['Natural gas', "{}%".format(natural_gas)],
                       ['Low carbon', "{}%".format(low_carbon)]]
         source = "US EIA"
-
     table(readings)
     header("Energy Data")
     descriptor("Energy mix in {} based on {} {} data".format(location, year, source))
