@@ -14,9 +14,9 @@ equivs = [['Coal', '0.3248635 kg CO2/kwh'],
            ['Natural gas', '0.0885960 kg CO2/kwh']]
 
 styles = getSampleStyleSheet()
-TitleStyle = ParagraphStyle(name='Normal', fontSize=20, alignment= TA_CENTER)
-HeaderStyle = ParagraphStyle(name='Normal',fontSize=18)
-SubheaderStyle = ParagraphStyle(name='Normal',fontSize=14)
+TitleStyle = ParagraphStyle(name='Normal', fontSize=16, alignment= TA_CENTER)
+HeaderStyle = ParagraphStyle(name='Normal',fontSize=14)
+SubheaderStyle = ParagraphStyle(name='Normal',fontSize=12)
 DescriptorStyle = styles["BodyText"]
 Elements = []
 
@@ -75,8 +75,8 @@ def table(data, header=True):
 
 def addendum(data, style=DescriptorStyle, klass=Paragraph, sep=0.05):
     process_time, process_kwh = data
-    time_text = bold("Process time: ") + str(process_time)
-    kwh_text = bold("Kilowatt hours used: ") + str(process_kwh)
+    # time_text = bold("Process time: ") + str(process_time)
+    # kwh_text = bold("Kilowatt hours used: ") + str(process_kwh)
     s = Spacer(0, sep*inch)
     a = klass(time_text, style)
     a2 = klass(kwh_text, style)
@@ -120,7 +120,7 @@ def generate(location, watt_averages, raplfiles, breakdown, emission, state_emis
             readings.insert(1, line)
         else:
             readings.append(line)
-        
+
 
     if state_emission:
         coal, oil, natural_gas, low_carbon = breakdown
@@ -152,6 +152,6 @@ def generate(location, watt_averages, raplfiles, breakdown, emission, state_emis
     header("Emissions", spaceAfter=True)
     table(emissions)
     header("Assumed Carbon Equivalencies")
-    descriptor("Formulas used for determining amount of carbon emissions")
+    # descriptor("Formulas used for determining amount of carbon emissions")
     table(equivs, header=False)
     doc.build(Elements)

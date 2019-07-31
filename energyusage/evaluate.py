@@ -32,10 +32,10 @@ def energy(user_func, *args, powerLoss = 0.8):
 
     baseline_check_seconds = 10
     files, multiple_cpus = utils.get_files()
-    # GPU handling if Nvidia
     is_nvidia_gpu = utils.valid_gpu()
     is_valid_cpu = utils.valid_cpu()
-
+    
+    # GPU handling if Nvidia
     gpu_baseline =[0]
     gpu_process = [0]
     bash_command = "nvidia-smi -i 0 --format=csv,noheader --query-gpu=power.draw"
@@ -164,6 +164,7 @@ def emissions(process_kwh, breakdown, location):
 
         Returns:
             emission (float): kilograms of CO2 emitted
+            state_emission (float): lbs CO2 per MWh
 
     """
 
@@ -196,11 +197,14 @@ def emissions(process_kwh, breakdown, location):
     utils.log("Emissions", emission)
     return (emission, state_emission)
 
-def evaluate(user_func, *args, pdf=False, powerLoss = 0.8):
+def evaluate(user_func, *args, pdf=False, powerLoss=0.8):
     """ Calculates effective emissions of the function
 
         Parameters:
-            func: user inputtted function
+            user_func: user inputtted function
+            pdf (bool): whether a PDF report should be generated
+            powerLoss (float): PSU efficiency rating
+
     """
     if (utils.valid_cpu() or True):
         location = locate.get()
@@ -216,5 +220,5 @@ def evaluate(user_func, *args, pdf=False, powerLoss = 0.8):
 
     else:
         utils.log("The energy-usage package only works on Linux kernels "
-        "with Intel processors that support the RAPL interface. Please try again"
-        " on a different machine.")
+        "with Intel processors that support the RAPL interface and/or machines with"
+        " an Nvidia GPU. Please try again on a different machine.")
