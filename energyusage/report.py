@@ -73,18 +73,7 @@ def table(data, header=True):
     Elements.append(t)
 
 
-def addendum(data, style=DescriptorStyle, klass=Paragraph, sep=0.05):
-    process_time, process_kwh = data
-    # time_text = bold("Process time: ") + str(process_time)
-    # kwh_text = bold("Kilowatt hours used: ") + str(process_kwh)
-    s = Spacer(0, sep*inch)
-    a = klass(time_text, style)
-    a2 = klass(kwh_text, style)
-    Elements.append(a), Elements.append(a2)
-    Elements.append(s)
-
-
-def generate(location, watt_averages, raplfiles, breakdown, emission, state_emission):
+def generate(location, watt_averages, breakdown, emission, state_emission):
     """ Generates pdf report
 
     Parameters:
@@ -102,8 +91,7 @@ def generate(location, watt_averages, raplfiles, breakdown, emission, state_emis
 
     title("Energy Usage Report")
     header("Final Readings")
-    descriptor("Readings shown are averages of wattage over the time period", spaceAfter=False)
-    addendum(('00:00:17', 0.45))
+    descriptor("Readings shown are averages of wattage over the time period", spaceAfter=True)
     baseline_average, process_average, difference_average = watt_averages
     '''
     readings = [['Measurement', 'Wattage'],
@@ -151,7 +139,7 @@ def generate(location, watt_averages, raplfiles, breakdown, emission, state_emis
                    "{:.2e}%".format(convert.carbon_to_home(emission))]]
     header("Emissions", spaceAfter=True)
     table(emissions)
-    header("Assumed Carbon Equivalencies")
+    header("Assumed Carbon Equivalencies", spaceAfter=True)
     # descriptor("Formulas used for determining amount of carbon emissions")
     table(equivs, header=False)
     doc.build(Elements)
