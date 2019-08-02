@@ -11,7 +11,7 @@ def to_kwh(joules):
     watt_hours = joules / 3600
     return watt_hours / 1000
 
-def to_Mwh(kwh):
+def to_MWh(kwh):
     """ Converts from kilowatt-hours to megawatt-hours """
     return (kwh / 1000)
 
@@ -19,40 +19,39 @@ def kwh_to_mmbtu(kwh):
     return kwh * 0.003412
 
 def coal_to_carbon(kwh):
-    '''
-    Coal: 21.11 mmbtu/metric ton coal × 26.05 kg C/mmbtu
-     × 44 kg CO2/12 kg C × 90.89 metric tons coal/railcar
-     × 1 metric ton/1,000 kg = 183.29 metric tons CO2/railcar
 
-    Source: EPA
     '''
+    2195.2 lbs CO2/MWh
 
-    return (44/12) * ((kwh_to_mmbtu(kwh) / 21.11) * 26.05)
+    source: reverse-engineered from eGRID data
+    '''
+    MWh = to_MWh(kwh)
+    lbs_carbon = 2195.2 * MWh
+    return lbs_to_kgs(lbs_carbon)
 
 def natural_gas_to_carbon(kwh):
     '''
-    Natural gas: 0.1 mmbtu/1 therm × 14.46 kg C/mmbtu
-    × 44 kg CO2/12 kg C × 1 metric ton/1,000 kg
-    = 0.0053 metric tons CO2/therm
+    1639.89 lbs CO2/MWh
 
-    Source: EPA
+    source: reverse-engineered from eGRID data
     '''
+    MWh = to_MWh(kwh)
+    lbs_carbon = 1639.89 * MWh
+    return lbs_to_kgs(lbs_carbon)
 
-    return (44/12) * kwh_to_mmbtu(kwh) * 14.46
 
 def petroleum_to_carbon(kwh):
     '''
-    Petroleum: .23 kgCO2/kWh
+    Oil: 1800.49 lbs CO2/MWh
 
-    wtf this is the site of some german prof
-    Source:https://www.volker-quaschning.de
+    source: reverse-engineered from eGRID data
     '''
-
-    return .23 * kwh
+    MWh = to_MWh(kwh)
+    lbs_carbon = 1800.49 * MWh
+    return lbs_to_kgs(lbs_carbon)
 
 def lbs_to_kgs(lbs):
     return lbs *  0.45359237
-
 
 
 """ CARBON EQUIVALENCY """

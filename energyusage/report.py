@@ -9,9 +9,6 @@ from energyusage.RAPLFile import RAPLFile
 import energyusage.convert as convert
 
 year = "2016"
-equivs = [['Coal', '0.3248635 kg CO2/kwh'],
-           ['Petroleum', '0.23 kg CO2/kwh'],
-           ['Natural gas', '0.0885960 kg CO2/kwh']]
 
 styles = getSampleStyleSheet()
 TitleStyle = ParagraphStyle(name='Normal', fontSize=16, alignment= TA_CENTER)
@@ -121,11 +118,15 @@ def generate(location, watt_averages, breakdown, emission, state_emission):
         equivs = [['Carbon Equivalency', str(state_emission) + ' lbs/MWh']]
     else:
         coal, petroleum, natural_gas, low_carbon = breakdown
-        energy_mix = [['Coal',  "{}%".format(coal)],
-                      ['Petroleum', "{}%".format(petroleum)],
-                      ['Natural gas', "{}%".format(natural_gas)],
-                      ['Low carbon', "{}%".format(low_carbon)]]
+        energy_mix = [['Energy Source', 'Percentage'],
+                      ['Coal',  "{:.2f}%".format(coal)],
+                      ['Petroleum', "{:.2f}%".format(petroleum)],
+                      ['Natural gas', "{:.2f}%".format(natural_gas)],
+                      ['Low carbon', "{:.2f}%".format(low_carbon)]]
         source = "US EIA"
+        equivs = [['Coal', '995.725971 kg CO2/MWh'],
+                   ['Petroleum', '816.6885263 kg CO2/MWh'],
+                   ['Natural gas', '743.8415916 kg CO2/MWh']]
 
     table(readings)
     header("Energy Data")

@@ -248,12 +248,11 @@ def log(*args):
         sys.stdout.write("{:<45}{:>34.2e}%\n".format("Percentage of CO2 used in a US"
         " household/day:",convert.carbon_to_home(emission)))
 
-
     elif args[0] == "Assumed Carbon Equivalencies":
         log_header('Assumed Carbon Equivalencies')
-        sys.stdout.write("{:<14} {:>65}\n".format("Coal:", "0.3248635 kg CO2/kwh"))
-        sys.stdout.write("{:<14} {:>65}\n".format("Petroleum:", "0.23 kg CO2/kwh"))
-        sys.stdout.write("{:<14} {:>65}\n".format("Natural gas:", "0.0885960 kg CO2/kwh"))
+        sys.stdout.write("{:<14} {:>65}\n".format("Coal:", "995.725971 kg CO2/MWh"))
+        sys.stdout.write("{:<14} {:>65}\n".format("Petroleum:", "816.6885263 kg CO2/MWh"))
+        sys.stdout.write("{:<14} {:>65}\n".format("Natural gas:", "743.8415916 kg CO2/MWh"))
 
     else:
         sys.stdout.write(args[0])

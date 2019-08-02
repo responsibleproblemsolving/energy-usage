@@ -183,7 +183,7 @@ def emissions(process_kwh, breakdown, location):
         # US Emissions data is in lbs/Mwh
         data = utils.get_data("data/json/us-emissions.json")
         state_emission = data[location]
-        emission = convert.lbs_to_kgs(state_emission*convert.to_Mwh(process_kwh))
+        emission = convert.lbs_to_kgs(state_emission*convert.to_MWh(process_kwh))
 
     # Case 3: International location
     else:
@@ -208,14 +208,12 @@ def evaluate(user_func, *args, pdf=False, powerLoss=0.8):
     """
     if (utils.valid_cpu() or True):
         location = locate.get()
-        #location = "Saudi Arabia"
         result, return_value, watt_averages, files = energy(user_func, *args)
         breakdown = energy_mix(location)
         emission, state_emission = emissions(result, breakdown, location)
         utils.log("Assumed Carbon Equivalencies")
         if pdf:
             report.generate(location, watt_averages, breakdown, emission, state_emission)
-            # all data to pdf as well
         return return_value
 
     else:
