@@ -188,7 +188,7 @@ def emissions(process_kwh, breakdown, location):
     # Case 3: International location
     else:
         # Breaking down energy mix
-        coal, natural_gas, petroleum, low_carbon = breakdown
+        coal, petroleum, natural_gas, low_carbon = breakdown
         breakdown = [convert.coal_to_carbon(process_kwh * coal/100),
                      convert.petroleum_to_carbon(process_kwh * petroleum/100),
                      convert.natural_gas_to_carbon(process_kwh * natural_gas/100), 0]
@@ -196,6 +196,46 @@ def emissions(process_kwh, breakdown, location):
 
     utils.log("Emissions", emission)
     return (emission, state_emission)
+
+def emissions_comparison(process_kwh):
+    intl_data = utils.get_data("data/json/energy-mix-intl.json")
+    all_emissions, europe_emissions, us_emissions = [], [], []
+    # Handling international
+    for country in intl_data:
+           c = intl_data[country]
+           total, breakdown = c['total'], [c['coal'], c['petroleum'], \
+           c['naturalGas'], c['lowCarbon']]
+           
+           if isinstance(total, float) and float(total) > 0:
+               breakdown = list(map(lambda x: 100*x/total, breakdown))
+               coal, petroleum, natural_gas, low_carbon = breakdown
+               breakdown = [convert.coal_to_carbon(process_kwh * coal/100),
+                    convert.petroleum_to_carbon(process_kwh * petroleum/100),
+                    convert.natural_gas_to_carbon(process_kwh * natural_gas/100), 0]
+               emission = sum(breakdown)
+               all_emissions.append((country,emission))
+               if locate.in_Europe(country):
+                   europe_emissions.append((country,emission))
+           all_emissions.sort(key=lambda x: x[1])
+           europe_emissions.sort(key=lambda x: x[1])
+    # Handling US
+    us_data = utils.get_data("data/json/us-emissions.json")
+    for state in us_data:
+        if (state != "United States" and state != "_units"):
+            emission = convert.lbs_to_kgs(us_data[state]*convert.to_Mwh(process_kwh))
+            us_emissions.append((state, emission))
+    us_emissions.sort(key=lambda x: x[1])
+    
+    max_global, max_europe, max_us = all_emissions[len(all_emissions)-1], \
+        europe_emissions[len(europe_emissions)-1], us_emissions[len(us_emissions)-1]
+    median_global, median_europe, median_us = all_emissions[len(all_emissions)//2], \
+        europe_emissions[len(europe_emissions)//2], us_emissions[len(us_emissions)//2]
+    min_global, min_europe, min_us= all_emissions[0], europe_emissions[0], us_emissions[0]
+  
+    print("World minus US or Europe Emissions \n Max: {} \n Median: {} \n Min: {} \n".format(max_global, \
+                                                                                             median_global, min_global))
+    print("Europe Emissions \n Max: {} \n Median: {} \n Min: {} \n".format(max_europe, median_europe, min_europe))
+    print("US Emissions \n Max: {} \n Median: {} \n Min: {}".format(max_us, median_us, min_us))
 
 def evaluate(user_func, *args, pdf=False, powerLoss=0.8):
     """ Calculates effective emissions of the function
@@ -212,6 +252,7 @@ def evaluate(user_func, *args, pdf=False, powerLoss=0.8):
         breakdown = energy_mix(location)
         emission, state_emission = emissions(result, breakdown, location)
         utils.log("Assumed Carbon Equivalencies")
+        emissions_comparsion(result)
         if pdf:
             report.generate(location, watt_averages, breakdown, emission, state_emission)
         return return_value
