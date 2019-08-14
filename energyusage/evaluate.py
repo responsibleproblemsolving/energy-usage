@@ -199,7 +199,7 @@ def emissions(process_kwh, breakdown, location):
 
 def emissions_comparison(process_kwh):
     intl_data = utils.get_data("data/json/energy-mix-intl.json")
-    all_emissions, europe_emissions, us_emissions = [], [], []
+    global_emissions, europe_emissions, us_emissions = [], [], []
     # Handling international
     for country in intl_data:
            c = intl_data[country]
@@ -212,9 +212,11 @@ def emissions_comparison(process_kwh):
                     convert.petroleum_to_carbon(process_kwh * petroleum/100),
                     convert.natural_gas_to_carbon(process_kwh * natural_gas/100), 0]
                emission = sum(breakdown)
-               all_emissions.append((country,emission))
                if locate.in_Europe(country):
                    europe_emissions.append((country,emission))
+               else:
+                   global_emissions.append((country,emission))
+              
            all_emissions.sort(key=lambda x: x[1])
            europe_emissions.sort(key=lambda x: x[1])
             
@@ -226,11 +228,11 @@ def emissions_comparison(process_kwh):
             us_emissions.append((state, emission))
     us_emissions.sort(key=lambda x: x[1])
     
-    max_global, max_europe, max_us = all_emissions[len(all_emissions)-1], \
+    max_global, max_europe, max_us = global_emissions[len(global_emissions)-1], \
         europe_emissions[len(europe_emissions)-1], us_emissions[len(us_emissions)-1]
-    median_global, median_europe, median_us = all_emissions[len(all_emissions)//2], \
+    median_global, median_europe, median_us = all_emissions[len(global_emissions)//2], \
         europe_emissions[len(europe_emissions)//2], us_emissions[len(us_emissions)//2]
-    min_global, min_europe, min_us= all_emissions[0], europe_emissions[0], us_emissions[0]
+    min_global, min_europe, min_us= global_emissions[0], europe_emissions[0], us_emissions[0]
     utils.log('Emissions Comparison', max_global, median_global, min_global, max_europe, \
               median_europe, min_europe, max_us, median_us, min_us)
  
