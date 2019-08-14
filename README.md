@@ -60,9 +60,9 @@ Percentage of CO2 used in a US household/day:                          1.20e-11%
 --------------------------------------------------------------------------------
 ------------------------- Assumed Carbon Equivalencies -------------------------
 --------------------------------------------------------------------------------
-Coal:                                                       0.3248635 kg CO2/kwh
-Petroleum:                                                       0.23 kg CO2/kwh
-Natural gas:                                                0.0885960 kg CO2/kwh
+Coal:                                                      995.725971 kg CO2/MWh
+Petroleum:                                                816.6885263 kg CO2/MWh
+Natural gas:                                              743.8415916 kg CO2/Mwh
 ```
 The report is divided into several sections.
 * **Final Readings**: Presents an average of:
@@ -133,12 +133,11 @@ Our United States energy mix and emissions data was obtained from the [U.S. Envi
 As of July 2019, the most recent eGRID data was from the year 2016. We elected to use 2016 U.S. E.I.A. data for consistency between the data sources.
 
 #### Conversion to CO<sub>2</sub>
-Since the international data only contained an energy mix, and no emission data, we used formulas from the [Environmental Protection Agency](https://www.epa.gov/energy/greenhouse-gases-equivalencies-calculator-calculations-and-references) and [volker-quaschning.de](https://www.volker-quaschning.de/datserv/CO2-spez/index_e.php) to convert from energy to CO₂ emitted based on which fossil fuel was used.
-* EPA:
-	* *Coal*: 21.11 mmbtu/metric ton coal × 26.05 kg C/mmbtu × 44 kg CO2/12 kg C × 90.89 metric tons coal/railcar × 1 metric ton/1,000 kg = 183.29 metric tons CO2/railcar
-	* *Natural gas*:  0.1 mmbtu/1 therm × 14.46 kg C/mmbtu × 44 kg CO2/12 kg C × 1 metric ton/1,000 kg = 0.0053 metric tons CO2/therm
-* volker-quaschning.de:
-	* *Petroleum*: .23 kgCO2/kWh
+Since the international data only contained an energy mix, and no emission data, we reverse-engineered the formulas used in the eGRID data. This gives us additionally consistency between the separate datasets.
+* *Coal*: 2195.20 lbs CO<sub>2</sub>/MWh = 995.725971 kg CO<sub>2</sub>/MWh
+* *Petroleum*: lbs CO<sub>2</sub>/MWh = 816.6885263 kg CO<sub>2</sub>/MWh
+* *Natural gas*: 1639.89 lbs CO<sub>2</sub>/MWh = 743.8415916 kg CO<sub>2</sub>/MWh
+
 
 ## Related Work
 * In their paper [*Energy and Policy Considerations for Deep Learning in NLP*](https://arxiv.org/abs/1906.02243), Strubell et. al not only analyze the computational power needed for training deep learning models in NLP, but further convert the data into carbon emissions and cost. Our tool aims to facilitate this analysis for developers in a single package. We do not consider cost, instead choosing to focus solely on the environmental impact. Further, we do not focus on a specific computational area. We also extend their analysis of carbon emissions by including international data on energy consumption and CO<sub>2</sub> emissions for localized analysis of the carbon footprint of the tested program.

@@ -253,7 +253,21 @@ def log(*args):
         sys.stdout.write("{:<14} {:>65}\n".format("Coal:", "995.725971 kg CO2/MWh"))
         sys.stdout.write("{:<14} {:>65}\n".format("Petroleum:", "816.6885263 kg CO2/MWh"))
         sys.stdout.write("{:<14} {:>65}\n".format("Natural gas:", "743.8415916 kg CO2/MWh"))
-
+        
+    elif args[0] == "Emissions Comparison":
+        log_header('Emissions Comparison')
+        max_global, median_global, min_global, max_europe, median_europe, min_europe, \
+        max_us, median_us, min_us = args[1:]
+        sys.stdout.write("{:^80}\n".format("Quantities below expressed in kg CO2")) 
+        sys.stdout.write("{:8}{:<23} {:<23} {:<23}\n".format("", "US", "Europe", \
+            "Global minus US/Europe"))
+        sys.stdout.write("{:<7} {:<15}{:<7.2e} {:<15}{:<7.2e} {:<16}{:<7.2e}\n".format("Max:", max_us[0], max_us[1], \
+            max_europe[0], max_europe[1], max_global[0], max_global[1]))
+        sys.stdout.write("{:<7} {:<15}{:<7.2e} {:<15}{:<7.2e} {:<16}{:<7.2e}\n".format("Median:", median_us[0], median_us[1], \
+            median_europe[0], median_europe[1], median_global[0], median_global[1]))
+        sys.stdout.write("{:<7} {:<15}{:<7.2e} {:<15}{:<7.2e} {:<16}{:<7.2e}\n".format("Min:", min_us[0], min_us[1], \
+            min_europe[0], min_europe[1], min_global[0], min_global[1]))
+        
     else:
         sys.stdout.write(args[0])
 
