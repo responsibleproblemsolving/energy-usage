@@ -250,7 +250,7 @@ def evaluate(user_func, *args, pdf=False, powerLoss=0.8):
         breakdown = energy_mix(location)
         emission, state_emission = emissions(result, breakdown, location)
         utils.log("Assumed Carbon Equivalencies")
-        emissions_comparsion(result)
+        emissions_comparison(result)
         if pdf:
             report.generate(location, watt_averages, breakdown, emission, state_emission)
         return return_value
