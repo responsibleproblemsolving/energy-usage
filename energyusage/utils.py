@@ -260,11 +260,11 @@ def log(*args):
         max_us, median_us, min_us = args[1:]
         sys.stdout.write("{}\n{:<17} {>62.2e}\n{:<17} {>62.2e}\n{:<17} {>62.2e} ".format("Global" 
             "minus Europe and United States", "Maximum emissions:", max_global, "Median emissions:", \
-             median_global, "Minimum emissions:", min_global)
+             median_global, "Minimum emissions:", min_global))
         sys.stdout.write("{}\n{:<17} {>62.2e}\n{:<17} {>62.2e}\n{:<17} {>62.2e} ".format("Europe", \
-             "Maximum emissions:", max_europe, "Median emissions:", median_europe, "Minimum emissions:", min_europe)
+             "Maximum emissions:", max_europe, "Median emissions:", median_europe, "Minimum emissions:", min_europe))
         sys.stdout.write("{}\n{:<17} {>62.2e}\n{:<17} {>62.2e}\n{:<17} {>62.2e} ".format("United States", \
-             "Maximum emissions:", max_us, "Median emissions:", median_us, "Minimum emissions:", min_us)
+             "Maximum emissions:", max_us, "Median emissions:", median_us, "Minimum emissions:", min_us))
 
     else:
         sys.stdout.write(args[0])
