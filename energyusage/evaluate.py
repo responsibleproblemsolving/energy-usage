@@ -217,7 +217,7 @@ def emissions_comparison(process_kwh):
                else:
                    global_emissions.append((country,emission))
               
-           all_emissions.sort(key=lambda x: x[1])
+           global_emissions.sort(key=lambda x: x[1])
            europe_emissions.sort(key=lambda x: x[1])
             
     # Handling US
@@ -230,7 +230,7 @@ def emissions_comparison(process_kwh):
     
     max_global, max_europe, max_us = global_emissions[len(global_emissions)-1], \
         europe_emissions[len(europe_emissions)-1], us_emissions[len(us_emissions)-1]
-    median_global, median_europe, median_us = all_emissions[len(global_emissions)//2], \
+    median_global, median_europe, median_us = global_emissions[len(global_emissions)//2], \
         europe_emissions[len(europe_emissions)//2], us_emissions[len(us_emissions)//2]
     min_global, min_europe, min_us= global_emissions[0], europe_emissions[0], us_emissions[0]
     utils.log('Emissions Comparison', max_global, median_global, min_global, max_europe, \
