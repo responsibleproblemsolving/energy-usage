@@ -11,6 +11,16 @@ STATES = ['Alabama','Alaska','Arizona','Arkansas','California','Colorado', \
 'Tennessee','Texas','Utah','Vermont','Virginia','Washington', \
 'West Virginia','Wisconsin','Wyoming']
 
+EUROPE = ['Albania','Andorra','Armenia','Austria','Azerbaijan', \
+          'Belarus','Belgium','Bosnia and Herzegovina','Bulgaria', \
+          'Croatia','Cyprus','Czech Republic','Denmark','Estonia','Finland', \
+          'France','Georgia','Germany','Greece','Hungary','Iceland', \
+          'Ireland','Italy','Kazakhstan','Kosovo','Latvia','Liechtenstein', \
+          'Lithuania','Luxembourg','Malta','Moldova','Monaco','Montenegro', \
+          'Netherlands','Macedonia','Norway','Poland','Portugal','Romania', \
+          'Russia','San Marino','Serbia','Slovakia','Slovenia','Spain', \
+          'Sweden','Switzerland','Turkey','Ukraine','United Kingdom','Vatican City']
+
 
 """ LOCATION UTILS """
 
@@ -38,3 +48,6 @@ def get():
 
 def in_US(location):
     return (location in STATES or location == "United States")
+
+def in_Europe(location):
+    return (location in EUROPE)
