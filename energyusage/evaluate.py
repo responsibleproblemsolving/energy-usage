@@ -222,7 +222,7 @@ def emissions_comparison(process_kwh):
     us_data = utils.get_data("data/json/us-emissions.json")
     for state in us_data:
         if (state != "United States" and state != "_units"):
-            emission = convert.lbs_to_kgs(us_data[state]*convert.to_Mwh(process_kwh))
+            emission = convert.lbs_to_kgs(us_data[state]*convert.to_MWh(process_kwh))
             us_emissions.append((state, emission))
     us_emissions.sort(key=lambda x: x[1])
     
