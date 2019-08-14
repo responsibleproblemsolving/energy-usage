@@ -62,16 +62,23 @@ def energy(user_func, *args, powerLoss = 0.8):
 
     start = timer()
     p.start()
+    small_delay_counter = 0
     while(p.is_alive()):
+        if (small_delay_counter > DELAY):
+           delay = DELAY / 10
+           small_delay_counter+=1
+        else:
+           delay = DELAY
+
         if is_nvidia_gpu:
             output = subprocess.check_output(['bash','-c', bash_command])
             output = float(output.decode("utf-8")[:-2])
             gpu_process.append(output)
         if is_valid_cpu:
-            files = utils.measure_files(files, DELAY)
+            files = utils.measure_files(files, delay)
             files = utils.update_files(files, True)
         else:
-            time.sleep(DELAY)
+            time.sleep(delay)
         # Just output, not added
         last_reading = (utils.get_total(files, multiple_cpus) + gpu_process[-1]) / powerLoss
         if last_reading >=0:
