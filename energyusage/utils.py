@@ -258,13 +258,15 @@ def log(*args):
         log_header('Emissions Comparison')
         max_global, median_global, min_global, max_europe, median_europe, min_europe, \
         max_us, median_us, min_us = args[1:]
-        sys.stdout.write("{:6}{:<26} {:^26} {:>26}\n".format("", "US", "Europe", "Global minus US/Europe"))
-        sys.stdout.write("{:<6}{:<26} {:^26} {:>26}\n".format("Max:", max_global[0]+","+max_global[1], 
-            max_europe[0]+","+max_europe[1], max_us[0]+","+max_us[1]))
-        sys.stdout.write("{:<6}{:<26} {:^26} {:>26}\n".format("Median:", median_global[0]+","+median_global[1], 
-            median_europe[0]+","+median_europe[1], median_us[0]+","+median_us[1]))      
-        sys.stdout.write("{:<6}{:<26} {:^26} {:>26}\n".format("Min:", min_global[0]+","+min_global[1], 
-            min_europe[0]+","+min_europe[1], min_us[0]+","+min_us[1]))  
+        
+        sys.stdout.write("{:6}{:^19}{:^7.2e} {:^19}{:^7.2e} {:^19}{:^7.2e}\n".format("", "US", "Europe", \
+            "Global minus US/Europe"))
+        sys.stdout.write("{:<6}{:^19}{:^7.2e} {:^19}{:^7.2e} {:^19}{:^7.2e}\n".format("Max:", max_global[0], max_global[1], 
+            max_europe[0], max_europe[1], max_us[0], max_us[1]))
+        sys.stdout.write("{:<6}{:<26} {:^19}{:^7.2e} {:^19}{:^7.2e}\n".format("Median:", median_us[0], median_us[1], 
+            median_europe[0], median_europe[1], median_global[0], median_global[1]))      
+        sys.stdout.write("{:<6}{:^19}{:^7.2e} {:^19}{:^7.2e} {:^19}{:^7.2e}\n".format("Min:", min_us[0], min_us[1], \ 
+            min_europe[0], min_europe[1], min_global[0], min_global[1]))
         
     else:
         sys.stdout.write(args[0])
