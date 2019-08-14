@@ -205,7 +205,6 @@ def emissions_comparison(process_kwh):
            c = intl_data[country]
            total, breakdown = c['total'], [c['coal'], c['petroleum'], \
            c['naturalGas'], c['lowCarbon']]
-           
            if isinstance(total, float) and float(total) > 0:
                breakdown = list(map(lambda x: 100*x/total, breakdown))
                coal, petroleum, natural_gas, low_carbon = breakdown
@@ -218,6 +217,7 @@ def emissions_comparison(process_kwh):
                    europe_emissions.append((country,emission))
            all_emissions.sort(key=lambda x: x[1])
            europe_emissions.sort(key=lambda x: x[1])
+            
     # Handling US
     us_data = utils.get_data("data/json/us-emissions.json")
     for state in us_data:
@@ -231,11 +231,9 @@ def emissions_comparison(process_kwh):
     median_global, median_europe, median_us = all_emissions[len(all_emissions)//2], \
         europe_emissions[len(europe_emissions)//2], us_emissions[len(us_emissions)//2]
     min_global, min_europe, min_us= all_emissions[0], europe_emissions[0], us_emissions[0]
-  
-    print("World minus US or Europe Emissions \n Max: {} \n Median: {} \n Min: {} \n".format(max_global, \
-                                                                                             median_global, min_global))
-    print("Europe Emissions \n Max: {} \n Median: {} \n Min: {} \n".format(max_europe, median_europe, min_europe))
-    print("US Emissions \n Max: {} \n Median: {} \n Min: {}".format(max_us, median_us, min_us))
+    utils.log('Emissions Comparison', max_global, median_global, min_global, max_europe, \
+              median_europe, min_europe, max_us, median_us, min_us)
+ 
 
 def evaluate(user_func, *args, pdf=False, powerLoss=0.8):
     """ Calculates effective emissions of the function
