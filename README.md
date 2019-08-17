@@ -33,19 +33,17 @@ utility.
 The report that will be printed out will look like the one below. The second and third lines will show a real-time reading that disappears once the process has finished evaluating.
 ```
 Location:                                                           Pennsylvania
-Baseline wattage:                                                     1.61 watts
-Process wattage:                                                     17.27 watts
 --------------------------------------------------------------------------------
 -------------------------------  Final Readings  -------------------------------
 --------------------------------------------------------------------------------
-Average baseline wattage:                                             1.75 watts
-Average total wattage:                                               19.18 watts
-Average process wattage:                                             17.42 watts
-Process duration:                                                        0:00:19
+Average baseline wattage:                                             8.74 watts
+Average total wattage:                                               23.03 watts
+Average process wattage:                                             14.30 watts
+Process duration:                                                        0:00:20
 --------------------------------------------------------------------------------
 -------------------------------   Energy Data    -------------------------------
 --------------------------------------------------------------------------------
-                           Energy mix in Pennsylvania                           
+                           Energy mix in Pennsylvania
 Coal:                                                                     25.40%
 Oil:                                                                       0.20%
 Natural Gas:                                                              31.60%
@@ -53,16 +51,24 @@ Low Carbon:                                                               42.50%
 --------------------------------------------------------------------------------
 -------------------------------    Emissions     -------------------------------
 --------------------------------------------------------------------------------
-Effective emission:                                              3.66e-05 kg CO2
-Equivalent miles driven:                                          1.50e-11 miles
-Equivalent minutes of 32-inch LCD TV watched:                   2.27e-02 minutes
-Percentage of CO2 used in a US household/day:                          1.20e-11%
+Effective emission:                                              3.90e-05 kg CO2
+Equivalent miles driven:                                          1.59e-11 miles
+Equivalent minutes of 32-inch LCD TV watched:                   2.41e-02 minutes
+Percentage of CO2 used in a US household/day:                          1.28e-11%
 --------------------------------------------------------------------------------
 ------------------------- Assumed Carbon Equivalencies -------------------------
 --------------------------------------------------------------------------------
 Coal:                                                      995.725971 kg CO2/MWh
 Petroleum:                                                816.6885263 kg CO2/MWh
-Natural gas:                                              743.8415916 kg CO2/Mwh
+Natural gas:                                              743.8415916 kg CO2/MWh
+--------------------------------------------------------------------------------
+-------------------------     Emissions Comparison     -------------------------
+--------------------------------------------------------------------------------
+                      Quantities below expressed in kg CO2
+        US                      Europe                  Global minus US/Europe
+Max:    Wyoming        9.23e-05 Kosovo         9.47e-05 Mongolia        9.27e-05
+Median: Mississippi    4.28e-05 Ukraine        6.62e-05 Korea, South    7.57e-05
+Min:    Vermont        2.59e-06 Iceland        1.70e-05 Bhutan          1.05e-05
 ```
 The report is divided into several sections.
 * **Final Readings**: Presents an average of:
@@ -76,6 +82,8 @@ The report is divided into several sections.
 * **Emissions**: The effective CO<sub>2</sub> emissions of running the program one time and some real-world equivalents to those emissions.
 
 * **Assumed Carbon Equivalencies**: The formulas used to convert from kWh to CO<sub>2</sub> based on the energy mix of the location (for international locations, see below for more information).
+
+* **Emissions Comparison**: What the emissions would be for the same energy used in a representative group of US states and countries. 
 
 The PDF report contains the same sections, but does not include the process duration.
 

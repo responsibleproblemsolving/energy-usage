@@ -5,6 +5,8 @@ from multiprocessing import Process, Queue
 import os
 import datetime
 import subprocess
+import queue
+
 
 import energyusage.utils as utils
 import energyusage.convert as convert
@@ -63,6 +65,7 @@ def energy(user_func, *args, powerLoss = 0.8):
     start = timer()
     p.start()
     small_delay_counter = 0
+    return_value = None
     while(p.is_alive()):
         if (small_delay_counter > DELAY):
            delay = DELAY / 10
@@ -83,6 +86,13 @@ def energy(user_func, *args, powerLoss = 0.8):
         last_reading = (utils.get_total(files, multiple_cpus) + gpu_process[-1]) / powerLoss
         if last_reading >=0:
             utils.log("Process wattage", last_reading)
+
+        try:
+            return_value = q.get_nowait()
+            break
+        except queue.Empty:
+            pass
+    p.join()
     end = timer()
     for file in files:
         file.process = file.process[1:-1]
@@ -109,7 +119,7 @@ def energy(user_func, *args, powerLoss = 0.8):
     process_kwh = convert.to_kwh((process_average - baseline_average)*total_time) / powerLoss
 
     # Getting the return value of the user's function
-    return_value = q.get()
+    
 
 
     if is_nvidia_gpu:
