@@ -16,7 +16,7 @@ import energyusage.report as report
 DELAY = .1 # in seconds
 
 def func(user_func, q, *args):
-    """ Runs the user's function and gets return value """
+    """ Runs the user's function and puts return value in queue """
 
     value = user_func(*args)
     q.put(value)
@@ -25,7 +25,7 @@ def energy(user_func, *args, powerLoss = 0.8):
     """ Evaluates the kwh needed for your code to run
 
     Parameters:
-        func (function): user's function
+       user_func (function): user's function
 
     Returns:
         (process_kwh, return_value, watt_averages)
@@ -67,6 +67,7 @@ def energy(user_func, *args, powerLoss = 0.8):
     small_delay_counter = 0
     return_value = None
     while(p.is_alive()):
+        # Checking at a faster rate for quick processes
         if (small_delay_counter > DELAY):
            delay = DELAY / 10
            small_delay_counter+=1
@@ -86,7 +87,7 @@ def energy(user_func, *args, powerLoss = 0.8):
         last_reading = (utils.get_total(files, multiple_cpus) + gpu_process[-1]) / powerLoss
         if last_reading >=0:
             utils.log("Process wattage", last_reading)
-
+       # Getting the return value of the user's function
         try:
             return_value = q.get_nowait()
             break
@@ -117,10 +118,6 @@ def energy(user_func, *args, powerLoss = 0.8):
 
     # Subtracting baseline wattage to get more accurate result
     process_kwh = convert.to_kwh((process_average - baseline_average)*total_time) / powerLoss
-
-    # Getting the return value of the user's function
-    
-
 
     if is_nvidia_gpu:
         gpu_file = file("GPU", "")
@@ -215,6 +212,8 @@ def emissions(process_kwh, breakdown, location):
     return (emission, state_emission)
 
 def emissions_comparison(process_kwh):
+    """ Calculates emissions in different locations """
+	
     intl_data = utils.get_data("data/json/energy-mix-intl.json")
     global_emissions, europe_emissions, us_emissions = [], [], []
     # Handling international
@@ -234,8 +233,8 @@ def emissions_comparison(process_kwh):
                else:
                    global_emissions.append((country,emission))
               
-           global_emissions.sort(key=lambda x: x[1])
-           europe_emissions.sort(key=lambda x: x[1])
+    global_emissions.sort(key=lambda x: x[1])
+    europe_emissions.sort(key=lambda x: x[1])
             
     # Handling US
     us_data = utils.get_data("data/json/us-emissions.json")
@@ -254,7 +253,7 @@ def emissions_comparison(process_kwh):
               median_europe, min_europe, max_us, median_us, min_us)
  
 
-def evaluate(user_func, *args, pdf=False, powerLoss=0.8):
+def evaluate(user_func, *args, pdf=False, powerLoss=0.8, energyOutput=False):
     """ Calculates effective emissions of the function
 
         Parameters:
@@ -263,16 +262,21 @@ def evaluate(user_func, *args, pdf=False, powerLoss=0.8):
             powerLoss (float): PSU efficiency rating
 
     """
+    #FIXME: if(utils.valid_cpu() or utils.valid_gpu()):
     if (utils.valid_cpu() or True):
         location = locate.get()
-        result, return_value, watt_averages, files = energy(user_func, *args)
+        result, return_value, watt_averages, files = energy(user_func, *args, powerLoss=powerLoss)
         breakdown = energy_mix(location)
         emission, state_emission = emissions(result, breakdown, location)
         utils.log("Assumed Carbon Equivalencies")
         emissions_comparison(result)
+        utils.log("Process Energy", result)
         if pdf:
             report.generate(location, watt_averages, breakdown, emission, state_emission)
-        return return_value
+        if energyOutput:
+            return (result, return_value)
+        else:
+            return return_value
 
     else:
         utils.log("The energy-usage package only works on Linux kernels "
