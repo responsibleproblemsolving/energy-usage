@@ -4,7 +4,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 NAME = "energyusage"
-VERSION = "0.0.6"
+VERSION = "0.0.8"
 
 DESCRIPTION = "Measuring the environmental impact of computation"
 LONG_DESCRIPTION = long_description

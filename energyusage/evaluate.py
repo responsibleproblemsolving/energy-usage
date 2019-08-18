@@ -263,7 +263,7 @@ def evaluate(user_func, *args, pdf=False, powerLoss=0.8, energyOutput=False):
 
     """
     #FIXME: if(utils.valid_cpu() or utils.valid_gpu()):
-    if (utils.valid_cpu() or True):
+    if (utils.valid_cpu() or utils.valid_gpu()):
         location = locate.get()
         result, return_value, watt_averages, files = energy(user_func, *args, powerLoss=powerLoss)
         breakdown = energy_mix(location)
