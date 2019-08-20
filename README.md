@@ -60,15 +60,15 @@ Percentage of CO2 used in a US household/day:                          9.86e-12%
 --------------------------------------------------------------------------------
 ------------------------- Assumed Carbon Equivalencies -------------------------
 --------------------------------------------------------------------------------
-Coal:                                                      995.725971 kg CO2/MWh
-Petroleum:                                                816.6885263 kg CO2/MWh
-Natural gas:                                              743.8415916 kg CO2/MWh
+Coal:                                                             996 kg CO2/MWh
+Petroleum:                                                        817 kg CO2/MWh
+Natural gas:                                                      744 kg CO2/MWh
 Low carbon:                                                         0 kg CO2/MWh
 --------------------------------------------------------------------------------
 -------------------------     Emissions Comparison     -------------------------
 --------------------------------------------------------------------------------
                       Quantities below expressed in kg CO2                      
-        US                     Europe                 Global minus US/Europe
+        US                      Europe                  Global minus US/Europe
 Max:    Wyoming        7.10e-05 Kosovo         7.28e-05 Mongolia        7.13e-05
 Median: Mississippi    3.29e-05 Ukraine        5.09e-05 Korea, South    5.82e-05
 Min:    Vermont        1.99e-06 Iceland        1.31e-05 Bhutan          8.11e-06
