@@ -201,7 +201,7 @@ def emissions(process_kwh, breakdown, location, location_of_default):
 
     # Case 1: Unknown location, default to US data
     # Case 2: United States location
-    if location == "Unknown" or locate.in_US(location):
+    if locate.in_US(location):
         if location == "Unknown":
             location = "United States"
         # US Emissions data is in lbs/Mwh

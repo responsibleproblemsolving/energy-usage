@@ -237,10 +237,11 @@ def log(*args):
                 location = "World"
                 coal, natural_gas, petroleum, low_carbon = args[1]
                 sys.stdout.write("{:^80}\n{:<13}{:>66.2f}%\n{:<13}{:>66.2f}%\n{:<13}{:>66.2f}%\n"
-                    "{:<13}{:>66.2f}%\n".format("Location unknown, default energy mix in the"+location+":", "Coal:", coal, "Petroleum:", petroleum,
+                    "{:<13}{:>66.2f}%\n".format("Location unknown, default energy mix in the "+location+":", "Coal:", coal, "Petroleum:", petroleum,
                     "Natural Gas:", natural_gas, "Low Carbon:", low_carbon))
 
         elif locate.in_US(location):
+            coal, oil, gas, low_carbon = args[1]
             sys.stdout.write("{:^80}\n{:<13}{:>66.2f}%\n{:<13}{:>66.2f}%\n{:<13}{:>66.2f}%\n"
                 "{:<13}{:>66.2f}%\n".format("Energy mix in "+location, "Coal:", coal, "Oil:", oil,
                 "Natural Gas:", gas, "Low Carbon:", low_carbon))
