@@ -129,20 +129,30 @@ def energy(user_func, *args, powerLoss = 0.8):
     return (process_kwh, return_value, watt_averages, files)
 
 
-def energy_mix(location):
+def energy_mix(location, location_of_default):
     """ Gets the energy mix information for a specific location
 
         Parameters:
             location (str): user's location
+            location_of_default (str): Specifies which average to use if 
+            	location cannot be determined
 
         Returns:
             breakdown (list): percentages of each energy type
     """
+    if location == "Unknown":
+    	if location_of_default == "USAverage":
+    		location = "United States"
+    	elif location_of_default == "EuropeAverage":
+    		location = "Europe"
+    	else:
+    		location = "World"
 
-    if (location == "Unknown" or locate.in_US(location)):
+
+    if locate.in_US(location):
         # Default to U.S. average for unknown location
-        if location == "Unknown":
-            location = "United States"
+        
+
 
         data = utils.get_data("data/json/energy-mix-us.json")
         s = data[location]['mix'] # get state
@@ -168,7 +178,7 @@ def energy_mix(location):
         return breakdown # list of % of each
 
 
-def emissions(process_kwh, breakdown, location):
+def emissions(process_kwh, breakdown, location, location_of_default):
     """ Calculates the CO2 emitted by the program based on the location
 
         Parameters:
@@ -186,7 +196,7 @@ def emissions(process_kwh, breakdown, location):
         raise OSError("Process wattage lower than baseline wattage. Do not run other processes"
          " during the evaluation, or try evaluating a more resource-intensive process.")
 
-    utils.log("Energy Data", breakdown, location)
+    utils.log("Energy Data", breakdown, location, location_of_default)
     state_emission = 0
 
     # Case 1: Unknown location, default to US data
@@ -253,7 +263,7 @@ def emissions_comparison(process_kwh):
               median_europe, min_europe, max_us, median_us, min_us)
  
 
-def evaluate(user_func, *args, pdf=False, powerLoss=0.8, energyOutput=False):
+def evaluate(user_func, *args, pdf=False, powerLoss=0.8, energyOutput=False, location_of_default = "GlobalAverage"):
     """ Calculates effective emissions of the function
 
         Parameters:
@@ -262,12 +272,12 @@ def evaluate(user_func, *args, pdf=False, powerLoss=0.8, energyOutput=False):
             powerLoss (float): PSU efficiency rating
 
     """
-    #FIXME: if(utils.valid_cpu() or utils.valid_gpu()):
+   
     if (utils.valid_cpu() or utils.valid_gpu()):
         location = locate.get()
         result, return_value, watt_averages, files = energy(user_func, *args, powerLoss=powerLoss)
-        breakdown = energy_mix(location)
-        emission, state_emission = emissions(result, breakdown, location)
+        breakdown = energy_mix(location, location_of_default)
+        emission, state_emission = emissions(result, breakdown, location, location_of_default)
         utils.log("Assumed Carbon Equivalencies")
         emissions_comparison(result)
         utils.log("Process Energy", result)

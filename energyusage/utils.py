@@ -219,17 +219,31 @@ def log(*args):
     elif args[0] == "Energy Data":
         location = args[2]
         log_header('Energy Data')
-        if location == "Unknown" or locate.in_US(location):
-            coal, oil, gas, low_carbon = args[1]
-            if location == "Unknown":
+        if location == "Unknown":
+            location_of_default = args[3]
+            if location_of_default == "USAverage":
+                coal, oil, gas, low_carbon = args[1]           
                 location = "United States"
                 sys.stdout.write("{:^80}\n{:<13}{:>66.2f}%\n{:<13}{:>66.2f}%\n{:<13}{:>66.2f}%\n"
                     "{:<13}{:>66.2f}%\n".format("Location unknown, default energy mix in "+location+":", "Coal:", coal, "Oil:", oil,
                     "Natural Gas:", gas, "Low Carbon:", low_carbon))
-            elif locate.in_US(location):
+            elif location_of_default == "EUAverage":
+                location = "Europe"
+                coal, natural_gas, petroleum, low_carbon = args[1]
                 sys.stdout.write("{:^80}\n{:<13}{:>66.2f}%\n{:<13}{:>66.2f}%\n{:<13}{:>66.2f}%\n"
-                    "{:<13}{:>66.2f}%\n".format("Energy mix in "+location, "Coal:", coal, "Oil:", oil,
-                    "Natural Gas:", gas, "Low Carbon:", low_carbon))
+                    "{:<13}{:>66.2f}%\n".format("Location unknown, default energy mix in "+location+":", "Coal:", coal, "Petroleum:", petroleum,
+                    "Natural Gas:", natural_gas, "Low Carbon:", low_carbon))
+            else:
+                location = "World"
+                coal, natural_gas, petroleum, low_carbon = args[1]
+                sys.stdout.write("{:^80}\n{:<13}{:>66.2f}%\n{:<13}{:>66.2f}%\n{:<13}{:>66.2f}%\n"
+                    "{:<13}{:>66.2f}%\n".format("Location unknown, default energy mix in the"+location+":", "Coal:", coal, "Petroleum:", petroleum,
+                    "Natural Gas:", natural_gas, "Low Carbon:", low_carbon))
+
+        elif locate.in_US(location):
+            sys.stdout.write("{:^80}\n{:<13}{:>66.2f}%\n{:<13}{:>66.2f}%\n{:<13}{:>66.2f}%\n"
+                "{:<13}{:>66.2f}%\n".format("Energy mix in "+location, "Coal:", coal, "Oil:", oil,
+                "Natural Gas:", gas, "Low Carbon:", low_carbon))
         else:
             coal, natural_gas, petroleum, low_carbon = args[1]
             sys.stdout.write("{:^80}\n{:<13}{:>66.2f}%\n{:<13}{:>66.2f}%\n{:<13}{:>66.2f}%\n"
