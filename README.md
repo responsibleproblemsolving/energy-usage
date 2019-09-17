@@ -29,7 +29,8 @@ It will return the value of your function, while also printing out the energy us
 Optional keyword arguments:
 * `pdf`(default = `False`): generates a PDF report, alongside the command-line utility
 * `powerLoss` (default = `0.8`): accounts for PSU loss, can be set by user if known for higher accuracy of results
-* `energyOutput` (default = `False`): prints amount of energy used by the process 
+* `energyOutput` (default = `False`): prints amount of energy used by the process and time taken. The order is time, enery used, return of function
+* `printToScreen` (default = `True`): controls whether there is a terminal printout of the package running
 
 ### Energy Report
 The report that will be printed out will look like the one below. The second and third lines will show a real-time reading that disappears once the process has finished evaluating.
@@ -89,7 +90,7 @@ The report is divided into several sections.
 
 * **Assumed Carbon Equivalencies**: The formulas used to convert from kWh to CO<sub>2</sub> based on the energy mix of the location (for international locations, see below for more information).
 
-* **Emissions Comparison**: What the emissions would be for the same energy used in a representative group of US states and countries. 
+* **Emissions Comparison**: What the emissions would be for the same energy used in a representative group of US states and countries.
 
 Not part of a section is the energy used by the process, which is optionally printed.
 

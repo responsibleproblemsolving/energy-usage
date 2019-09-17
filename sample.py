@@ -7,6 +7,7 @@ def recursive_fib(n):
 
 def main():
     energyusage.evaluate(recursive_fib, 40, pdf=True, energyOutput=True)
+
     # returns 102,334,155
 
 if __name__ == '__main__': main()

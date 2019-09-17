@@ -24,7 +24,7 @@ EUROPE = ['Albania','Andorra','Armenia','Austria','Azerbaijan', \
 
 """ LOCATION UTILS """
 
-def get():
+def get(printToScreen):
     """ Gets user's location via GeoJS API
 
     Returns:
@@ -43,7 +43,8 @@ def get():
             location = geo['country']
     except:
         pass
-    print("Location: {:>70}".format(location))
+    if printToScreen:
+        print("Location: {:>70}".format(location))
     return location
 
 def in_US(location):
