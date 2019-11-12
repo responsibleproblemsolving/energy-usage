@@ -124,20 +124,20 @@ with open("./data/csv/egrid_resource_mix_" + year + ".csv") as csvfile:
     for row in reader:
         if row[2] != "":
             state_resource_mix[row[2]] = {
-                "nameplateCapacity": row[3],
-                "netGeneration": row[4],
+                "nameplateCapacity": float(row[3]),
+                "netGeneration": float(row[4]),
                 "mix": {
-                    "coal": row[5],
-                    "oil": row[6],
-                    "gas": row[7],
-                    "otherFossil": row[8],
-                    "nuclear": row[9],
-                    "hydro": row[10],
-                    "biomass": row[11],
-                    "wind": row[12],
-                    "solar": row[13],
-                    "geothermal": row[14],
-                    "unknown": row[15]
+                    "coal": float(row[5]),
+                    "oil": float(row[6]),
+                    "gas": float(row[7]),
+                    "otherFossil": float(row[8]),
+                    "nuclear": float(row[9]),
+                    "hydro": float(row[10]),
+                    "biomass": float(row[11]),
+                    "wind": float(row[12]),
+                    "solar": float(row[13]),
+                    "geothermal": float(row[14]),
+                    "unknown": float(row[15])
                 }}
 state_resource_mix = { states[key]:value for key, value in state_resource_mix.items()}
 json_file = json.dumps(state_resource_mix)
