@@ -1,6 +1,7 @@
 import csv
 import json
 import pandas as pd
+import optparse
 
 states = { "AL": "Alabama", "AK": "Alaska", "AS": "American Samoa", "AZ": "Arizona", \
    "AR": "Arkansas", "CA": "California", "CO": "Colorado", "CT": "Connecticut", \
@@ -17,10 +18,31 @@ states = { "AL": "Alabama", "AK": "Alaska", "AS": "American Samoa", "AZ": "Arizo
    "U.S.": "U.S.", "_unit":"_unit", "_define": "_define"
 }
 
+def parse_args():
+    """Parse command line arguments for year."""
+    parser = optparse.OptionParser(description='find year')
+
+
+    parser.add_option('-y', '--year', type='string', help='year for the data')
+
+    (opts, args) = parser.parse_args()
+    mandatories = ['year',]
+    for m in mandatories:
+        if not opts.__dict__[m]:
+            print('mandatory option ' + m + ' is missing\n')
+            parser.print_help()
+            sys.exit()
+    return opts
+
+
+# take the arg from the script
+opts = parse_args()
+year = opts.year
+
 """ Converts the US EIA csv file to json """
 # Definiting structure of JSON
 countries = {"_define": {
-      "total":"TOTAL 2016",
+      "total":"TOTAL EMISSIONS",
       "coal":"COAL",
       "naturalGas":"NATURAL GAS",
       "petroleum":"PETROLEUM + OTHER LIQUIDS",
@@ -29,7 +51,7 @@ countries = {"_define": {
       }}
 categories = ["total", "coal", "naturalGas", "petroleum",  "lowCarbon"]
 category_index = -1
-with open("./energyusage/data/raw/international_data.csv") as csvfile:
+with open("./data/raw/" + year + "/international_data.csv") as csvfile:
     reader = csv.reader(csvfile, delimiter=',')
     # Skipping unnecessary headers
     [next(reader) for i in range(7)]
@@ -50,19 +72,19 @@ with open("./energyusage/data/raw/international_data.csv") as csvfile:
                 country_dict[categories[category_index]] = float(row[-1])
                 countries[row[1]] = country_dict
 json_file = json.dumps(countries)
-with open("./energyusage/data/json/energy-mix-intl.json", 'w') as jsonwriter:
+with open("./data/json/energy-mix-intl_" + year + ".json", 'w') as jsonwriter:
     jsonwriter.write(json_file)
 
 
 """ Converts eGRID xlsx file to json """
 # Table 3: CO2 Emissions
 
-egrid = pd.ExcelFile("./energyusage/data/raw/egrid.xlsx")
+egrid = pd.ExcelFile("./data/raw/" + year + "/egrid.xlsx")
 emissions = egrid.parse('Table 3')
-emissions.to_csv("./energyusage/data/csv/egrid_emissions.csv", sep=',')
+emissions.to_csv("./data/csv/egrid_emissions_" + year + ".csv", sep=',')
 
 state_carbon = {"_unit": "lbs/MWh"}
-with open("./energyusage/data/csv/egrid_emissions.csv") as csvfile:
+with open("./data/csv/egrid_emissions_" + year + ".csv") as csvfile:
     reader = csv.reader(csvfile, delimiter=',')
     [next(reader) for i in range(4)]
     for row in reader:
@@ -72,12 +94,12 @@ with open("./energyusage/data/csv/egrid_emissions.csv") as csvfile:
 # Handling the renaming of the states
 state_carbon = { states[key]:value for key, value in state_carbon.items()}
 json_file = json.dumps(state_carbon)
-with open("./energyusage/data/json/us-emissions.json", 'w') as jsonwriter:
+with open("./data/json/us-emissions_" + year + ".json", 'w') as jsonwriter:
     jsonwriter.write(json_file)
 
 # Table 4: State Resource Mix
 resource_mix = egrid.parse('Table 4')
-resource_mix.to_csv("./energyusage/data/csv/egrid_resource_mix.csv", sep=',')
+resource_mix.to_csv("./data/csv/egrid_resource_mix_" + year + ".csv", sep=',')
 state_resource_mix = {"_define":{
       "nameplateCapacity":"Nameplate Capacity (MW)",
       "netGeneration":"Net Generation (MWh)",
@@ -96,7 +118,7 @@ state_resource_mix = {"_define":{
          "_units":"percentage"
       }}}
 
-with open("./energyusage/data/csv/egrid_resource_mix.csv") as csvfile:
+with open("./data/csv/egrid_resource_mix_" + year + ".csv") as csvfile:
     reader = csv.reader(csvfile, delimiter=',')
     [next(reader) for i in range(3)]
     for row in reader:
@@ -119,5 +141,5 @@ with open("./energyusage/data/csv/egrid_resource_mix.csv") as csvfile:
                 }}
 state_resource_mix = { states[key]:value for key, value in state_resource_mix.items()}
 json_file = json.dumps(state_resource_mix)
-with open("./energyusage/data/json/energy-mix-us.json", 'w') as jsonwriter:
+with open("./data/json/energy-mix-us_" + year + ".json", 'w') as jsonwriter:
     jsonwriter.write(json_file)

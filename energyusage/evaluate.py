@@ -21,7 +21,7 @@ def func(user_func, q, *args):
     value = user_func(*args)
     q.put(value)
 
-def energy(user_func, *args, powerLoss = 0.8):
+def energy(user_func, *args, powerLoss = 0.8, year= 2016):
     """ Evaluates the kwh needed for your code to run
 
     Parameters:
@@ -129,7 +129,7 @@ def energy(user_func, *args, powerLoss = 0.8):
     return (process_kwh, return_value, watt_averages, files)
 
 
-def energy_mix(location):
+def energy_mix(location, year = year):
     """ Gets the energy mix information for a specific location
 
         Parameters:
@@ -144,7 +144,7 @@ def energy_mix(location):
         if location == "Unknown":
             location = "United States"
 
-        data = utils.get_data("data/json/energy-mix-us.json")
+        data = utils.get_data("data/json/energy-mix-us_" + year + ".json")
         s = data[location]['mix'] # get state
         coal, oil, gas = s['coal'], s['oil'], s['gas']
         nuclear, hydro, biomass, wind, solar, geo, = \
@@ -157,7 +157,7 @@ def energy_mix(location):
         return breakdown # list of % of each
 
     else:
-        data = utils.get_data('data/json/energy-mix-intl.json')
+        data = utils.get_data("data/json/energy-mix-intl_" + year + ".json")
         c = data[location] # get country
         total, breakdown =  c['total'], [c['coal'], c['petroleum'], \
         c['naturalGas'], c['lowCarbon']]
@@ -168,7 +168,7 @@ def energy_mix(location):
         return breakdown # list of % of each
 
 
-def emissions(process_kwh, breakdown, location):
+def emissions(process_kwh, breakdown, location, year = year):
     """ Calculates the CO2 emitted by the program based on the location
 
         Parameters:
@@ -195,7 +195,7 @@ def emissions(process_kwh, breakdown, location):
         if location == "Unknown":
             location = "United States"
         # US Emissions data is in lbs/Mwh
-        data = utils.get_data("data/json/us-emissions.json")
+        data = utils.get_data("data/json/us-emissions _" + year + ".json")
         state_emission = data[location]
         emission = convert.lbs_to_kgs(state_emission*convert.to_MWh(process_kwh))
 
@@ -211,8 +211,10 @@ def emissions(process_kwh, breakdown, location):
     utils.log("Emissions", emission)
     return (emission, state_emission)
 
+"""
+OLD VERSION: US, EU, Rest comparison
 def emissions_comparison(process_kwh):
-    """ Calculates emissions in different locations """
+      # Calculates emissions in different locations
 
     intl_data = utils.get_data("data/json/energy-mix-intl.json")
     global_emissions, europe_emissions, us_emissions = [], [], []
@@ -249,27 +251,58 @@ def emissions_comparison(process_kwh):
     median_global, median_europe, median_us = global_emissions[len(global_emissions)//2], \
         europe_emissions[len(europe_emissions)//2], us_emissions[len(us_emissions)//2]
     min_global, min_europe, min_us= global_emissions[0], europe_emissions[0], us_emissions[0]
+
     utils.log('Emissions Comparison', max_global, median_global, min_global, max_europe, \
               median_europe, min_europe, max_us, median_us, min_us)
 
+"""
 
-def evaluate(user_func, *args, pdf=False, powerLoss=0.8, energyOutput=False):
+def emissions_comparison(process_kwh, locations, year = year ):
+    # TODO: Disambiguation of states such as Georgia, US and Georgia
+    intl_data = utils.get_data("data/json/energy-mix-intl_" + year + ".json")
+    us_data = utils.get_data("data/json/us-emissions_" + year + ".json")
+    emissions = [] # list of tuples w/ format (location, emission)
+
+    for location in locations:
+        print(location)
+        if locate.in_US(location):
+            emission = convert.lbs_to_kgs(us_data[location]*convert.to_MWh(process_kwh))
+            emissions.append((location, emission))
+        else:
+             c = intl_data[location]
+             total, breakdown = c['total'], [c['coal'], c['petroleum'], \
+             c['naturalGas'], c['lowCarbon']]
+             if isinstance(total, float) and float(total) > 0:
+                 breakdown = list(map(lambda x: 100*x/total, breakdown))
+                 coal, petroleum, natural_gas, low_carbon = breakdown
+                 breakdown = [convert.coal_to_carbon(process_kwh * coal/100),
+                      convert.petroleum_to_carbon(process_kwh * petroleum/100),
+                      convert.natural_gas_to_carbon(process_kwh * natural_gas/100), 0]
+                 emission = sum(breakdown)
+                 emissions.append((location,emission))
+
+    if emissions != []:
+        utils.log('Emissions Comparison', emissions)
+
+def evaluate(user_func, *args, pdf=False, powerLoss=0.8, energyOutput=False, locations=[], year="2016"):
     """ Calculates effective emissions of the function
 
         Parameters:
             user_func: user inputtted function
             pdf (bool): whether a PDF report should be generated
             powerLoss (float): PSU efficiency rating
+            locations (list of tuples): list of locations to be compared
+            year (str): year of dataset to be used
 
     """
     #FIXME: if(utils.valid_cpu() or utils.valid_gpu()):
     if (utils.valid_cpu() or True):
         location = locate.get()
-        result, return_value, watt_averages, files = energy(user_func, *args, powerLoss=powerLoss)
-        breakdown = energy_mix(location)
-        emission, state_emission = emissions(result, breakdown, location)
+        result, return_value, watt_averages, files = energy(user_func, *args, powerLoss=powerLoss, year=year)
+        breakdown = energy_mix(location, year = year)
+        emission, state_emission = emissions(result, breakdown, location, year = year)
         utils.log("Assumed Carbon Equivalencies")
-        emissions_comparison(result)
+        emissions_comparison(result, locations, year = year)
         utils.log("Process Energy", result)
         if pdf:
             report.generate(location, watt_averages, breakdown, emission, state_emission)

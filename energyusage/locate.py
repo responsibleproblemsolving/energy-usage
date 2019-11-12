@@ -1,5 +1,6 @@
 import requests
 
+# TODO: Make these sets 
 STATES = ['Alabama','Alaska','Arizona','Arkansas','California','Colorado', \
 'Connecticut','Delaware', 'Florida','Georgia','Hawaii','Idaho', \
 'Illinois','Indiana','Iowa','Kansas','Kentucky','Louisiana', \

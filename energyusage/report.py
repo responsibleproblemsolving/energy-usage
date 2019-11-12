@@ -1,6 +1,6 @@
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.units import inch
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, Frame
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.enums import TA_RIGHT, TA_CENTER
 from reportlab.lib import colors
@@ -11,9 +11,10 @@ import energyusage.convert as convert
 year = "2016"
 
 styles = getSampleStyleSheet()
-TitleStyle = ParagraphStyle(name='Normal', fontSize=16, alignment= TA_CENTER)
-HeaderStyle = ParagraphStyle(name='Normal',fontSize=14)
-SubheaderStyle = ParagraphStyle(name='Normal',fontSize=12)
+TitleStyle = ParagraphStyle(name='Normal', fontSize=14, alignment= TA_CENTER)
+SubtitleStyle = ParagraphStyle(name='Normal', fontSize=10, alignment= TA_CENTER)
+HeaderStyle = ParagraphStyle(name='Normal',fontSize=12)
+SubheaderStyle = ParagraphStyle(name='Normal',fontSize=10)
 DescriptorStyle = styles["BodyText"]
 Elements = []
 
@@ -23,6 +24,12 @@ def bold(text):
 def title(text, style=TitleStyle, klass=Paragraph, sep=0.3):
     """ Creates title of report """
     t = klass(bold(text), style)
+    Elements.append(t)
+
+def subtitle(text, style=SubtitleStyle, klass=Paragraph, sep=0.05):
+    s = Spacer(0, sep*inch)
+    t = klass(text, style)
+    Elements.append(s)
     Elements.append(t)
 
 def header(text, style=HeaderStyle, klass=Paragraph, sep=0.3, spaceAfter=False):
@@ -42,7 +49,7 @@ def subheader(text, style=SubheaderStyle, klass=Paragraph, sep=0.2):
     sh = klass(bold(text), style)
     Elements.append(sh)
 
-def descriptor(text, style=DescriptorStyle, klass=Paragraph, sep=0.05, spaceBefore=True, spaceAfter = True):
+def descriptor(text, style=DescriptorStyle, klass=Paragraph, sep=0.05, spaceBefore=True, spaceAfter=True):
     """ Creates descriptor text for a (sub)section; sp adds space before text """
     s = Spacer(0, 1.5*sep*inch)
     if spaceBefore:
@@ -87,6 +94,14 @@ def generate(location, watt_averages, breakdown, emission, state_emission):
                             topMargin=1*inch,bottomMargin=1*inch)
 
     title("Energy Usage Report")
+    # TODO: add function name and args
+    subtitle("Energy usage and carbon emissions")
+
+    """
+    1 container w 2 frames: readings + image
+    """
+    readings_and_image()
+
     header("Final Readings")
     descriptor("Readings shown are averages of wattage over the time period", spaceAfter=True)
     baseline_average, process_average, difference_average = watt_averages
@@ -106,31 +121,21 @@ def generate(location, watt_averages, breakdown, emission, state_emission):
         else:
             readings.append(line)
     '''
+    coal, oil, natural_gas, low_carbon = breakdown
+    energy_mix = [['Energy Source', 'Percentage'],
+                  ['Coal', "{}%".format(coal)],
+                  ['Oil', "{}%".format(oil)],
+                  ['Natural gas', "{}%".format(natural_gas)],
+                  ['Low carbon', "{}%".format(low_carbon)]]
 
-    if state_emission:
-        coal, oil, natural_gas, low_carbon = breakdown
-        energy_mix = [['Energy Source', 'Percentage'],
-                      ['Coal', "{}%".format(coal)],
-                      ['Oil', "{}%".format(oil)],
-                      ['Natural gas', "{}%".format(natural_gas)],
-                      ['Low carbon', "{}%".format(low_carbon)]]
-        source = "eGRID"
-        equivs = [['Carbon Equivalency', str(state_emission) + ' lbs/MWh']]
-    else:
-        coal, petroleum, natural_gas, low_carbon = breakdown
-        energy_mix = [['Energy Source', 'Percentage'],
-                      ['Coal',  "{:.2f}%".format(coal)],
-                      ['Petroleum', "{:.2f}%".format(petroleum)],
-                      ['Natural gas', "{:.2f}%".format(natural_gas)],
-                      ['Low carbon', "{:.2f}%".format(low_carbon)]]
-        source = "US EIA"
-        equivs = [['Coal', '995.725971 kg CO2/MWh'],
-                   ['Petroleum', '816.6885263 kg CO2/MWh'],
-                   ['Natural gas', '743.8415916 kg CO2/MWh']]
+    equivs = [['Coal', '996 kg CO2/MWh'],
+                   ['Oil', '817 kg CO2/MWh'],
+                   ['Natural gas', '744 kg CO2/MWh'],
+                   ['Low carbon', '0 kg']]
 
     table(readings)
     header("Energy Data")
-    descriptor("Energy mix in {} based on {} {} data".format(location, year, source))
+    descriptor("Energy mix in {} based on {} data".format(location, year))
     table(energy_mix)
     emissions = [['Emission', 'Amount'],
                  ['Effective emission', "{:.2e} kg CO2".format(emission)],
