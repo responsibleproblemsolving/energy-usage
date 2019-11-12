@@ -12,6 +12,7 @@ import energyusage.convert as convert
 import energyusage.locate as locate
 from energyusage.RAPLFile import RAPLFile
 
+printToScreenGlobal = True
 BASE = "/sys/class/powercap/"
 DELAY = .1 # in seconds
 DIR_PATH = os.path.dirname(os.path.realpath(__file__))
@@ -193,43 +194,105 @@ def delete_last_lines():
 def newline():
     sys.stdout.write('\n')
 
+def setGlobal(printToScreen):
+    global printToScreenGlobal
+    printToScreenGlobal = printToScreen
+
 def log(*args):
-    if (re.search("Package|CPU.*|GPU|DRAM", args[0])):
-        measurement = args[1]
-        sys.stdout.write("\r{:<24} {:>49.2f} {:5<}".format(args[0]+":", measurement, "watts"))
+    if printToScreenGlobal:
+        if (re.search("Package|CPU.*|GPU|DRAM", args[0])):
+            measurement = args[1]
+            sys.stdout.write("\r{:<24} {:>49.2f} {:5<}".format(args[0]+":", measurement, "watts"))
 
-    if args[0] == "Baseline wattage":
-        measurement = args[1]
-        sys.stdout.write("\r{:<24} {:>49.2f} {:5<}".format(args[0]+":", measurement, "watts"))
+        if args[0] == "Baseline wattage":
+            measurement = args[1]
+            sys.stdout.write("\r{:<24} {:>49.2f} {:5<}".format(args[0]+":", measurement, "watts"))
 
-    elif args[0] == "Process wattage":
-        measurement = args[1]
-        sys.stdout.write("\r{:<17} {:>56.2f} {:5<}".format(args[0]+":", measurement, "watts"))
+        elif args[0] == "Process wattage":
+            measurement = args[1]
+            sys.stdout.write("\r{:<17} {:>56.2f} {:5<}".format(args[0]+":", measurement, "watts"))
 
-    elif args[0] == "Final Readings":
-        newline()
-        baseline_average, process_average, difference_average, timedelta = args[1], args[2], args[3], args[4]
-        delete_last_lines()
-        log_header(args[0])
-        sys.stdout.write("{:<25} {:>48.2f} {:5<}\n".format("Average baseline wattage:", baseline_average, "watts"))
-        sys.stdout.write("{:<25} {:>48.2f} {:5<}\n".format("Average total wattage:", process_average, "watts"))
-        sys.stdout.write("{:<25} {:>48.2f} {:5<}\n".format("Average process wattage:", difference_average, "watts"))
-        sys.stdout.write("{:<17} {:>62}\n".format("Process duration:", timedelta))
+        elif args[0] == "Final Readings":
+            newline()
+            baseline_average, process_average, difference_average, timedelta = args[1], args[2], args[3], args[4]
+            delete_last_lines()
+            log_header(args[0])
+            sys.stdout.write("{:<25} {:>48.2f} {:5<}\n".format("Average baseline wattage:", baseline_average, "watts"))
+            sys.stdout.write("{:<25} {:>48.2f} {:5<}\n".format("Average total wattage:", process_average, "watts"))
+            sys.stdout.write("{:<25} {:>48.2f} {:5<}\n".format("Average process wattage:", difference_average, "watts"))
+            sys.stdout.write("{:<17} {:>62}\n".format("Process duration:", timedelta))
 
-    elif args[0] == "Energy Data":
-        location = args[2]
-        log_header('Energy Data')
-        if location == "Unknown" or locate.in_US(location):
-            coal, oil, gas, low_carbon = args[1]
+        elif args[0] == "Energy Data":
+            location = args[2]
+            log_header('Energy Data')
             if location == "Unknown":
-                location = "United States"
-                sys.stdout.write("{:^80}\n{:<13}{:>66.2f}%\n{:<13}{:>66.2f}%\n{:<13}{:>66.2f}%\n"
-                    "{:<13}{:>66.2f}%\n".format("Location unknown, default energy mix in "+location+":", "Coal:", coal, "Oil:", oil,
-                    "Natural Gas:", gas, "Low Carbon:", low_carbon))
+                location_of_default = args[3]
+                if location_of_default == "USAverage":
+                    coal, oil, gas, low_carbon = args[1]
+                    location = "United States"
+                    sys.stdout.write("{:^80}\n{:<13}{:>66.2f}%\n{:<13}{:>66.2f}%\n{:<13}{:>66.2f}%\n"
+                        "{:<13}{:>66.2f}%\n".format("Location unknown, default energy mix in "+location+":", "Coal:", coal, "Oil:", oil,
+                        "Natural Gas:", gas, "Low Carbon:", low_carbon))
+                elif location_of_default == "EUAverage":
+                    location = "Europe"
+                    coal, natural_gas, petroleum, low_carbon = args[1]
+                    sys.stdout.write("{:^80}\n{:<13}{:>66.2f}%\n{:<13}{:>66.2f}%\n{:<13}{:>66.2f}%\n"
+                        "{:<13}{:>66.2f}%\n".format("Location unknown, default energy mix in "+location+":", "Coal:", coal, "Petroleum:", petroleum,
+                        "Natural Gas:", natural_gas, "Low Carbon:", low_carbon))
+                else:
+                    location = "World"
+                    coal, natural_gas, petroleum, low_carbon = args[1]
+                    sys.stdout.write("{:^80}\n{:<13}{:>66.2f}%\n{:<13}{:>66.2f}%\n{:<13}{:>66.2f}%\n"
+                        "{:<13}{:>66.2f}%\n".format("Location unknown, default energy mix in the "+location+":", "Coal:", coal, "Petroleum:", petroleum,
+                        "Natural Gas:", natural_gas, "Low Carbon:", low_carbon))
+
             elif locate.in_US(location):
+                coal, oil, gas, low_carbon = args[1]
                 sys.stdout.write("{:^80}\n{:<13}{:>66.2f}%\n{:<13}{:>66.2f}%\n{:<13}{:>66.2f}%\n"
                     "{:<13}{:>66.2f}%\n".format("Energy mix in "+location, "Coal:", coal, "Oil:", oil,
                     "Natural Gas:", gas, "Low Carbon:", low_carbon))
+            else:
+                coal, natural_gas, petroleum, low_carbon = args[1]
+                sys.stdout.write("{:^80}\n{:<13}{:>66.2f}%\n{:<13}{:>66.2f}%\n{:<13}{:>66.2f}%\n"
+                        "{:<13}{:>66.2f}%\n".format("Energy mix in "+location, "Coal:", coal, "Petroleum:", petroleum,
+                        "Natural Gas:", natural_gas, "Low Carbon:", low_carbon))
+
+        elif args[0] == "Emissions":
+            emission = args[1]
+            log_header('Emissions')
+            sys.stdout.write("{:<19}{:>54.2e} kg CO2\n".format("Effective emission:", \
+                emission))
+            sys.stdout.write("{:<24}{:>50.2e} miles\n".format("Equivalent miles driven:", \
+                convert.carbon_to_miles(emission)))
+            sys.stdout.write("{:<45}{:>27.2e} minutes\n".format("Equivalent minutes of 32-inch LCD TV watched:", \
+                convert.carbon_to_tv(emission)))
+            sys.stdout.write("{:<45}{:>34.2e}%\n".format("Percentage of CO2 used in a US"
+            " household/day:",convert.carbon_to_home(emission)))
+
+        elif args[0] == "Assumed Carbon Equivalencies":
+            log_header('Assumed Carbon Equivalencies')
+            sys.stdout.write("{:<14} {:>65}\n".format("Coal:", "996 kg CO2/MWh"))
+            sys.stdout.write("{:<14} {:>65}\n".format("Petroleum:", "817 kg CO2/MWh"))
+            sys.stdout.write("{:<14} {:>65}\n".format("Natural gas:", "744 kg CO2/MWh"))
+            sys.stdout.write("{:<14} {:>65}\n".format("Low carbon:", "0 kg CO2/MWh"))
+        elif args[0] == "Emissions Comparison":
+            log_header('Emissions Comparison')
+            max_global, median_global, min_global, max_europe, median_europe, min_europe, \
+            max_us, median_us, min_us = args[1:]
+            sys.stdout.write("{:^80}\n".format("Quantities below expressed in kg CO2"))
+            sys.stdout.write("{:8}{:<23} {:<23} {:<22}\n".format("", "US", "Europe", \
+                "Global minus US/Europe"))
+            sys.stdout.write("{:<7} {:<13}{:>10.2e} {:<13}{:>10.2e} {:<14}{:>10.2e}\n".format("Max:", max_us[0], max_us[1], \
+                max_europe[0], max_europe[1], max_global[0], max_global[1]))
+            sys.stdout.write("{:<7} {:<13}{:>10.2e} {:<13}{:>10.2e} {:<14}{:>10.2e}\n".format("Median:", median_us[0], median_us[1], \
+                median_europe[0], median_europe[1], median_global[0], median_global[1]))
+            sys.stdout.write("{:<7} {:<13}{:>10.2e} {:<13}{:>10.2e} {:<14}{:>10.2e}\n".format("Min:", min_us[0], min_us[1], \
+                min_europe[0], min_europe[1], min_global[0], min_global[1]))
+        elif args[0] == "Process Energy":
+            energy = args[1]
+            sys.stdout.write("-"*80+ "\n" + "-"*80 + "\n")
+            sys.stdout.write("{:<13} {:51} {:>10.2e} {:>3}\n".format("Process used:", "", energy, "kWh"))
+
         else:
             coal, natural_gas, petroleum, low_carbon = args[1]
             sys.stdout.write("{:^80}\n{:<13}{:>66.2f}%\n{:<13}{:>66.2f}%\n{:<13}{:>66.2f}%\n"

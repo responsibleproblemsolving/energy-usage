@@ -11,6 +11,7 @@ v0.0.3
 
 v0.0.4
 * updated conversion formulas
+* added powerLoss parameter
 
 v0.0.5
 * added Emissions Comparison section to command-line report
@@ -20,4 +21,4 @@ v.0.0.6
 * fixed multiprocessing bug that would cause deadlock
 
 v.0.0.7
-* added option of getting emissions value from `evaluate` 
+* added option of getting emissions value from `evaluate` via energyOutput parameter

@@ -26,8 +26,11 @@ energyusage.evaluate(recursive_fib, 40, pdf=True)
 # returns 102,334,155
 ```
 It will return the value of your function, while also printing out the energy usage report on the command line.
-If the keyword argument `pdf` is set to `True`, then a PDF report will also be generated, alongside the command-line
-utility.
+Optional keyword arguments:
+* `pdf`(default = `False`): generates a PDF report, alongside the command-line utility
+* `powerLoss` (default = `0.8`): accounts for PSU loss, can be set by user if known for higher accuracy of results
+* `energyOutput` (default = `False`): prints amount of energy used by the process and time taken. The order is time, enery used, return of function
+* `printToScreen` (default = `True`): controls whether there is a terminal printout of the package running
 
 ### Energy Report
 The report that will be printed out will look like the one below. The second and third lines will show a real-time reading that disappears once the process has finished evaluating.
@@ -36,14 +39,14 @@ Location:                                                           Pennsylvania
 --------------------------------------------------------------------------------
 -------------------------------  Final Readings  -------------------------------
 --------------------------------------------------------------------------------
-Average baseline wattage:                                             8.74 watts
-Average total wattage:                                               23.03 watts
-Average process wattage:                                             14.30 watts
-Process duration:                                                        0:00:20
+Average baseline wattage:                                             4.99 watts
+Average total wattage:                                               18.32 watts
+Average process wattage:                                             13.33 watts
+Process duration:                                                        0:00:16
 --------------------------------------------------------------------------------
 -------------------------------   Energy Data    -------------------------------
 --------------------------------------------------------------------------------
-                           Energy mix in Pennsylvania
+                           Energy mix in Pennsylvania                           
 Coal:                                                                     25.40%
 Oil:                                                                       0.20%
 Natural Gas:                                                              31.60%
@@ -51,24 +54,28 @@ Low Carbon:                                                               42.50%
 --------------------------------------------------------------------------------
 -------------------------------    Emissions     -------------------------------
 --------------------------------------------------------------------------------
-Effective emission:                                              3.90e-05 kg CO2
-Equivalent miles driven:                                          1.59e-11 miles
-Equivalent minutes of 32-inch LCD TV watched:                   2.41e-02 minutes
-Percentage of CO2 used in a US household/day:                          1.28e-11%
+Effective emission:                                              3.00e-05 kg CO2
+Equivalent miles driven:                                          1.23e-11 miles
+Equivalent minutes of 32-inch LCD TV watched:                   1.85e-02 minutes
+Percentage of CO2 used in a US household/day:                          9.86e-12%
 --------------------------------------------------------------------------------
 ------------------------- Assumed Carbon Equivalencies -------------------------
 --------------------------------------------------------------------------------
-Coal:                                                      995.725971 kg CO2/MWh
-Petroleum:                                                816.6885263 kg CO2/MWh
-Natural gas:                                              743.8415916 kg CO2/MWh
+Coal:                                                             996 kg CO2/MWh
+Petroleum:                                                        817 kg CO2/MWh
+Natural gas:                                                      744 kg CO2/MWh
+Low carbon:                                                         0 kg CO2/MWh
 --------------------------------------------------------------------------------
 -------------------------     Emissions Comparison     -------------------------
 --------------------------------------------------------------------------------
-                      Quantities below expressed in kg CO2
+                      Quantities below expressed in kg CO2                      
         US                      Europe                  Global minus US/Europe
-Max:    Wyoming        9.23e-05 Kosovo         9.47e-05 Mongolia        9.27e-05
-Median: Mississippi    4.28e-05 Ukraine        6.62e-05 Korea, South    7.57e-05
-Min:    Vermont        2.59e-06 Iceland        1.70e-05 Bhutan          1.05e-05
+Max:    Wyoming        7.10e-05 Kosovo         7.28e-05 Mongolia        7.13e-05
+Median: Mississippi    3.29e-05 Ukraine        5.09e-05 Korea, South    5.82e-05
+Min:    Vermont        1.99e-06 Iceland        1.31e-05 Bhutan          8.11e-06
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Process used:                                                       7.72e-05 kWh
 ```
 The report is divided into several sections.
 * **Final Readings**: Presents an average of:
@@ -83,9 +90,11 @@ The report is divided into several sections.
 
 * **Assumed Carbon Equivalencies**: The formulas used to convert from kWh to CO<sub>2</sub> based on the energy mix of the location (for international locations, see below for more information).
 
-* **Emissions Comparison**: What the emissions would be for the same energy used in a representative group of US states and countries. 
+* **Emissions Comparison**: What the emissions would be for the same energy used in a representative group of US states and countries.
 
-The PDF report contains the same sections, but does not include the process duration.
+Not part of a section is the energy used by the process, which is optionally printed.
+
+The PDF report contains the same sections, but does not include the process duration or the emissions comparison momentarily.
 
 ## Methodology
 ### Power Measurement
