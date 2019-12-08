@@ -267,7 +267,6 @@ def emissions_comparison(process_kwh, locations, year):
     emissions = [] # list of tuples w/ format (location, emission)
 
     for location in locations:
-        print(location)
         if locate.in_US(location):
             emission = convert.lbs_to_kgs(us_data[location]*convert.to_MWh(process_kwh))
             emissions.append((location, emission))
@@ -287,15 +286,18 @@ def emissions_comparison(process_kwh, locations, year):
     if emissions != []:
         utils.log('Emissions Comparison', emissions)
 
+
 def evaluate(user_func, *args, pdf=False, powerLoss=0.8, energyOutput=False, locations=[], year="2016", printToScreen = True):
     """ Calculates effective emissions of the function
 
         Parameters:
-            user_func: user inputtted function
+            user_func: user's function + associated args
             pdf (bool): whether a PDF report should be generated
             powerLoss (float): PSU efficiency rating
-            locations (list of tuples): list of locations to be compared
+            energyOutput (bool): return value also includes information about energy usage, not just function's return
+            locations (list of strings): list of locations to be compared
             year (str): year of dataset to be used
+            printToScreen (bool): get information in the command line
 
     """
 
@@ -310,8 +312,8 @@ def evaluate(user_func, *args, pdf=False, powerLoss=0.8, energyOutput=False, loc
         emissions_comparison(result, locations, year)
         utils.log("Process Energy", result)
         if pdf:
-            pass
-        #    report.generate(location, watt_averages, breakdown, emission, state_emission)
+            #pass
+            report.generate(location, watt_averages, breakdown, emission, state_emission)
         if energyOutput:
             return (total_time, result, return_value)
         else:
