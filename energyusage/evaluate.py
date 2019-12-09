@@ -287,7 +287,7 @@ def emissions_comparison(process_kwh, locations, year):
         utils.log('Emissions Comparison', emissions)
 
 
-def evaluate(user_func, *args, pdf=False, powerLoss=0.8, energyOutput=False, locations=["Mongolia", "Qatar", "Switzerland"], year="2016", printToScreen = True):
+def evaluate(user_func, *args, pdf=False, powerLoss=0.8, energyOutput=False, locations=["Mongolia", "Iceland", "Switzerland"], year="2016", printToScreen = True):
     """ Calculates effective emissions of the function
 
         Parameters:
@@ -305,12 +305,13 @@ def evaluate(user_func, *args, pdf=False, powerLoss=0.8, energyOutput=False, loc
         location = locate.get(printToScreen)
         result, return_value, watt_averages, files, total_time = energy(user_func, *args, powerLoss = powerLoss, year = year, \
                                                             printToScreen = printToScreen)
-        breakdown = [energy_mix(location, year = year), total_time]
+        breakdown = energy_mix(location, year = year)
         emission, state_emission = emissions(result, breakdown, location, year)
         utils.log("Assumed Carbon Equivalencies")
         emissions_comparison(result, locations, year)
         utils.log("Process Energy", result)
         func_info = [user_func.__name__, *args]
+        breakdown.append(total_time)
         if pdf:
             #pass
             report.generate(location, watt_averages, breakdown, emission, state_emission, func_info)

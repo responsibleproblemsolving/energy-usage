@@ -6,7 +6,7 @@ def recursive_fib(n):
     else: return recursive_fib(n-1) + recursive_fib(n-2)
 
 def main():
-    energyusage.evaluate(recursive_fib, 35, pdf=True, energyOutput=True, locations=["West Virginia", "Vermont"])
+    energyusage.evaluate(recursive_fib, 35, pdf=True, energyOutput=True)
     # returns 102,334,155
 
 if __name__ == '__main__': main()

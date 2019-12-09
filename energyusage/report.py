@@ -119,7 +119,7 @@ def generate(location, watt_averages, breakdown, emission, state_emission, func_
     '''
 
     if state_emission:
-        coal, oil, natural_gas, low_carbon = breakdown
+        coal, oil, natural_gas, low_carbon, total_time = breakdown
         energy_mix = [['Energy Source', 'Percentage'],
                       ['Coal', "{:.2f}%".format(coal)],
                       ['Oil', "{:.2f}%".format(oil)],
@@ -128,7 +128,7 @@ def generate(location, watt_averages, breakdown, emission, state_emission, func_
         source = "eGRID"
         equivs = [['Carbon Equivalency', str(state_emission) + ' lbs/MWh']]
     else:
-        coal, petroleum, natural_gas, low_carbon = breakdown
+        coal, petroleum, natural_gas, low_carbon, total_time = breakdown
         energy_mix = [['Energy Source', 'Percentage'],
                       ['Coal',  "{:.2f}%".format(coal)],
                       ['Petroleum', "{:.2f}%".format(petroleum)],
