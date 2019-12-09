@@ -306,7 +306,10 @@ def valid_gpu():
     try:
         bash_command = "nvidia-smi > /dev/null 2>&1" #we must pipe to ignore error message
         output = subprocess.check_call(['bash','-c', bash_command])
-        return True
+        if type(output) == float:
+            return True
+        else:
+            return False
 
     except:
         return False
