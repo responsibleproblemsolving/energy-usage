@@ -1,4 +1,4 @@
-from reportlab.lib.pagesizes import letter
+from reportlab.lib.pagesizes import letter, landscape
 from reportlab.lib.units import inch
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
@@ -11,11 +11,13 @@ import energyusage.convert as convert
 year = "2016"
 
 styles = getSampleStyleSheet()
-TitleStyle = ParagraphStyle(name='Normal', fontSize=16, alignment= TA_CENTER)
-HeaderStyle = ParagraphStyle(name='Normal',fontSize=14)
-SubheaderStyle = ParagraphStyle(name='Normal',fontSize=12)
-DescriptorStyle = styles["BodyText"]
+TitleStyle = ParagraphStyle(name='Normal', fontSize=18, alignment= TA_CENTER, fontName="Times-Roman")
+HeaderStyle = ParagraphStyle(name='Normal',fontSize=16)
+SubheaderStyle = ParagraphStyle(name='Normal', fontName="Times-Roman")
+DescriptorStyle = ParagraphStyle(name='Normal',fontSize=14, alignment= TA_CENTER)
+BodyTextStyle = styles["BodyText"]
 Elements = []
+
 
 def bold(text):
     return "<b>"+text+"</b>"
@@ -42,15 +44,22 @@ def subheader(text, style=SubheaderStyle, klass=Paragraph, sep=0.2):
     sh = klass(bold(text), style)
     Elements.append(sh)
 
-def descriptor(text, style=DescriptorStyle, klass=Paragraph, sep=0.05, spaceBefore=True, spaceAfter = True):
+def descriptor(text, style=SubheaderStyle, klass=Paragraph, sep=0.05, spaceBefore=True, spaceAfter = True, centered = True):
     """ Creates descriptor text for a (sub)section; sp adds space before text """
     s = Spacer(0, 1.5*sep*inch)
     if spaceBefore:
         Elements.append(s)
-    d = klass(text, style)
+    if centered:
+        d = klass(text, style)
+    else:
+        d = klass(text, style)
     Elements.append(d)
     if spaceAfter:
         Elements.append(s)
+
+#def reading_and_mix_table(data):
+
+
 
 def table(data, header=True):
     no_cols = len(data[0])
@@ -70,7 +79,7 @@ def table(data, header=True):
     Elements.append(t)
 
 
-def generate(location, watt_averages, breakdown, emission, state_emission):
+def generate(location, watt_averages, breakdown, emission, state_emission, func_info):
     """ Generates pdf report
 
     Parameters:
@@ -82,14 +91,16 @@ def generate(location, watt_averages, breakdown, emission, state_emission):
     """
 
     # Initializing document
-    doc = SimpleDocTemplate("energy-usage-report.pdf",pagesize=letter,
-                            rightMargin=1*inch,leftMargin=1*inch,
-                            topMargin=1*inch,bottomMargin=1*inch)
+    doc = SimpleDocTemplate("energy-usage-report.pdf",pagesize=landscape(letter))
+                        #    rightMargin=1*inch,leftMargin=1*inch,
+                        #    topMargin=1*inch,bottomMargin=1*inch)
 
     title("Energy Usage Report")
-    header("Final Readings")
+    descriptor("Energy usage and carbon emissions information")
+    #header("Final Readings")
     descriptor("Readings shown are averages of wattage over the time period", spaceAfter=True)
     baseline_average, process_average, difference_average = watt_averages
+    # baseline_average, process_average, difference_average, process_duration = watt_averages
 
     readings = [['Measurement', 'Wattage'],
                 ['Baseline', "{:.2f} watts".format(baseline_average)],
@@ -110,10 +121,10 @@ def generate(location, watt_averages, breakdown, emission, state_emission):
     if state_emission:
         coal, oil, natural_gas, low_carbon = breakdown
         energy_mix = [['Energy Source', 'Percentage'],
-                      ['Coal', "{}%".format(coal)],
-                      ['Oil', "{}%".format(oil)],
-                      ['Natural gas', "{}%".format(natural_gas)],
-                      ['Low carbon', "{}%".format(low_carbon)]]
+                      ['Coal', "{:.2f}%".format(coal)],
+                      ['Oil', "{:.2f}%".format(oil)],
+                      ['Natural gas', "{:.2f}%".format(natural_gas)],
+                      ['Low carbon', "{:.2f}%".format(low_carbon)]]
         source = "eGRID"
         equivs = [['Carbon Equivalency', str(state_emission) + ' lbs/MWh']]
     else:

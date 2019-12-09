@@ -181,7 +181,7 @@ def emissions(process_kwh, breakdown, location, year):
 
         Returns:
             emission (float): kilograms of CO2 emitted
-            state_emission (float): lbs CO2 per MWh
+            state_emission (float): lbs CO2 per MWh; 0 if international location
 
     """
 
