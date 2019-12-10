@@ -68,11 +68,14 @@ def subheader(text, style=SubheaderStyle, klass=Paragraph, sep=0.2):
 
 
 def readings_and_mix_table(reading_data, mix_data, breakdown, state_emission):
+    '''
+    Creates 2 tables that are then embedded as the columns of 1 bigger table
+    '''
     no_rows = 1
     no_cols = 1
     col_size = 4.5
 
-    readings_table = Table(reading_data, no_cols*[col_size/2*inch], 5*[0.25*inch],hAlign="LEFT")
+    readings_table = Table(reading_data, no_cols*[col_size/2*inch], 5*[0.25*inch], hAlign="LEFT")
     readings_table.setStyle(TableStyle([('FONT', (0,0), (-1,-1), "Times-Roman"),
                                          ('FONT', (0,0), (-1,0), "Times-Bold"),
                                          ('FONTSIZE', (0,0), (-1,-1), 12),
@@ -116,25 +119,95 @@ def readings_and_mix_table(reading_data, mix_data, breakdown, state_emission):
 
 
     table_data = [(readings_table, mix_table)]
-    t = Table(table_data, no_cols*[col_size*inch], hAlign='CENTER')
+    t = Table(table_data, [4.25*inch, 3*inch], hAlign='CENTER')
     t.setStyle(TableStyle([('VALIGN', (-1,-1), (-1,-1), "TOP")]))
     Elements.append(t)
 
 
 def kwh_and_emissions_table(data):
 
-    # add some space
+    s = Spacer(9*inch, .25*inch)
+    Elements.append(s)
+
     no_rows = 1
     no_cols = 2
-    col_size = 4
+    col_size = 2
 
-    t = Table(data, no_cols*[col_size*inch],[.25*inch, .25*inch], hAlign="CENTER")
+    t = Table(data, [2.75*inch, 2.15*inch],[.25*inch, .29*inch], hAlign="CENTER")
     t.setStyle([('FONT',(0,0),(-1,-1),"Times-Roman"),
-                ('FONT',(0,0),(0,0),"Times-Bold"),
+                ('FONT',(0,0),(0,-1),"Times-Bold"),
                 ('FONTSIZE', (0,0), (-1,-1), 12),
                 ('ALIGN', (0,0), (0,-1), "RIGHT"),
-                ('ALIGN',(1,1),(1,-1), "LEFT")])
+                ('ALIGN',(1,1),(1,-1), "LEFT"),
+                ('BOX', (0,0), (-1,-1), 1, colors.black),
+                ('VALIGN', (0,0), (-1,-1), "TOP")])
     Elements.append(t)
+
+def equivs_and_emission_equivs(equivs_data, emissions_data):
+    '''
+    Creates a table with 2 columns, each with their own embedded table
+    The embedded tables contain 2 vertically-stacked tables, one for the header
+    and the other one for the actual data in order to have better alignment
+
+    The first row of the 2nd vertically-stacked table is smaller than the rest in
+    order to remove the extra space and make these tables look cohesive with the
+    energy usage readings and energy mix tables
+
+    Setup:
+    * Table(data[array of arrays, one for each row], [column widths], [row heights])
+    * Spacer(width, height)
+
+
+    '''
+    s = Spacer(9*inch, .25*inch)
+    Elements.append(s)
+
+    no_rows = 1
+    no_cols = 1
+    col_size = 4.5
+
+    equivs_header_data = [["Assumed Carbon Equivalencies"]]
+
+    # Table(data)
+    equivs_header_table = Table(equivs_header_data, [3*inch], [.25*inch])
+    equivs_header_table.setStyle(TableStyle([('FONT',(0,0),(0,-1),"Times-Bold"),
+                                             ('FONTSIZE', (0,0), (-1,-1), 13)]))
+
+
+    equivs_data_table = Table(equivs_data, [1*inch, 2*inch], [0.17*inch, 0.25*inch, 0.25*inch, 0.25*inch],hAlign="LEFT")
+    equivs_data_table.setStyle(TableStyle([('FONT', (0,0), (-1,-1), "Times-Roman"),
+                                         ('FONTSIZE', (0,0), (-1,-1), 12),
+                                         ('ALIGN', (0,0), (0,-1), "RIGHT"),
+                                         ('VALIGN', (-1,-1), (-1,-1), "TOP")]))
+
+    t1_data = [[equivs_header_table],[equivs_data_table]]
+
+    t1 = Table(t1_data, [3*inch])
+
+
+    emissions_header_data = [["CO2 Emissions Equivalents"]]
+    emissions_header_table = Table(emissions_header_data, [3*inch], [.25*inch])
+    emissions_header_table.setStyle(TableStyle([('FONT',(0,0),(0,-1),"Times-Bold"),
+                                             ('FONTSIZE', (0,0), (-1,-1), 13)]))
+
+
+    emissions_data_table = Table(emissions_data, [1.5*inch, 2*inch], [0.17*inch, 0.25*inch, 0.25*inch],hAlign="LEFT")
+    emissions_data_table.setStyle(TableStyle([('FONT', (0,0), (-1,-1), "Times-Roman"),
+                                         ('FONTSIZE', (0,0), (-1,-1), 12),
+                                         ('ALIGN', (0,0), (0,-1), "RIGHT"),
+                                         ('VALIGN', (-1,-1), (-1,-1), "TOP")]))
+
+    t2_data = [[emissions_header_table],[emissions_data_table]]
+
+    t2 = Table(t2_data, [3*inch])
+
+
+    table_data = [(t1, t2)]
+    t = Table(table_data, [4.25*inch, 3*inch], hAlign='CENTER')
+    t.setStyle(TableStyle([('VALIGN', (-1,-1), (-1,-1), "TOP")]))
+    Elements.append(t)
+
+
 
 
 
@@ -155,33 +228,8 @@ def table(data, header=True):
                                ('ALIGN', (1,1), (-1, -1), "CENTER"),]))
 
     Elements.append(t)
-def pie_chart(state_emission, breakdown):
-    d = Drawing(200, 100)
-    pc = Pie()
 
-    data = []
-    if state_emission:
-        data = ["Coal", "Oil", "Natural Gas", "Low Carbon"]
-    else:
-        data = ["Coal", "Petroleum", "Natural Gas", "Low Carbon"]
 
-    for i in range(4):
-        data[i] += ": " + str(round(breakdown[i], 1)) + "%"
-
-    pc.x = 65
-    pc.y = 15
-    pc.width = 70
-    pc.height = 70
-    pc.data = breakdown[:4]
-    pc.slices[0].fillColor = colors.Color(.5,.5,.5)
-    pc.slices[1].fillColor = colors.red
-    pc.slices[2].fillColor = colors.lemonchiffon
-    pc.slices[3].fillColor = colors.green
-    pc.labels = data
-    pc.slices.strokeWidth=0.5
-    pc.sideLabels = True
-    d.add(pc)
-    Elements.append(d)
 def bar_graph():
     drawing = Drawing(400, 200)
     data = [
@@ -212,9 +260,10 @@ def generate(location, watt_averages, breakdown, kwh_and_emissions, func_info):
 
     Parameters:
         location (str): user's location
-        watt_averages (list): list of baseline, total, process wattage averages
+        watt_averages (list): list of baseline, total, process wattage, process duration
         breakdown (list): [% coal, % oil/petroleum, % natural gas, % low carbon]
-        emission (float): kgs of CO2 emitted
+        kwh_and_emissions (list): [kwh used, emission in kg CO2, state emission > 0 for US states]
+        func_info (list): [user func name, user func args (0 or more)]
 
     """
 
@@ -223,9 +272,7 @@ def generate(location, watt_averages, breakdown, kwh_and_emissions, func_info):
 
 
     # Initializing document
-    doc = SimpleDocTemplate("energy-usage-report.pdf",pagesize=landscape(letter))
-                        #    rightMargin=1*inch,leftMargin=1*inch,
-                        #    topMargin=1*inch,bottomMargin=1*inch)
+    doc = SimpleDocTemplate("energy-usage-report.pdf",pagesize=landscape(letter), topMargin=.3*inch)
 
     title("Energy Usage Report")
 
@@ -243,9 +290,9 @@ def generate(location, watt_averages, breakdown, kwh_and_emissions, func_info):
     else:
         info_text += "."
 
-
     subtitle("Energy usage and carbon emissions" + info_text, spaceBefore=True)
 
+    # Energy Usage Readings and Energy Mix Data
     readings_data = [['Energy Usage Readings', ''],
                 ['Average baseline wattage:', "{:.2f} watts".format(baseline_average)],
                 ['Average total wattage:', "{:.2f} watts".format(process_average)],
@@ -259,8 +306,11 @@ def generate(location, watt_averages, breakdown, kwh_and_emissions, func_info):
                     ['Oil', "{:.2f}%".format(oil)],
                     ['Natural gas', "{:.2f}%".format(natural_gas)],
                     ['Low carbon', "{:.2f}%".format(low_carbon)]]
-        source = "eGRID"
-        equivs = [['Carbon Equivalency', str(state_emission) + ' lbs/MWh']]
+        equivs_data = [['Coal:', '996 kg CO2/MWh'],
+                       ['Oil:', '817 kg CO2/MWh'],
+                       ['Natural gas:', '744 kg CO2/MWh'],
+                       ['Low carbon:', '0 kg CO2/MWh']]
+
     else:
         coal, petroleum, natural_gas, low_carbon = breakdown
         mix_data = [['Energy Mix Data', ''],
@@ -268,74 +318,27 @@ def generate(location, watt_averages, breakdown, kwh_and_emissions, func_info):
                     ['Petroleum', "{:.2f}%".format(petroleum)],
                     ['Natural gas', "{:.2f}%".format(natural_gas)],
                     ['Low carbon', "{:.2f}%".format(low_carbon)]]
-        source = "US EIA"
-        equivs = [['Coal', '996 kg CO2/MWh'],
-                   ['Petroleum', '817 kg CO2/MWh'],
-                   ['Natural gas', '744 kg CO2/MWh'],
-                   ['Low carbon', '0 kg CO2/MWh']]
-
+        equivs_data = [['Coal:', '996 kg CO2/MWh'],
+                       ['Petroleum:', '817 kg CO2/MWh'],
+                       ['Natural gas:', '744 kg CO2/MWh'],
+                       ['Low carbon:', '0 kg CO2/MWh']]
 
     readings_and_mix_table(readings_data, mix_data, breakdown, state_emission)
 
+    # Total kWhs used and effective emissions
     kwh_and_emissions_data = [["Total kilowatt hours used:", "{:.2e} kWh".format(kwh)],
                               ["Effective emissions:", "{:.2e} kg CO2".format(emission)]]
 
     kwh_and_emissions_table(kwh_and_emissions_data)
 
+    # Equivalencies and CO2 emission equivalents
 
-
-
-
-
-
-    '''
-    readings = [['Component', 'Baseline', 'Total', 'Process']]
-    for file in raplfiles:
-        line = ["{}".format(file.name), "{:.2f} watts".format(file.baseline_average),
-                "{:.2f} watts".format(file.process_average),
-                "{:.2f} watts".format(file.process_average-file.baseline_average)]
-        if "Package" in file.name:
-            readings.insert(1, line)
-        else:
-            readings.append(line)
-    '''
-
-    if state_emission:
-        coal, oil, natural_gas, low_carbon = breakdown
-        energy_mix = [['Energy Source', 'Percentage'],
-                      ['Coal', "{:.2f}%".format(coal)],
-                      ['Oil', "{:.2f}%".format(oil)],
-                      ['Natural gas', "{:.2f}%".format(natural_gas)],
-                      ['Low carbon', "{:.2f}%".format(low_carbon)]]
-        source = "eGRID"
-        equivs = [['Carbon Equivalency', str(state_emission) + ' lbs/MWh']]
-    else:
-        coal, petroleum, natural_gas, low_carbon = breakdown
-        energy_mix = [['Energy Source', 'Percentage'],
-                      ['Coal',  "{:.2f}%".format(coal)],
-                      ['Petroleum', "{:.2f}%".format(petroleum)],
-                      ['Natural gas', "{:.2f}%".format(natural_gas)],
-                      ['Low carbon', "{:.2f}%".format(low_carbon)]]
-        source = "US EIA"
-        equivs = [['Coal', '995.725971 kg CO2/MWh'],
-                   ['Petroleum', '816.6885263 kg CO2/MWh'],
-                   ['Natural gas', '743.8415916 kg CO2/MWh']]
-
-    #table(readings)
-    header("Energy Data")
-    subtitle("Energy mix in {} based on {} {} data".format(location, year, source))
-    table(energy_mix)
-    emissions = [['Emission', 'Amount'],
-                 ['Effective emission', "{:.2e} kg CO2".format(emission)],
-                 ['Equivalent miles driven', "{:.2e} miles".format(convert.carbon_to_miles(emission))],
-                 ['Equivalent minutes of 32-inch LCD TV watched', "{:.2e} minutes".format(convert.carbon_to_tv(emission))],
-                 ['Percentage of CO2 used in a US household/day', \
+    emissions_data = [
+                 ['Miles driven:', "{:.2e} miles".format(convert.carbon_to_miles(emission))],
+                 ['Min. of 32-in. LCD TV:', "{:.2e} minutes".format(convert.carbon_to_tv(emission))],
+                 ['% of CO2 per US house/day:', \
                    "{:.2e}%".format(convert.carbon_to_home(emission))]]
-    header("Emissions", spaceAfter=True)
-    table(emissions)
-    header("Assumed Carbon Equivalencies", spaceAfter=True)
-    #descriptor("Formulas used for determining amount of carbon emissions")
-    table(equivs, header=False)
-    pie_chart(state_emission, breakdown)
-    bar_graph()
+
+    equivs_and_emission_equivs(equivs_data, emissions_data)
+
     doc.build(Elements)
