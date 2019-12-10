@@ -116,7 +116,7 @@ def energy(user_func, *args, powerLoss = 0.8, year, printToScreen):
     process_average = utils.get_process_average(files, multiple_cpus, gpu_process_average)
     baseline_average = utils.get_baseline_average(files, multiple_cpus, gpu_baseline_average)
     difference_average = process_average - baseline_average
-    watt_averages = [baseline_average, process_average, difference_average]
+    watt_averages = [baseline_average, process_average, difference_average, timedelta]
 
     # Subtracting baseline wattage to get more accurate result
     process_kwh = convert.to_kwh((process_average - baseline_average)*total_time) / powerLoss
@@ -311,10 +311,10 @@ def evaluate(user_func, *args, pdf=False, powerLoss=0.8, energyOutput=False, loc
         emissions_comparison(result, locations, year)
         utils.log("Process Energy", result)
         func_info = [user_func.__name__, *args]
-        breakdown.append(total_time)
+        kwh_and_emissions = [result, emission, state_emission]
         if pdf:
             #pass
-            report.generate(location, watt_averages, breakdown, emission, state_emission, func_info)
+            report.generate(location, watt_averages, breakdown, kwh_and_emissions, func_info)
         if energyOutput:
             return (total_time, result, return_value)
         else:
