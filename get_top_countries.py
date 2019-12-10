@@ -1,6 +1,6 @@
 import statistics
 import json
-with open("./energyusage/data/json/energy-mix-intl.json") as file:
+with open("./energyusage/data/json/energy-mix-intl_2016.json") as file:
   data = json.load(file)
 
 max = ""
@@ -13,7 +13,7 @@ for country in data:
     c = data[country]
     total, breakdown =  c['total'], [c['coal'], c['petroleum'], \
     c['naturalGas'], c['lowCarbon']]
-    if isinstance(c['total'], float):
+    if isinstance(c['total'], float) and c['total'] != 0:
         breakdown = list(map(lambda x: 100*x/total, breakdown))
         countries.append((country,breakdown))
 
