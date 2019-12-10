@@ -33,7 +33,7 @@ def energy(user_func, *args, powerLoss = 0.8, year, printToScreen):
 
     """
 
-    baseline_check_seconds = 2
+    baseline_check_seconds = 5
     files, multiple_cpus = utils.get_files()
     is_nvidia_gpu = utils.valid_gpu()
     is_valid_cpu = utils.valid_cpu()

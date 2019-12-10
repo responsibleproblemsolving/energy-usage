@@ -22,3 +22,9 @@ v.0.0.6
 
 v.0.0.7
 * added option of getting emissions value from `evaluate` via energyOutput parameter
+
+v.0.0.8 - 0.0.12
+* Added methods for accessing other years of data
+* Fleshed out the pdf report
+* Added several new flags for the evaluate function
+* General bug fixes

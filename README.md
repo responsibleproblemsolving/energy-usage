@@ -39,43 +39,41 @@ Location:                                                           Pennsylvania
 --------------------------------------------------------------------------------
 -------------------------------  Final Readings  -------------------------------
 --------------------------------------------------------------------------------
-Average baseline wattage:                                             4.99 watts
-Average total wattage:                                               18.32 watts
-Average process wattage:                                             13.33 watts
-Process duration:                                                        0:00:16
+Average baseline wattage:                                             2.35 watts
+Average total wattage:                                               20.47 watts
+Average process wattage:                                             18.12 watts
+Process duration:                                                        0:00:01
 --------------------------------------------------------------------------------
 -------------------------------   Energy Data    -------------------------------
 --------------------------------------------------------------------------------
                            Energy mix in Pennsylvania                           
-Coal:                                                                     25.40%
-Oil:                                                                       0.20%
-Natural Gas:                                                              31.60%
-Low Carbon:                                                               42.50%
+Coal:                                                                     25.42%
+Oil:                                                                       0.17%
+Natural Gas:                                                              31.64%
+Low Carbon:                                                               42.52%
 --------------------------------------------------------------------------------
 -------------------------------    Emissions     -------------------------------
 --------------------------------------------------------------------------------
-Effective emission:                                              3.00e-05 kg CO2
-Equivalent miles driven:                                          1.23e-11 miles
-Equivalent minutes of 32-inch LCD TV watched:                   1.85e-02 minutes
-Percentage of CO2 used in a US household/day:                          9.86e-12%
+Effective emission:                                              4.44e-06 kg CO2
+Equivalent miles driven:                                          1.82e-12 miles
+Equivalent minutes of 32-inch LCD TV watched:                   2.74e-03 minutes
+Percentage of CO2 used in a US household/day:                          1.46e-12%
 --------------------------------------------------------------------------------
 ------------------------- Assumed Carbon Equivalencies -------------------------
 --------------------------------------------------------------------------------
-Coal:                                                             996 kg CO2/MWh
-Petroleum:                                                        817 kg CO2/MWh
-Natural gas:                                                      744 kg CO2/MWh
+Coal:                                                      995.725971 kg CO2/MWh
+Petroleum:                                                816.6885263 kg CO2/MWh
+Natural gas:                                              743.8415916 kg CO2/MWh
 Low carbon:                                                         0 kg CO2/MWh
 --------------------------------------------------------------------------------
 -------------------------     Emissions Comparison     -------------------------
 --------------------------------------------------------------------------------
-                      Quantities below expressed in kg CO2                      
-        US                      Europe                  Global minus US/Europe
-Max:    Wyoming        7.10e-05 Kosovo         7.28e-05 Mongolia        7.13e-05
-Median: Mississippi    3.29e-05 Ukraine        5.09e-05 Korea, South    5.82e-05
-Min:    Vermont        1.99e-06 Iceland        1.31e-05 Bhutan          8.11e-06
+Mongolia:                                                        1.06e-05 kg CO2
+Iceland:                                                         1.94e-06 kg CO2
+Switzerland:                                                     4.68e-06 kg CO2
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
-Process used:                                                       7.72e-05 kWh
+Process used:                                                       1.14e-05 kWh
 ```
 The report is divided into several sections.
 * **Final Readings**: Presents an average of:
