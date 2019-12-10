@@ -106,7 +106,7 @@ def readings_and_mix_table(reading_data, mix_data, breakdown, state_emission, lo
 
 def kwh_and_emissions_table(data):
 
-    s = Spacer(9*inch, .25*inch)
+    s = Spacer(9*inch, .2*inch)
     Elements.append(s)
 
     no_rows = 1
@@ -140,7 +140,7 @@ def equivs_and_emission_equivs(equivs_data, emissions_data):
 
 
     '''
-    s = Spacer(9*inch, .25*inch)
+    s = Spacer(9*inch, .2*inch)
     Elements.append(s)
 
     no_rows = 1
@@ -191,6 +191,9 @@ def equivs_and_emission_equivs(equivs_data, emissions_data):
 
 
 def comparison_graphs(comparison_values, location, emission):
+    s = Spacer(9*inch, .2*inch)
+    Elements.append(s)
+    
     labels = []
     data = []
     comparison_values.append([location, emission])
