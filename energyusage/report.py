@@ -126,14 +126,13 @@ def kwh_and_emissions_table(data):
     # add some space
     no_rows = 1
     no_cols = 2
-    col_size = 4
+    col_size = 3
 
-    t = Table(data, no_cols*[col_size*inch],[.25*inch, .25*inch], hAlign="CENTER")
+    t = Table(data, no_cols*[col_size*inch], hAlign="CENTER")
     t.setStyle([('FONT',(0,0),(-1,-1),"Times-Roman"),
-                ('FONT',(0,0),(0,0),"Times-Bold"),
+                ('FONT',(0,0),(0,-1),"Times-Bold"),
                 ('FONTSIZE', (0,0), (-1,-1), 12),
-                ('ALIGN', (0,0), (0,-1), "RIGHT"),
-                ('ALIGN',(1,1),(1,-1), "LEFT")])
+                ('ALIGN', (0,0), (1,-1), "RIGHT")])
     Elements.append(t)
 
 
@@ -182,31 +181,39 @@ def pie_chart(state_emission, breakdown):
     pc.sideLabels = True
     d.add(pc)
     Elements.append(d)
-def bar_graph():
+def bar_graph(comparison_values, location, emission):
+    labels = []
+    data = []
+    comparison_values.append([location, emission])
+    comparison_values.sort(key = lambda x: x[1])
+    for pair in comparison_values:
+        labels.append(pair[0])
+        data.append(pair[1])
+    location_index = labels.index(location)
+    data = [data]
     drawing = Drawing(400, 200)
-    data = [
-    (13, 5, 20, 22, 37, 45, 19, 4)
-    ]
     bc = VerticalBarChart()
-    bc.x = 50
+    bc.x = 175
     bc.y = 50
     bc.height = 125
     bc.width = 300
     bc.data = data
     bc.strokeColor = colors.black
     bc.valueAxis.valueMin = 0
-    bc.valueAxis.valueMax = 50
-    bc.valueAxis.valueStep = 10
+    bc.valueAxis.valueMax = data[0][-1] + data[0][-1] *.1
+    #bc.valueAxis.valueStep = 10
     bc.categoryAxis.labels.boxAnchor = 'ne'
     bc.categoryAxis.labels.dx = 8
     bc.categoryAxis.labels.dy = -2
     bc.categoryAxis.labels.angle = 30
-    bc.categoryAxis.categoryNames = ['Jan-99','Feb-99','Mar-99',
-    'Apr-99','May-99','Jun-99','Jul-99','Aug-99']
+    bc.categoryAxis.categoryNames = labels
+    for i in range(len(labels)):
+        bc.bars[(0, i)].fillColor = colors.grey
+    bc.bars[(0, location_index)].fillColor = colors.black
     drawing.add(bc)
     Elements.append(drawing)
 
-def generate(location, watt_averages, breakdown, kwh_and_emissions, func_info):
+def generate(location, watt_averages, breakdown, kwh_and_emissions, func_info, comparison_values):
     # TODO: remove state_emission and just use location
     """ Generates pdf report
 
@@ -277,8 +284,8 @@ def generate(location, watt_averages, breakdown, kwh_and_emissions, func_info):
 
     readings_and_mix_table(readings_data, mix_data, breakdown, state_emission)
 
-    kwh_and_emissions_data = [["Total kilowatt hours used:", "{:.2e} kWh".format(kwh)],
-                              ["Effective emissions:", "{:.2e} kg CO2".format(emission)]]
+    kwh_and_emissions_data = [["Total kilowatt hours used: {:.2e} kWh".format(kwh)],
+                              ["Effective emissions", "{:.2e} kg CO2".format(emission)]]
 
     kwh_and_emissions_table(kwh_and_emissions_data)
 
@@ -336,6 +343,5 @@ def generate(location, watt_averages, breakdown, kwh_and_emissions, func_info):
     header("Assumed Carbon Equivalencies", spaceAfter=True)
     #descriptor("Formulas used for determining amount of carbon emissions")
     table(equivs, header=False)
-    pie_chart(state_emission, breakdown)
-    bar_graph()
+    bar_graph(comparison_values, location, emission)
     doc.build(Elements)
