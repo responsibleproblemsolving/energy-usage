@@ -109,15 +109,6 @@ def kwh_and_emissions_table(data):
 
     no_rows = 1
     no_cols = 2
-<<<<<<< HEAD
-    col_size = 3
-
-    t = Table(data, no_cols*[col_size*inch], hAlign="CENTER")
-    t.setStyle([('FONT',(0,0),(-1,-1),"Times-Roman"),
-                ('FONT',(0,0),(0,-1),"Times-Bold"),
-                ('FONTSIZE', (0,0), (-1,-1), 12),
-                ('ALIGN', (0,0), (1,-1), "RIGHT")])
-=======
     col_size = 2
 
     t = Table(data, [2.75*inch, 2.15*inch],[.25*inch, .29*inch], hAlign="CENTER")
@@ -128,7 +119,6 @@ def kwh_and_emissions_table(data):
                 ('ALIGN',(1,1),(1,-1), "LEFT"),
                 ('BOX', (0,0), (-1,-1), 1, colors.black),
                 ('VALIGN', (0,0), (-1,-1), "TOP")])
->>>>>>> c52ac48465811197d1b395d4313f3c87d33f2054
     Elements.append(t)
 
 
@@ -196,22 +186,8 @@ def equivs_and_emission_equivs(equivs_data, emissions_data):
     t.setStyle(TableStyle([('VALIGN', (-1,-1), (-1,-1), "TOP")]))
     Elements.append(t)
 
-<<<<<<< HEAD
-    pc.x = 65
-    pc.y = 15
-    pc.width = 70
-    pc.height = 70
-    pc.data = breakdown[:4]
-    pc.slices[0].fillColor = colors.Color(.5,.5,.5)
-    pc.slices[1].fillColor = colors.red
-    pc.slices[2].fillColor = colors.lemonchiffon
-    pc.slices[3].fillColor = colors.green
-    pc.labels = data
-    pc.slices.strokeWidth=0.5
-    pc.sideLabels = True
-    d.add(pc)
-    Elements.append(d)
-def bar_graph(comparison_values, location, emission):
+
+def comparison_graphs(comparison_values, location, emission):
     labels = []
     data = []
     comparison_values.append([location, emission])
@@ -221,10 +197,16 @@ def bar_graph(comparison_values, location, emission):
         data.append(pair[1])
     location_index = labels.index(location)
     data = [data]
-    drawing = Drawing(400, 200)
+    '''
+    Trial and error on making this centered and looking good; seems like if
+    just inserted into the table, it moves all the way to the right; hence
+    the x = -150 to center it, and -120 to move it downwards so it doesn't
+    overlap with the top of the graph
+    '''
+    drawing = Drawing(0, 0)
     bc = VerticalBarChart()
-    bc.x = 175
-    bc.y = 50
+    bc.x = -150
+    bc.y = -120
     bc.height = 125
     bc.width = 300
     bc.data = data
@@ -241,9 +223,22 @@ def bar_graph(comparison_values, location, emission):
         bc.bars[(0, i)].fillColor = colors.grey
     bc.bars[(0, location_index)].fillColor = colors.black
     drawing.add(bc)
-    Elements.append(drawing)
-=======
->>>>>>> c52ac48465811197d1b395d4313f3c87d33f2054
+
+    #Elements.append(drawing)
+
+
+    graph_data = [['Emission Comparison'], ['CO2 emissions for the function if the computation had been performed elsewhere'], [drawing]]
+    graph_table = Table(graph_data, [6*inch], [.25*inch, .25*inch, .25*inch], hAlign="CENTER")
+    graph_table.setStyle(TableStyle([('FONT', (0,0), (0,0), "Times-Bold"),
+                                     ('FONT', (0,1),(0,1),"Times-Roman"),
+                                     ('FONTSIZE', (0,0), (0,0), 13),
+                                     ('FONTSIZE', (0,1), (0,1), 12),
+                                     ('ALIGN', (0,0), (-1,-1), "CENTER")]))
+
+
+    Elements.append(graph_table)
+
+
 
 def generate(location, watt_averages, breakdown, kwh_and_emissions, func_info, comparison_values):
     # TODO: remove state_emission and just use location
@@ -316,14 +311,9 @@ def generate(location, watt_averages, breakdown, kwh_and_emissions, func_info, c
 
     readings_and_mix_table(readings_data, mix_data, breakdown, state_emission)
 
-<<<<<<< HEAD
-    kwh_and_emissions_data = [["Total kilowatt hours used: {:.2e} kWh".format(kwh)],
-                              ["Effective emissions", "{:.2e} kg CO2".format(emission)]]
-=======
     # Total kWhs used and effective emissions
     kwh_and_emissions_data = [["Total kilowatt hours used:", "{:.2e} kWh".format(kwh)],
                               ["Effective emissions:", "{:.2e} kg CO2".format(emission)]]
->>>>>>> c52ac48465811197d1b395d4313f3c87d33f2054
 
     kwh_and_emissions_table(kwh_and_emissions_data)
 
@@ -337,59 +327,6 @@ def generate(location, watt_averages, breakdown, kwh_and_emissions, func_info, c
 
     equivs_and_emission_equivs(equivs_data, emissions_data)
 
-<<<<<<< HEAD
 
-
-
-    '''
-    readings = [['Component', 'Baseline', 'Total', 'Process']]
-    for file in raplfiles:
-        line = ["{}".format(file.name), "{:.2f} watts".format(file.baseline_average),
-                "{:.2f} watts".format(file.process_average),
-                "{:.2f} watts".format(file.process_average-file.baseline_average)]
-        if "Package" in file.name:
-            readings.insert(1, line)
-        else:
-            readings.append(line)
-    '''
-
-    if state_emission:
-        coal, oil, natural_gas, low_carbon = breakdown
-        energy_mix = [['Energy Source', 'Percentage'],
-                      ['Coal', "{:.2f}%".format(coal)],
-                      ['Oil', "{:.2f}%".format(oil)],
-                      ['Natural gas', "{:.2f}%".format(natural_gas)],
-                      ['Low carbon', "{:.2f}%".format(low_carbon)]]
-        source = "eGRID"
-        equivs = [['Carbon Equivalency', str(state_emission) + ' lbs/MWh']]
-    else:
-        coal, petroleum, natural_gas, low_carbon = breakdown
-        energy_mix = [['Energy Source', 'Percentage'],
-                      ['Coal',  "{:.2f}%".format(coal)],
-                      ['Petroleum', "{:.2f}%".format(petroleum)],
-                      ['Natural gas', "{:.2f}%".format(natural_gas)],
-                      ['Low carbon', "{:.2f}%".format(low_carbon)]]
-        source = "US EIA"
-        equivs = [['Coal', '995.725971 kg CO2/MWh'],
-                   ['Petroleum', '816.6885263 kg CO2/MWh'],
-                   ['Natural gas', '743.8415916 kg CO2/MWh']]
-
-    #table(readings)
-    header("Energy Data")
-    subtitle("Energy mix in {} based on {} {} data".format(location, year, source))
-    table(energy_mix)
-    emissions = [['Emission', 'Amount'],
-                 ['Effective emission', "{:.2e} kg CO2".format(emission)],
-                 ['Equivalent miles driven', "{:.2e} miles".format(convert.carbon_to_miles(emission))],
-                 ['Equivalent minutes of 32-inch LCD TV watched', "{:.2e} minutes".format(convert.carbon_to_tv(emission))],
-                 ['Percentage of CO2 used in a US household/day', \
-                   "{:.2e}%".format(convert.carbon_to_home(emission))]]
-    header("Emissions", spaceAfter=True)
-    table(emissions)
-    header("Assumed Carbon Equivalencies", spaceAfter=True)
-    #descriptor("Formulas used for determining amount of carbon emissions")
-    table(equivs, header=False)
-    bar_graph(comparison_values, location, emission)
-=======
->>>>>>> c52ac48465811197d1b395d4313f3c87d33f2054
+    comparison_graphs(comparison_values, location, emission)
     doc.build(Elements)
