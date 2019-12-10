@@ -45,7 +45,7 @@ def subtitle(text, style=SubtitleStyle, klass=Paragraph, sep=0.1, spaceBefore=Tr
 
 
 
-def readings_and_mix_table(reading_data, mix_data, breakdown, state_emission):
+def readings_and_mix_table(reading_data, mix_data, breakdown, state_emission, location):
     '''
     Creates 2 tables that are then embedded as the columns of 1 bigger table
     '''
@@ -53,7 +53,7 @@ def readings_and_mix_table(reading_data, mix_data, breakdown, state_emission):
     no_cols = 1
     col_size = 4.5
 
-    readings_table = Table(reading_data, no_cols*[col_size/2*inch], 5*[0.25*inch], hAlign="LEFT")
+    readings_table = Table(reading_data, no_cols*[col_size/2*inch], 5*[0.25*inch] + [0.3*inch], hAlign="LEFT")
     readings_table.setStyle(TableStyle([('FONT', (0,0), (-1,-1), "Times-Roman"),
                                          ('FONT', (0,0), (-1,0), "Times-Bold"),
                                          ('FONTSIZE', (0,0), (-1,-1), 12),
@@ -79,21 +79,23 @@ def readings_and_mix_table(reading_data, mix_data, breakdown, state_emission):
     pc.width = 55
     pc.height = 55
     pc.data = breakdown[:4]
-    pc.slices[0].fillColor = colors.black
-    pc.slices[1].fillColor = colors.red
-    pc.slices[2].fillColor = colors.lemonchiffon
-    pc.slices[3].fillColor = colors.green
+    pc.slices[0].fillColor = colors.Color(202.0/255, 0.0/255, 32.0/255)
+    pc.slices[1].fillColor = colors.Color(244.0/255, 165.0/255, 130.0/255)
+    pc.slices[2].fillColor = colors.Color(5.0/255, 113.0/255, 176.0/255)
+    pc.slices[3].fillColor = colors.Color(146.0/255, 197.0/255, 222.0/255)
     pc.labels = data
     pc.slices.strokeWidth=0.5
     pc.sideLabels = True
     d.add(pc)
 
 
-    mix_data = [['Energy Mix Data'], [d]]
-    mix_table = Table(mix_data, no_cols*[col_size/2*inch], [.25*inch, 1*inch], hAlign="RIGHT")
-    mix_table.setStyle(TableStyle([('FONT', (0,0), (0,0), "Times-Bold"),
-                                    ('FONTSIZE', (0,0), (0,0), 13),
-                                    ('ALIGN', (0,0), (0,0), "LEFT")]))
+    mix_data = [['Energy Mix Data'], [d], ['Location: ' + location]]
+    mix_table = Table(mix_data, no_cols*[col_size/2*inch], [.25*inch, 1*inch, .3*inch], hAlign="RIGHT")
+    mix_table.setStyle(TableStyle([('FONT', (0,0), (-1,-1), "Times-Roman"),
+                                   ('FONT', (0,0), (0,0), "Times-Bold"),
+                                   ('FONTSIZE', (0,0), (0,0), 13),
+                                   ('FONTSIZE', (-1,-1), (-1,-1), 12),
+                                   ('ALIGN', (0,0), (0,0), "LEFT")]))
 
 
     table_data = [(readings_table, mix_table)]
@@ -221,8 +223,8 @@ def comparison_graphs(comparison_values, location, emission):
     bc.categoryAxis.labels.angle = 30
     bc.categoryAxis.categoryNames = labels
     for i in range(len(labels)):
-        bc.bars[(0, i)].fillColor = colors.grey
-    bc.bars[(0, location_index)].fillColor = colors.black
+        bc.bars[(0, i)].fillColor = colors.Color(166.0/255, 189.0/255, 219.0/255)
+    bc.bars[(0, location_index)].fillColor = colors.Color(28.0/255, 144.0/255, 153.0/255)
     drawing.add(bc)
 
     #Elements.append(drawing)
@@ -285,7 +287,8 @@ def generate(location, watt_averages, breakdown, kwh_and_emissions, func_info, c
                 ['Average baseline wattage:', "{:.2f} watts".format(baseline_average)],
                 ['Average total wattage:', "{:.2f} watts".format(process_average)],
                 ['Average process wattage:', "{:.2f} watts".format(difference_average)],
-                ['Process duration:', process_duration]]
+                ['Process duration:', process_duration],
+                ['','']] #hack for the alignment
 
     coal_para = Paragraph('<font face="times" size=12>996 kg CO<sub rise = -10 size = 8>2 </sub>/MWh</font>', style = styles["Normal"])
     oil_para = Paragraph('<font face="times" size=12>817 kg CO<sub rise = -10 size = 8>2 </sub>/MWh</font>', style = styles["Normal"])
@@ -315,7 +318,7 @@ def generate(location, watt_averages, breakdown, kwh_and_emissions, func_info, c
                        ['Natural gas:', gas_para],
                        ['Low carbon:', low_para]]
 
-    readings_and_mix_table(readings_data, mix_data, breakdown, state_emission)
+    readings_and_mix_table(readings_data, mix_data, breakdown, state_emission, location)
     effective_emission = Paragraph('<font face="times" size=12>{:.2e} kg CO<sub rise = -10 size = 8>2 </sub></font>'.format(emission), style = styles["Normal"])
     # Total kWhs used and effective emissions
     kwh_and_emissions_data = [["Total kilowatt hours used:", "{:.2e} kWh".format(kwh)],
