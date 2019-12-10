@@ -79,10 +79,10 @@ def readings_and_mix_table(reading_data, mix_data, breakdown, state_emission):
     pc.width = 55
     pc.height = 55
     pc.data = breakdown[:4]
-    pc.slices[0].fillColor = colors.black
-    pc.slices[1].fillColor = colors.red
-    pc.slices[2].fillColor = colors.lemonchiffon
-    pc.slices[3].fillColor = colors.green
+    pc.slices[0].fillColor = colors.Color(202.0/255, 0.0/255, 32.0/255)
+    pc.slices[1].fillColor = colors.Color(244.0/255, 165.0/255, 130.0/255)
+    pc.slices[2].fillColor = colors.Color(5.0/255, 113.0/255, 176.0/255)
+    pc.slices[3].fillColor = colors.Color(146.0/255, 197.0/255, 222.0/255)
     pc.labels = data
     pc.slices.strokeWidth=0.5
     pc.sideLabels = True
@@ -220,8 +220,8 @@ def comparison_graphs(comparison_values, location, emission):
     bc.categoryAxis.labels.angle = 30
     bc.categoryAxis.categoryNames = labels
     for i in range(len(labels)):
-        bc.bars[(0, i)].fillColor = colors.grey
-    bc.bars[(0, location_index)].fillColor = colors.black
+        bc.bars[(0, i)].fillColor = colors.Color(166.0/255, 189.0/255, 219.0/255)
+    bc.bars[(0, location_index)].fillColor = colors.Color(28.0/255, 144.0/255, 153.0/255)
     drawing.add(bc)
     #Elements.append(drawing)
 
