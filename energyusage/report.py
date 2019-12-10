@@ -125,13 +125,14 @@ def kwh_and_emissions_table(data):
     # add some space
     no_rows = 1
     no_cols = 2
-    col_size = 3
+    col_size = 4
 
-    t = Table(data, no_cols*[col_size*inch], hAlign="CENTER")
+    t = Table(data, no_cols*[col_size*inch],[.25*inch, .25*inch], hAlign="CENTER")
     t.setStyle([('FONT',(0,0),(-1,-1),"Times-Roman"),
-                ('FONT',(0,0),(0,-1),"Times-Bold"),
+                ('FONT',(0,0),(0,0),"Times-Bold"),
                 ('FONTSIZE', (0,0), (-1,-1), 12),
-                ('ALIGN', (0,0), (1,-1), "RIGHT")])
+                ('ALIGN', (0,0), (0,-1), "RIGHT"),
+                ('ALIGN',(1,1),(1,-1), "LEFT")])
     Elements.append(t)
 
 
@@ -226,8 +227,8 @@ def generate(location, watt_averages, breakdown, kwh_and_emissions, func_info):
 
     readings_and_mix_table(readings_data, mix_data, breakdown, state_emission)
 
-    kwh_and_emissions_data = [["Total kilowatt hours used: {:.2e} kWh".format(kwh)],
-                              ["Effective emissions", "{:.2e} kg CO2".format(emission)]]
+    kwh_and_emissions_data = [["Total kilowatt hours used:", "{:.2e} kWh".format(kwh)],
+                              ["Effective emissions:", "{:.2e} kg CO2".format(emission)]]
 
     kwh_and_emissions_table(kwh_and_emissions_data)
 
