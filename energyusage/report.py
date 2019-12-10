@@ -45,7 +45,7 @@ def subtitle(text, style=SubtitleStyle, klass=Paragraph, sep=0.1, spaceBefore=Tr
 
 
 
-def readings_and_mix_table(reading_data, mix_data, breakdown, state_emission):
+def readings_and_mix_table(reading_data, mix_data, breakdown, state_emission, location):
     '''
     Creates 2 tables that are then embedded as the columns of 1 bigger table
     '''
@@ -53,7 +53,7 @@ def readings_and_mix_table(reading_data, mix_data, breakdown, state_emission):
     no_cols = 1
     col_size = 4.5
 
-    readings_table = Table(reading_data, no_cols*[col_size/2*inch], 5*[0.25*inch], hAlign="LEFT")
+    readings_table = Table(reading_data, no_cols*[col_size/2*inch], 5*[0.25*inch] + [0.3*inch], hAlign="LEFT")
     readings_table.setStyle(TableStyle([('FONT', (0,0), (-1,-1), "Times-Roman"),
                                          ('FONT', (0,0), (-1,0), "Times-Bold"),
                                          ('FONTSIZE', (0,0), (-1,-1), 12),
@@ -89,11 +89,13 @@ def readings_and_mix_table(reading_data, mix_data, breakdown, state_emission):
     d.add(pc)
 
 
-    mix_data = [['Energy Mix Data'], [d]]
-    mix_table = Table(mix_data, no_cols*[col_size/2*inch], [.25*inch, 1*inch], hAlign="RIGHT")
-    mix_table.setStyle(TableStyle([('FONT', (0,0), (0,0), "Times-Bold"),
-                                    ('FONTSIZE', (0,0), (0,0), 13),
-                                    ('ALIGN', (0,0), (0,0), "LEFT")]))
+    mix_data = [['Energy Mix Data'], [d], ['Location: ' + location]]
+    mix_table = Table(mix_data, no_cols*[col_size/2*inch], [.25*inch, 1*inch, .3*inch], hAlign="RIGHT")
+    mix_table.setStyle(TableStyle([('FONT', (0,0), (-1,-1), "Times-Roman"),
+                                   ('FONT', (0,0), (0,0), "Times-Bold"),
+                                   ('FONTSIZE', (0,0), (0,0), 13),
+                                   ('FONTSIZE', (-1,-1), (-1,-1), 12),
+                                   ('ALIGN', (0,0), (0,0), "LEFT")]))
 
 
     table_data = [(readings_table, mix_table)]
@@ -282,7 +284,8 @@ def generate(location, watt_averages, breakdown, kwh_and_emissions, func_info, c
                 ['Average baseline wattage:', "{:.2f} watts".format(baseline_average)],
                 ['Average total wattage:', "{:.2f} watts".format(process_average)],
                 ['Average process wattage:', "{:.2f} watts".format(difference_average)],
-                ['Process duration:', process_duration]]
+                ['Process duration:', process_duration],
+                ['','']] #hack for the alignment
 
     if state_emission:
         coal, oil, natural_gas, low_carbon = breakdown
@@ -308,7 +311,7 @@ def generate(location, watt_averages, breakdown, kwh_and_emissions, func_info, c
                        ['Natural gas:', '744 kg CO2/MWh'],
                        ['Low carbon:', '0 kg CO2/MWh']]
 
-    readings_and_mix_table(readings_data, mix_data, breakdown, state_emission)
+    readings_and_mix_table(readings_data, mix_data, breakdown, state_emission, location)
 
     # Total kWhs used and effective emissions
     kwh_and_emissions_data = [["Total kilowatt hours used:", "{:.2e} kWh".format(kwh)],
