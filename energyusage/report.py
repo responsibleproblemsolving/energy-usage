@@ -44,28 +44,6 @@ def subtitle(text, style=SubtitleStyle, klass=Paragraph, sep=0.1, spaceBefore=Tr
         Elements.append(s)
 
 
-def header(text, style=HeaderStyle, klass=Paragraph, sep=0.3, spaceAfter=False):
-    """ Creates a section header """
-    s = Spacer(0, sep*inch)
-    Elements.append(s)
-    h = klass(bold(text), style)
-    Elements.append(h)
-    if spaceAfter:
-        s = Spacer(0, sep/1.5*inch)
-        Elements.append(s)
-
-
-
-def subheader(text, style=SubheaderStyle, klass=Paragraph, sep=0.2):
-    """ Creates a subsection header """
-    s = Spacer(0, sep*inch)
-    Elements.append(s)
-    sh = klass(bold(text), style)
-    Elements.append(sh)
-
-
-
-
 
 def readings_and_mix_table(reading_data, mix_data, breakdown, state_emission):
     '''
@@ -143,6 +121,7 @@ def kwh_and_emissions_table(data):
                 ('VALIGN', (0,0), (-1,-1), "TOP")])
     Elements.append(t)
 
+
 def equivs_and_emission_equivs(equivs_data, emissions_data):
     '''
     Creates a table with 2 columns, each with their own embedded table
@@ -207,52 +186,6 @@ def equivs_and_emission_equivs(equivs_data, emissions_data):
     t.setStyle(TableStyle([('VALIGN', (-1,-1), (-1,-1), "TOP")]))
     Elements.append(t)
 
-
-
-
-
-
-def table(data, header=True):
-    no_cols = len(data[0])
-    no_rows = len(data)
-    col_size = 6.5/no_cols
-    t = Table(data,no_cols*[col_size*inch], hAlign='LEFT')
-    t.setStyle(TableStyle([('ALIGN', (0,0), (0,-1), "LEFT"),
-                       ('ALIGN', (1,0), (-1,-1), "CENTER"),
-                       ('INNERGRID',(0,0),(-1,-1),0.25, colors.black),
-                       ('BOX', (0,0), (-1,-1), 0.25, colors.black),]))
-    if header:
-        t.setStyle(TableStyle([('ALIGN',(0,0), (-1,0), "CENTER"),
-                               ('FONT', (0,0), (-1,0), "Helvetica-Bold"),
-                               ('ALIGN', (0,1), (0, -1), "LEFT"),
-                               ('ALIGN', (1,1), (-1, -1), "CENTER"),]))
-
-    Elements.append(t)
-
-
-def bar_graph():
-    drawing = Drawing(400, 200)
-    data = [
-    (13, 5, 20, 22, 37, 45, 19, 4)
-    ]
-    bc = VerticalBarChart()
-    bc.x = 50
-    bc.y = 50
-    bc.height = 125
-    bc.width = 300
-    bc.data = data
-    bc.strokeColor = colors.black
-    bc.valueAxis.valueMin = 0
-    bc.valueAxis.valueMax = 50
-    bc.valueAxis.valueStep = 10
-    bc.categoryAxis.labels.boxAnchor = 'ne'
-    bc.categoryAxis.labels.dx = 8
-    bc.categoryAxis.labels.dy = -2
-    bc.categoryAxis.labels.angle = 30
-    bc.categoryAxis.categoryNames = ['Jan-99','Feb-99','Mar-99',
-    'Apr-99','May-99','Jun-99','Jul-99','Aug-99']
-    drawing.add(bc)
-    Elements.append(drawing)
 
 def generate(location, watt_averages, breakdown, kwh_and_emissions, func_info):
     # TODO: remove state_emission and just use location
