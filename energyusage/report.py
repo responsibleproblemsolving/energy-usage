@@ -187,7 +187,59 @@ def equivs_and_emission_equivs(equivs_data, emissions_data):
     Elements.append(t)
 
 
-def generate(location, watt_averages, breakdown, kwh_and_emissions, func_info):
+def comparison_graphs(comparison_values, location, emission):
+    labels = []
+    data = []
+    comparison_values.append([location, emission])
+    comparison_values.sort(key = lambda x: x[1])
+    for pair in comparison_values:
+        labels.append(pair[0])
+        data.append(pair[1])
+    location_index = labels.index(location)
+    data = [data]
+    '''
+    Trial and error on making this centered and looking good; seems like if
+    just inserted into the table, it moves all the way to the right; hence
+    the x = -150 to center it, and -120 to move it downwards so it doesn't
+    overlap with the top of the graph
+    '''
+    drawing = Drawing(0, 0)
+    bc = VerticalBarChart()
+    bc.x = -150
+    bc.y = -120
+    bc.height = 125
+    bc.width = 300
+    bc.data = data
+    bc.strokeColor = colors.black
+    bc.valueAxis.valueMin = 0
+    bc.valueAxis.valueMax = data[0][-1] + data[0][-1] *.1
+    #bc.valueAxis.valueStep = 10
+    bc.categoryAxis.labels.boxAnchor = 'ne'
+    bc.categoryAxis.labels.dx = 8
+    bc.categoryAxis.labels.dy = -2
+    bc.categoryAxis.labels.angle = 30
+    bc.categoryAxis.categoryNames = labels
+    for i in range(len(labels)):
+        bc.bars[(0, i)].fillColor = colors.grey
+    bc.bars[(0, location_index)].fillColor = colors.black
+    drawing.add(bc)
+    #Elements.append(drawing)
+
+
+    graph_data = [['Emission Comparison'], ['CO2 emissions for the function if the computation had been performed elsewhere'], [drawing]]
+    graph_table = Table(graph_data, [6*inch], [.25*inch, .25*inch, .25*inch], hAlign="CENTER")
+    graph_table.setStyle(TableStyle([('FONT', (0,0), (0,0), "Times-Bold"),
+                                     ('FONT', (0,1),(0,1),"Times-Roman"),
+                                     ('FONTSIZE', (0,0), (0,0), 13),
+                                     ('FONTSIZE', (0,1), (0,1), 12),
+                                     ('ALIGN', (0,0), (-1,-1), "CENTER")]))
+
+
+    Elements.append(graph_table)
+
+
+
+def generate(location, watt_averages, breakdown, kwh_and_emissions, func_info, comparison_values):
     # TODO: remove state_emission and just use location
     """ Generates pdf report
 
@@ -274,4 +326,5 @@ def generate(location, watt_averages, breakdown, kwh_and_emissions, func_info):
 
     equivs_and_emission_equivs(equivs_data, emissions_data)
 
+    comparison_graphs(comparison_values, location, emission)
     doc.build(Elements)
