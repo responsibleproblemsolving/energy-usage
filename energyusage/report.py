@@ -6,6 +6,7 @@ from reportlab.lib.enums import TA_RIGHT, TA_CENTER
 from reportlab.lib import colors
 from reportlab.graphics.charts.piecharts import Pie
 from reportlab.graphics.shapes import *
+from reportlab.graphics.charts.barcharts import VerticalBarChart
 from energyusage.RAPLFile import RAPLFile
 
 
@@ -154,7 +155,56 @@ def table(data, header=True):
                                ('ALIGN', (1,1), (-1, -1), "CENTER"),]))
 
     Elements.append(t)
+def pie_chart(state_emission, breakdown):
+    d = Drawing(200, 100)
+    pc = Pie()
 
+    data = []
+    if state_emission:
+        data = ["Coal", "Oil", "Natural Gas", "Low Carbon"]
+    else:
+        data = ["Coal", "Petroleum", "Natural Gas", "Low Carbon"]
+
+    for i in range(4):
+        data[i] += ": " + str(round(breakdown[i], 1)) + "%"
+
+    pc.x = 65
+    pc.y = 15
+    pc.width = 70
+    pc.height = 70
+    pc.data = breakdown[:4]
+    pc.slices[0].fillColor = colors.Color(.5,.5,.5)
+    pc.slices[1].fillColor = colors.red
+    pc.slices[2].fillColor = colors.lemonchiffon
+    pc.slices[3].fillColor = colors.green
+    pc.labels = data
+    pc.slices.strokeWidth=0.5
+    pc.sideLabels = True
+    d.add(pc)
+    Elements.append(d)
+def bar_graph():
+    drawing = Drawing(400, 200)
+    data = [
+    (13, 5, 20, 22, 37, 45, 19, 4)
+    ]
+    bc = VerticalBarChart()
+    bc.x = 50
+    bc.y = 50
+    bc.height = 125
+    bc.width = 300
+    bc.data = data
+    bc.strokeColor = colors.black
+    bc.valueAxis.valueMin = 0
+    bc.valueAxis.valueMax = 50
+    bc.valueAxis.valueStep = 10
+    bc.categoryAxis.labels.boxAnchor = 'ne'
+    bc.categoryAxis.labels.dx = 8
+    bc.categoryAxis.labels.dy = -2
+    bc.categoryAxis.labels.angle = 30
+    bc.categoryAxis.categoryNames = ['Jan-99','Feb-99','Mar-99',
+    'Apr-99','May-99','Jun-99','Jul-99','Aug-99']
+    drawing.add(bc)
+    Elements.append(drawing)
 
 def generate(location, watt_averages, breakdown, kwh_and_emissions, func_info):
     # TODO: remove state_emission and just use location
@@ -286,4 +336,6 @@ def generate(location, watt_averages, breakdown, kwh_and_emissions, func_info):
     header("Assumed Carbon Equivalencies", spaceAfter=True)
     #descriptor("Formulas used for determining amount of carbon emissions")
     table(equivs, header=False)
+    pie_chart(state_emission, breakdown)
+    bar_graph()
     doc.build(Elements)
