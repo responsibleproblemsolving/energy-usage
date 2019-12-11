@@ -190,10 +190,8 @@ def equivs_and_emission_equivs(equivs_data, emissions_data):
     Elements.append(t)
 
 
-def comparison_graphs(comparison_values, location, emission):
-    s = Spacer(9*inch, .2*inch)
-    Elements.append(s)
-    
+def gen_bar_graphs(comparison_values, location, emission):
+    bc = VerticalBarChart()
     labels = []
     data = []
     comparison_values.append([location, emission])
@@ -201,16 +199,8 @@ def comparison_graphs(comparison_values, location, emission):
     for pair in comparison_values:
         labels.append(pair[0])
         data.append(pair[1])
-    location_index = labels.index(location)
     data = [data]
-    '''
-    Trial and error on making this centered and looking good; seems like if
-    just inserted into the table, it moves all the way to the right; hence
-    the x = -150 to center it, and -120 to move it downwards so it doesn't
-    overlap with the top of the graph
-    '''
-    drawing = Drawing(0, 0)
-    bc = VerticalBarChart()
+    location_index = labels.index(location)
     bc.x = -150
     bc.y = -120
     bc.height = 125
@@ -228,9 +218,31 @@ def comparison_graphs(comparison_values, location, emission):
     for i in range(len(labels)):
         bc.bars[(0, i)].fillColor = colors.Color(166.0/255, 189.0/255, 219.0/255)
     bc.bars[(0, location_index)].fillColor = colors.Color(28.0/255, 144.0/255, 153.0/255)
-    drawing.add(bc)
+    return bc
+def comparison_graphs(comparison_values, location, emission, default_emissions, default_location):
+    s = Spacer(9*inch, .2*inch)
+    Elements.append(s)
+    drawing = Drawing(0, 0)
 
-    #Elements.append(drawing)
+    if not default_location:
+
+        bc = gen_bar_graphs(comparison_values, location, emission)
+        drawing.add(bc)
+    else:
+        print(default_emissions)
+        bc1 = gen_bar_graphs(default_emissions[:3], location, emission)
+        bc2 = gen_bar_graphs(default_emissions[3:6], location, emission)
+        bc3 = gen_bar_graphs(default_emissions[6:], location, emission)
+        drawing.add(bc1)
+        drawing.add(bc2)
+        drawing.add(bc3)
+
+
+
+
+
+
+
 
     if_elsewhere_para = Paragraph('<font face="times" size=12>CO<sub rise = -10 size' +
     ' = 8>2 </sub> emissions for the function if the computation had been performed elsewhere</font>', style = styles["Normal"])
@@ -247,7 +259,8 @@ def comparison_graphs(comparison_values, location, emission):
 
 
 
-def generate(location, watt_averages, breakdown, kwh_and_emissions, func_info, comparison_values):
+def generate(location, watt_averages, breakdown, kwh_and_emissions, func_info, \
+    comparison_values, default_emissions, default_location):
     # TODO: remove state_emission and just use location
     """ Generates pdf report
 
@@ -339,6 +352,5 @@ def generate(location, watt_averages, breakdown, kwh_and_emissions, func_info, c
 
     equivs_and_emission_equivs(equivs_data, emissions_data)
 
-
-    comparison_graphs(comparison_values, location, emission)
+    comparison_graphs(comparison_values, location, emission, default_emissions, default_location)
     doc.build(Elements)

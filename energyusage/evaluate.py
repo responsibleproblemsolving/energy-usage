@@ -33,7 +33,7 @@ def energy(user_func, *args, powerLoss = 0.8, year, printToScreen):
 
     """
 
-    baseline_check_seconds = 5
+    baseline_check_seconds = 2
     files, multiple_cpus = utils.get_files()
     is_nvidia_gpu = utils.valid_gpu()
     is_valid_cpu = utils.valid_cpu()
@@ -214,12 +214,12 @@ def emissions(process_kwh, breakdown, location, year):
     utils.log("Emissions", emission)
     return (emission, state_emission)
 
-"""
-OLD VERSION: US, EU, Rest comparison
-def emissions_comparison(process_kwh):
+
+#OLD VERSION: US, EU, Rest comparison
+def old_emissions_comparison(process_kwh, year):
       # Calculates emissions in different locations
 
-    intl_data = utils.get_data("data/json/energy-mix-intl.json")
+    intl_data = utils.get_data("data/json/energy-mix-intl_" + year + ".json")
     global_emissions, europe_emissions, us_emissions = [], [], []
     # Handling international
     for country in intl_data:
@@ -242,11 +242,12 @@ def emissions_comparison(process_kwh):
     europe_emissions.sort(key=lambda x: x[1])
 
     # Handling US
-    us_data = utils.get_data("data/json/us-emissions.json")
+    us_data = utils.get_data("data/json/us-emissions_" + year + ".json")
     for state in us_data:
-        if (state != "United States" and state != "_units"):
-            emission = convert.lbs_to_kgs(us_data[state]*convert.to_MWh(process_kwh))
-            us_emissions.append((state, emission))
+        if ((state != "United States") and state != "_units"):
+            if us_data[state] != "lbs/MWh":
+                emission = convert.lbs_to_kgs(us_data[state]*convert.to_MWh(process_kwh))
+                us_emissions.append((state, emission))
     us_emissions.sort(key=lambda x: x[1])
 
     max_global, max_europe, max_us = global_emissions[len(global_emissions)-1], \
@@ -255,10 +256,12 @@ def emissions_comparison(process_kwh):
         europe_emissions[len(europe_emissions)//2], us_emissions[len(us_emissions)//2]
     min_global, min_europe, min_us= global_emissions[0], europe_emissions[0], us_emissions[0]
 
-    utils.log('Emissions Comparison', max_global, median_global, min_global, max_europe, \
-              median_europe, min_europe, max_us, median_us, min_us)
+    #utils.log('Emissions Comparison', max_global, median_global, min_global, max_europe, \
+#          median_europe, min_europe, max_us, median_us, min_us)
+    default_emissions = [max_global, median_global, min_global, max_europe, \
+        median_europe, min_europe, max_us, median_us, min_us]
+    return default_emissions
 
-"""
 
 def emissions_comparison(process_kwh, locations, year):
     # TODO: Disambiguation of states such as Georgia, US and Georgia
@@ -306,16 +309,21 @@ locations=["Mongolia", "Iceland", "Switzerland"], year="2016", printToScreen = T
         location = locate.get(printToScreen)
         result, return_value, watt_averages, files, total_time = energy(user_func, *args, powerLoss = powerLoss, year = year, \
                                                             printToScreen = printToScreen)
+        default_location = False
+        if locations == ["Mongolia", "Iceland", "Switzerland"]:
+            default_location = True
         breakdown = energy_mix(location, year = year)
         emission, state_emission = emissions(result, breakdown, location, year)
         utils.log("Assumed Carbon Equivalencies")
         comparison_values = emissions_comparison(result, locations, year)
+        default_emissions = old_emissions_comparison(result, year)
         utils.log("Process Energy", result)
         func_info = [user_func.__name__, *args]
         kwh_and_emissions = [result, emission, state_emission]
         if pdf:
             #pass
-            report.generate(location, watt_averages, breakdown, kwh_and_emissions, func_info, comparison_values)
+            report.generate(location, watt_averages, breakdown, kwh_and_emissions, \
+                func_info, comparison_values, default_emissions, default_location)
         if energyOutput:
             return (total_time, result, return_value)
         else:

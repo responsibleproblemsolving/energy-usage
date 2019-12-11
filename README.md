@@ -29,8 +29,11 @@ It will return the value of your function, while also printing out the energy us
 Optional keyword arguments:
 * `pdf`(default = `False`): generates a PDF report, alongside the command-line utility
 * `powerLoss` (default = `0.8`): accounts for PSU loss, can be set by user if known for higher accuracy of results
-* `energyOutput` (default = `False`): prints amount of energy used by the process and time taken. The order is time, enery used, return of function
+* `energyOutput` (default = `False`): prints amount of energy used by the process and time taken. The order is time, energy used, return of function
 * `printToScreen` (default = `True`): controls whether there is a terminal printout of the package running
+* `energyOutput` (default = `False`): determines whether the energy used and time taken are output. When set to true the order is `time used`, `energy used`, `return value of function`.
+* `locations` (default = `["Mongolia", "Iceland", "Switzerland"]`): allows selecting the countries in the emissions comparison section for the terminal printout and pdf. These can be set to the name of any country or US state.
+* `year` (default = `2016`): controls the year for the data. Default is `2016` as that is currently the most recent year of data from both of our sources. Note that only this year of data is included in the package installation but more can be added in a process described later.
 
 ### Energy Report
 The report that will be printed out will look like the one below. The second and third lines will show a real-time reading that disappears once the process has finished evaluating.
@@ -153,6 +156,8 @@ Since the international data only contained an energy mix, and no emission data,
 * *Petroleum*: lbs CO<sub>2</sub>/MWh = 816.6885263 kg CO<sub>2</sub>/MWh
 * *Natural gas*: 1639.89 lbs CO<sub>2</sub>/MWh = 743.8415916 kg CO<sub>2</sub>/MWh
 
+#### Using Different Years of Data
+In case one wishes to compare energy usage between different years of data, we have included a script to allow for adding other years. If you navigate to the package directory and go into the `data` folder, you can use `raw_to_json.py`. First, you need to download the US and international data in the years of your choice from the links above and place them in `data/raw/"year of the data"` after creating the required year folder. Then, run the script with a flag for that year (for example, `python raw_to_json.py -2016`). This will allow selecting that year when using package in the future by using the `year` optional argument for `evaluate`.
 
 ## Related Work
 * In their paper [*Energy and Policy Considerations for Deep Learning in NLP*](https://arxiv.org/abs/1906.02243), Strubell et. al not only analyze the computational power needed for training deep learning models in NLP, but further convert the data into carbon emissions and cost. Our tool aims to facilitate this analysis for developers in a single package. We do not consider cost, instead choosing to focus solely on the environmental impact. Further, we do not focus on a specific computational area. We also extend their analysis of carbon emissions by including international data on energy consumption and CO<sub>2</sub> emissions for localized analysis of the carbon footprint of the tested program.
