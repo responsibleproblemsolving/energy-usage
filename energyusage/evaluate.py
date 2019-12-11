@@ -216,7 +216,7 @@ def emissions(process_kwh, breakdown, location, year):
 
 
 #OLD VERSION: US, EU, Rest comparison
-def old_emissions_comparison(process_kwh, year):
+def old_emissions_comparison(process_kwh, year, default_location):
       # Calculates emissions in different locations
 
     intl_data = utils.get_data("data/json/energy-mix-intl_" + year + ".json")
@@ -255,15 +255,15 @@ def old_emissions_comparison(process_kwh, year):
     median_global, median_europe, median_us = global_emissions[len(global_emissions)//2], \
         europe_emissions[len(europe_emissions)//2], us_emissions[len(us_emissions)//2]
     min_global, min_europe, min_us= global_emissions[0], europe_emissions[0], us_emissions[0]
-
-    #utils.log('Emissions Comparison', max_global, median_global, min_global, max_europe, \
-#          median_europe, min_europe, max_us, median_us, min_us)
+    if default_location:
+        utils.log('Emissions Comparison default', max_global, median_global, min_global, max_europe, \
+            median_europe, min_europe, max_us, median_us, min_us)
     default_emissions = [max_global, median_global, min_global, max_europe, \
         median_europe, min_europe, max_us, median_us, min_us]
     return default_emissions
 
 
-def emissions_comparison(process_kwh, locations, year):
+def emissions_comparison(process_kwh, locations, year, default_location):
     # TODO: Disambiguation of states such as Georgia, US and Georgia
     intl_data = utils.get_data("data/json/energy-mix-intl_" + year + ".json")
     us_data = utils.get_data("data/json/us-emissions_" + year + ".json")
@@ -286,7 +286,7 @@ def emissions_comparison(process_kwh, locations, year):
                  emission = sum(breakdown)
                  emissions.append((location,emission))
 
-    if emissions != []:
+    if emissions != [] and not default_location:
         utils.log('Emissions Comparison', emissions)
     return emissions
 
@@ -315,8 +315,8 @@ locations=["Mongolia", "Iceland", "Switzerland"], year="2016", printToScreen = T
         breakdown = energy_mix(location, year = year)
         emission, state_emission = emissions(result, breakdown, location, year)
         utils.log("Assumed Carbon Equivalencies")
-        comparison_values = emissions_comparison(result, locations, year)
-        default_emissions = old_emissions_comparison(result, year)
+        comparison_values = emissions_comparison(result, locations, year, default_location)
+        default_emissions = old_emissions_comparison(result, year, default_location)
         utils.log("Process Energy", result)
         func_info = [user_func.__name__, *args]
         kwh_and_emissions = [result, emission, state_emission]

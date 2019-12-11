@@ -229,7 +229,6 @@ def comparison_graphs(comparison_values, location, emission, default_emissions, 
         bc = gen_bar_graphs(comparison_values, location, emission)
         drawing.add(bc)
     else:
-        print(default_emissions)
         bc1 = gen_bar_graphs(default_emissions[:3], location, emission)
         bc2 = gen_bar_graphs(default_emissions[3:6], location, emission)
         bc3 = gen_bar_graphs(default_emissions[6:], location, emission)

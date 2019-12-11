@@ -42,9 +42,9 @@ Location:                                                           Pennsylvania
 --------------------------------------------------------------------------------
 -------------------------------  Final Readings  -------------------------------
 --------------------------------------------------------------------------------
-Average baseline wattage:                                             2.35 watts
-Average total wattage:                                               20.47 watts
-Average process wattage:                                             18.12 watts
+Average baseline wattage:                                             1.86 watts
+Average total wattage:                                               19.42 watts
+Average process wattage:                                             17.56 watts
 Process duration:                                                        0:00:01
 --------------------------------------------------------------------------------
 -------------------------------   Energy Data    -------------------------------
@@ -57,10 +57,10 @@ Low Carbon:                                                               42.52%
 --------------------------------------------------------------------------------
 -------------------------------    Emissions     -------------------------------
 --------------------------------------------------------------------------------
-Effective emission:                                              4.44e-06 kg CO2
-Equivalent miles driven:                                          1.82e-12 miles
-Equivalent minutes of 32-inch LCD TV watched:                   2.74e-03 minutes
-Percentage of CO2 used in a US household/day:                          1.46e-12%
+Effective emission:                                              4.05e-06 kg CO2
+Equivalent miles driven:                                          1.66e-12 miles
+Equivalent minutes of 32-inch LCD TV watched:                   2.51e-03 minutes
+Percentage of CO2 used in a US household/day:                          1.33e-12%
 --------------------------------------------------------------------------------
 ------------------------- Assumed Carbon Equivalencies -------------------------
 --------------------------------------------------------------------------------
@@ -71,12 +71,14 @@ Low carbon:                                                         0 kg CO2/MWh
 --------------------------------------------------------------------------------
 -------------------------     Emissions Comparison     -------------------------
 --------------------------------------------------------------------------------
-Mongolia:                                                        1.06e-05 kg CO2
-Iceland:                                                         1.94e-06 kg CO2
-Switzerland:                                                     4.68e-06 kg CO2
+                      Quantities below expressed in kg CO2                      
+        US                      Europe                  Global minus US/Europe
+Max:    Wyoming        9.59e-06 Kosovo         9.85e-06 Mongolia        9.64e-06
+Median: Tennessee      4.70e-06 Ukraine        6.88e-06 Korea, South    7.87e-06
+Min:    Vermont        2.69e-07 Iceland        1.77e-06 Bhutan          1.10e-06
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
-Process used:                                                       1.14e-05 kWh
+Process used:                                                       1.04e-05 kWh
 ```
 The report is divided into several sections.
 * **Final Readings**: Presents an average of:
@@ -91,9 +93,9 @@ The report is divided into several sections.
 
 * **Assumed Carbon Equivalencies**: The formulas used to convert from kWh to CO<sub>2</sub> based on the energy mix of the location (for international locations, see below for more information).
 
-* **Emissions Comparison**: What the emissions would be for the same energy used in a representative group of US states and countries.
+* **Emissions Comparison**: What the emissions would be for the same energy used in a representative group of US states and countries. Note that if these locations are specified as described below these default values are not shown. 
 
-Not part of a section is the energy used by the process, which is optionally printed.
+* **Process used**: The amount of energy running the program used in total.
 
 The PDF report contains the same sections, but does not include the process duration or the emissions comparison momentarily.
 
