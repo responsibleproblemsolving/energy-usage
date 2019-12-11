@@ -28,3 +28,6 @@ v.0.0.8 - 0.0.12
 * Fleshed out the pdf report
 * Added several new flags for the evaluate function
 * General bug fixes
+
+v.0.0.13
+* Added default graphs to pdf when locations optional parameter is not set

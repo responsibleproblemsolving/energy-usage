@@ -240,8 +240,8 @@ def comparison_graphs(comparison_values, location, emission, default_emissions, 
 
         offset = -257
         bc1.x = -10 + offset
-        bc2.x = 180 + offset
-        bc3.x = 380 + offset
+        bc2.x = 190 + offset
+        bc3.x = 390 + offset
         drawing.add(bc1)
         drawing.add(bc2)
         drawing.add(bc3)
@@ -253,11 +253,11 @@ def comparison_graphs(comparison_values, location, emission, default_emissions, 
         label1.fontName = "Times-Bold"
 
         label2.setText("Europe")
-        label2.x, label2.y = 175 + label_offset, -160
+        label2.x, label2.y = 185 + label_offset, -160
         label2.fontName = "Times-Bold"
 
         label3.setText("United States")
-        label3.x, label3.y = 375 + label_offset, -160
+        label3.x, label3.y = 385 + label_offset, -160
         label3.fontName = "Times-Bold"
 
         drawing.add(label1)
@@ -268,10 +268,10 @@ def comparison_graphs(comparison_values, location, emission, default_emissions, 
 
 
 
-    if_elsewhere_para = Paragraph('<font face="times" size=12>CO<sub rise = -10 size' +
+    if_elsewhere_para = Paragraph('<font face="times" size=12>Kilograms of CO<sub rise = -10 size' +
     ' = 8>2 </sub> emissions for the function if the computation had been performed elsewhere</font>', style = styles["Normal"])
     graph_data = [['Emission Comparison'], [if_elsewhere_para], [drawing]]
-    graph_table = Table(graph_data, [6*inch], [.25*inch, .25*inch, .25*inch], hAlign="CENTER")
+    graph_table = Table(graph_data, [6.5*inch], [.25*inch, .25*inch, .25*inch], hAlign="CENTER")
     graph_table.setStyle(TableStyle([('FONT', (0,0), (0,0), "Times-Bold"),
                                      ('FONT', (0,1),(0,1),"Times-Roman"),
                                      ('FONTSIZE', (0,0), (0,0), 13),
@@ -289,7 +289,7 @@ def generate(location, watt_averages, breakdown, kwh_and_emissions, func_info, \
     """ Generates pdf report
 
     Parameters:
-        location (str): user's location
+        location (str): user's location, locations=["Romania", "Brazil"]
         watt_averages (list): list of baseline, total, process wattage, process duration
         breakdown (list): [% coal, % oil/petroleum, % natural gas, % low carbon]
         kwh_and_emissions (list): [kwh used, emission in kg CO2, state emission > 0 for US states]
