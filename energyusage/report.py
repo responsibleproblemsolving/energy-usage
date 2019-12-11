@@ -7,6 +7,7 @@ from reportlab.lib import colors
 from reportlab.graphics.charts.piecharts import Pie
 from reportlab.graphics.shapes import *
 from reportlab.graphics.charts.barcharts import VerticalBarChart
+from reportlab.graphics.charts.textlabels import Label
 from energyusage.RAPLFile import RAPLFile
 
 
@@ -202,9 +203,9 @@ def gen_bar_graphs(comparison_values, location, emission):
     data = [data]
     location_index = labels.index(location)
     bc.x = -150
-    bc.y = -120
-    bc.height = 125
-    bc.width = 300
+    bc.y = -110
+    bc.height = 100
+    bc.width = 150
     bc.data = data
     bc.strokeColor = colors.black
     bc.valueAxis.valueMin = 0
@@ -219,26 +220,49 @@ def gen_bar_graphs(comparison_values, location, emission):
         bc.bars[(0, i)].fillColor = colors.Color(166.0/255, 189.0/255, 219.0/255)
     bc.bars[(0, location_index)].fillColor = colors.Color(28.0/255, 144.0/255, 153.0/255)
     return bc
+
+
 def comparison_graphs(comparison_values, location, emission, default_emissions, default_location):
     s = Spacer(9*inch, .2*inch)
     Elements.append(s)
     drawing = Drawing(0, 0)
 
     if not default_location:
-
         bc = gen_bar_graphs(comparison_values, location, emission)
+        bc.y = -120
+        bc.height = 125
+        bc.width = 300
         drawing.add(bc)
     else:
-        print(default_emissions)
         bc1 = gen_bar_graphs(default_emissions[:3], location, emission)
         bc2 = gen_bar_graphs(default_emissions[3:6], location, emission)
         bc3 = gen_bar_graphs(default_emissions[6:], location, emission)
+
+        offset = -257
+        bc1.x = -10 + offset
+        bc2.x = 180 + offset
+        bc3.x = 380 + offset
         drawing.add(bc1)
         drawing.add(bc2)
         drawing.add(bc3)
 
+        label_offset = offset + 80
+        label1, label2, label3 = Label(), Label(), Label()
+        label1.setText("Global (excluding Europe and US)")
+        label1.x, label1.y = -17 + label_offset, -160
+        label1.fontName = "Times-Bold"
 
+        label2.setText("Europe")
+        label2.x, label2.y = 175 + label_offset, -160
+        label2.fontName = "Times-Bold"
 
+        label3.setText("United States")
+        label3.x, label3.y = 375 + label_offset, -160
+        label3.fontName = "Times-Bold"
+
+        drawing.add(label1)
+        drawing.add(label2)
+        drawing.add(label3)
 
 
 
