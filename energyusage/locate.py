@@ -1,6 +1,6 @@
 import requests
 
-# TODO: Make these sets 
+# TODO: Make these sets
 STATES = ['Alabama','Alaska','Arizona','Arkansas','California','Colorado', \
 'Connecticut','Delaware', 'Florida','Georgia','Hawaii','Idaho', \
 'Illinois','Indiana','Iowa','Kansas','Kentucky','Louisiana', \
@@ -49,7 +49,7 @@ def get(printToScreen):
     return location
 
 def in_US(location):
-    return (location in STATES or location == "United States")
+    return (location in STATES)# or location == "United States")
 
 def in_Europe(location):
     return (location in EUROPE)

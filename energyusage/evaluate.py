@@ -55,7 +55,7 @@ def energy(user_func, *args, powerLoss = 0.8, year, printToScreen):
             time.sleep(DELAY)
         # Adds the most recent value of GPU; 0 if not Nvidia
         last_reading = utils.get_total(files, multiple_cpus) + gpu_baseline[-1]
-        if last_reading >=0:
+        if last_reading >=0 and printToScreen:
             utils.log("Baseline wattage", last_reading)
     if printToScreen:
         utils.newline()
@@ -65,9 +65,9 @@ def energy(user_func, *args, powerLoss = 0.8, year, printToScreen):
     p = Process(target = func, args = (user_func, q, *args,))
 
     start = timer()
-    p.start()
     small_delay_counter = 0
     return_value = None
+    p.start()
     while(p.is_alive()):
         # Checking at a faster rate for quick processes
         if (small_delay_counter > DELAY):
@@ -87,7 +87,7 @@ def energy(user_func, *args, powerLoss = 0.8, year, printToScreen):
             time.sleep(delay)
         # Just output, not added
         last_reading = (utils.get_total(files, multiple_cpus) + gpu_process[-1]) / powerLoss
-        if last_reading >=0:
+        if last_reading >=0 and printToScreen:
             utils.log("Process wattage", last_reading)
        # Getting the return value of the user's function
         try:
@@ -111,6 +111,8 @@ def energy(user_func, *args, powerLoss = 0.8, year, printToScreen):
     # Formatting the time nicely
     timedelta = str(datetime.timedelta(seconds=total_time)).split('.')[0]
 
+    if file[0].process == []:
+        raise Exception("Process executed too fast to gather energy consumption")
     files = utils.average_files(files)
 
     process_average = utils.get_process_average(files, multiple_cpus, gpu_process_average)
@@ -127,7 +129,8 @@ def energy(user_func, *args, powerLoss = 0.8, year, printToScreen):
         files.append(file("GPU", ""))
 
     # Logging
-    utils.log("Final Readings", baseline_average, process_average, difference_average, timedelta)
+    if printToScreen:
+        utils.log("Final Readings", baseline_average, process_average, difference_average, timedelta)
     return (process_kwh, return_value, watt_averages, files, total_time)
 
 
@@ -171,7 +174,7 @@ def energy_mix(location, year = 2016):
         return breakdown # list of % of each
 
 
-def emissions(process_kwh, breakdown, location, year):
+def emissions(process_kwh, breakdown, location, year, printToScreen):
     """ Calculates the CO2 emitted by the program based on the location
 
         Parameters:
@@ -188,8 +191,8 @@ def emissions(process_kwh, breakdown, location, year):
     if process_kwh < 0:
         raise OSError("Process wattage lower than baseline wattage. Do not run other processes"
          " during the evaluation, or try evaluating a more resource-intensive process.")
-
-    utils.log("Energy Data", breakdown, location)
+    if printToScreen:
+        utils.log("Energy Data", breakdown, location)
     state_emission = 0
 
     # Case 1: Unknown location, default to US data
@@ -210,13 +213,13 @@ def emissions(process_kwh, breakdown, location, year):
                      convert.petroleum_to_carbon(process_kwh * petroleum/100),
                      convert.natural_gas_to_carbon(process_kwh * natural_gas/100), 0]
         emission = sum(breakdown)
-
-    utils.log("Emissions", emission)
+    if printToScreen:
+        utils.log("Emissions", emission)
     return (emission, state_emission)
 
 
 #OLD VERSION: US, EU, Rest comparison
-def old_emissions_comparison(process_kwh, year, default_location):
+def old_emissions_comparison(process_kwh, year, default_location, printToScreen):
       # Calculates emissions in different locations
 
     intl_data = utils.get_data("data/json/energy-mix-intl_" + year + ".json")
@@ -255,7 +258,7 @@ def old_emissions_comparison(process_kwh, year, default_location):
     median_global, median_europe, median_us = global_emissions[len(global_emissions)//2], \
         europe_emissions[len(europe_emissions)//2], us_emissions[len(us_emissions)//2]
     min_global, min_europe, min_us= global_emissions[0], europe_emissions[0], us_emissions[0]
-    if default_location:
+    if default_location and printToScreen:
         utils.log('Emissions Comparison default', max_global, median_global, min_global, max_europe, \
             median_europe, min_europe, max_us, median_us, min_us)
     default_emissions = [max_global, median_global, min_global, max_europe, \
@@ -263,7 +266,7 @@ def old_emissions_comparison(process_kwh, year, default_location):
     return default_emissions
 
 
-def emissions_comparison(process_kwh, locations, year, default_location):
+def emissions_comparison(process_kwh, locations, year, default_location, printToScreen):
     # TODO: Disambiguation of states such as Georgia, US and Georgia
     intl_data = utils.get_data("data/json/energy-mix-intl_" + year + ".json")
     us_data = utils.get_data("data/json/us-emissions_" + year + ".json")
@@ -286,7 +289,7 @@ def emissions_comparison(process_kwh, locations, year, default_location):
                  emission = sum(breakdown)
                  emissions.append((location,emission))
 
-    if emissions != [] and not default_location:
+    if emissions != [] and not default_location and printToScreen:
         utils.log('Emissions Comparison', emissions)
     return emissions
 
@@ -313,11 +316,13 @@ locations=["Mongolia", "Iceland", "Switzerland"], year="2016", printToScreen = T
         if locations == ["Mongolia", "Iceland", "Switzerland"]:
             default_location = True
         breakdown = energy_mix(location, year = year)
-        emission, state_emission = emissions(result, breakdown, location, year)
-        utils.log("Assumed Carbon Equivalencies")
-        comparison_values = emissions_comparison(result, locations, year, default_location)
-        default_emissions = old_emissions_comparison(result, year, default_location)
-        utils.log("Process Energy", result)
+        emission, state_emission = emissions(result, breakdown, location, year, printToScreen)
+        if printToScreen:
+            utils.log("Assumed Carbon Equivalencies")
+        comparison_values = emissions_comparison(result, locations, year, default_location, printToScreen)
+        default_emissions = old_emissions_comparison(result, year, default_location, printToScreen)
+        if printToScreen:
+            utils.log("Process Energy", result)
         func_info = [user_func.__name__, *args]
         kwh_and_emissions = [result, emission, state_emission]
         if pdf:
