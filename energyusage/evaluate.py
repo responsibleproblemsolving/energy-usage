@@ -111,7 +111,7 @@ def energy(user_func, *args, powerLoss = 0.8, year, printToScreen):
     # Formatting the time nicely
     timedelta = str(datetime.timedelta(seconds=total_time)).split('.')[0]
 
-    if file[0].process == []:
+    if files[0].process == []:
         raise Exception("Process executed too fast to gather energy consumption")
     files = utils.average_files(files)
 
