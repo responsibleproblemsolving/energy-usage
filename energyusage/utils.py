@@ -1,12 +1,11 @@
-import math
-import sys
-import operator
-import time
 import json
+import math
 import os
 import re
 import statistics
 import subprocess
+import sys
+import time
 
 import energyusage.convert as convert
 import energyusage.locate as locate
@@ -23,9 +22,8 @@ def read(file):
     """ Opens file and reads energy measurement """
     if file == "":
         return 0
-    else:
-        with open(file, 'r') as f:
-            return convert.to_joules(int(f.read()))
+    with open(file, 'r') as f:
+        return convert.to_joules(int(f.read()))
 
 def average_files(raplfiles):
     for file in raplfiles:
@@ -35,13 +33,11 @@ def average_files(raplfiles):
 
 def measure(file, delay=1):
     """ Measures the energy output of FILE """
-
-    start, end = 0, 0
-    start = read(file)
+    start_measure, end_measure = 0, 0 # start and end are functions
+    start_measure = read(file)
     time.sleep(delay)
-    end = read(file)
-
-    return end-start
+    end_measure = read(file)
+    return end_measure - start_measure
 
 def get_process_average(raplfiles, multiple_cpus, gpu):
     total = 0
@@ -61,11 +57,11 @@ def get_baseline_average(raplfiles, multiple_cpus, gpu):
     if multiple_cpus:
         for file in raplfiles:
             if "CPU" in file.name:
-                total+= file.baseline_average
+                total += file.baseline_average
     else:
         for file in raplfiles:
             if file.name == "Package":
-                total+=file.baseline_average
+                total += file.baseline_average
     return total + gpu
 
 def get_total(raplfiles, multiple_cpus):
@@ -73,11 +69,11 @@ def get_total(raplfiles, multiple_cpus):
     if multiple_cpus:
         for file in raplfiles:
             if "CPU" in file.name:
-                total+= file.recent
+                total += file.recent
     else:
         for file in raplfiles:
             if file.name == "Package":
-                total =  file.recent
+                total = file.recent
     if (total):
         return total
     return 0
@@ -100,7 +96,7 @@ def start(raplfile):
 
 def end(raplfile, delay):
     measurement = read(raplfile.path)
-    raplfile.recent = (measurement -raplfile.recent) / delay
+    raplfile.recent = (measurement - raplfile.recent) / delay
     return raplfile
 
 def measure_files(files, delay = 1):
@@ -155,8 +151,8 @@ def get_files():
     for file in files:
         path = BASE + '/' + file + '/name'
         with open(path) as f:
-           name = f.read()[:-1]
-           renamed = reformat(name, multiple_cpus)
+            name = f.read()[:-1]
+            renamed = reformat(name, multiple_cpus)
         names[renamed] = BASE + file + '/energy_uj'
 
     filenames = []
@@ -267,17 +263,17 @@ def log(*args):
 
      #OLD VERSION: US, EU, Rest comparison
     elif args[0] == "Emissions Comparison default":
-         log_header('Emissions Comparison')
-         max_global, median_global, min_global, max_europe, median_europe, min_europe, \
-         max_us, median_us, min_us = args[1:]
-         sys.stdout.write("{:^80}\n".format("Quantities below expressed in kg CO2"))
-         sys.stdout.write("{:8}{:<23} {:<23} {:<22}\n".format("", "US", "Europe", \
+        log_header('Emissions Comparison')
+        (max_global, median_global, min_global, max_europe, median_europe, min_europe,
+         max_us, median_us, min_us) = args[1:]
+        sys.stdout.write("{:^80}\n".format("Quantities below expressed in kg CO2"))
+        sys.stdout.write("{:8}{:<23} {:<23} {:<22}\n".format("", "US", "Europe", \
             "Global minus US/Europe"))
-         sys.stdout.write("{:<7} {:<13}{:>10.2e} {:<13}{:>10.2e} {:<14}{:>10.2e}\n".format("Max:", max_us[0], max_us[1], \
+        sys.stdout.write("{:<7} {:<13}{:>10.2e} {:<13}{:>10.2e} {:<14}{:>10.2e}\n".format("Max:", max_us[0], max_us[1], \
              max_europe[0], max_europe[1], max_global[0], max_global[1]))
-         sys.stdout.write("{:<7} {:<13}{:>10.2e} {:<13}{:>10.2e} {:<14}{:>10.2e}\n".format("Median:", median_us[0], median_us[1], \
+        sys.stdout.write("{:<7} {:<13}{:>10.2e} {:<13}{:>10.2e} {:<14}{:>10.2e}\n".format("Median:", median_us[0], median_us[1], \
              median_europe[0], median_europe[1], median_global[0], median_global[1]))
-         sys.stdout.write("{:<7} {:<13}{:>10.2e} {:<13}{:>10.2e} {:<14}{:>10.2e}\n".format("Min:", min_us[0], min_us[1], \
+        sys.stdout.write("{:<7} {:<13}{:>10.2e} {:<13}{:>10.2e} {:<14}{:>10.2e}\n".format("Min:", min_us[0], min_us[1], \
              min_europe[0], min_europe[1], min_global[0], min_global[1]))
     elif args[0] == "Process Energy":
         energy = args[1]
@@ -293,7 +289,7 @@ def log(*args):
 def get_data(file):
     file = os.path.join(DIR_PATH, file)
     with open(file) as f:
-            data = json.load(f)
+        data = json.load(f)
     return data
 
 def valid_cpu():
@@ -301,15 +297,9 @@ def valid_cpu():
 
 def valid_gpu():
     """ Checks that there is a valid Nvidia GPU """
-
-
     try:
         bash_command = "nvidia-smi > /dev/null 2>&1" #we must pipe to ignore error message
-        output = subprocess.check_call(['bash','-c', bash_command])
-        if type(output) == float:
-            return True
-        else:
-            return False
-
+        output = subprocess.check_call(['bash', '-c', bash_command])
+        return isinstance(output, float) # directly return a boolean
     except:
         return False
