@@ -2,14 +2,12 @@ from reportlab.lib.pagesizes import letter, landscape
 from reportlab.lib.units import inch
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.lib.enums import TA_RIGHT, TA_CENTER
+from reportlab.lib.enums import TA_CENTER
 from reportlab.lib import colors
 from reportlab.graphics.charts.piecharts import Pie
-from reportlab.graphics.shapes import *
+from reportlab.graphics.shapes import *  # not used?
 from reportlab.graphics.charts.barcharts import VerticalBarChart
 from reportlab.graphics.charts.textlabels import Label
-from energyusage.RAPLFile import RAPLFile
-
 
 import energyusage.convert as convert
 
@@ -50,7 +48,7 @@ def readings_and_mix_table(reading_data, mix_data, breakdown, state_emission, lo
     '''
     Creates 2 tables that are then embedded as the columns of 1 bigger table
     '''
-    no_rows = 1
+    no_rows = 1  # not used
     no_cols = 1
     col_size = 4.5
 
@@ -88,7 +86,6 @@ def readings_and_mix_table(reading_data, mix_data, breakdown, state_emission, lo
     pc.slices.strokeWidth=0.5
     pc.sideLabels = True
     d.add(pc)
-
 
     mix_data = [['Energy Mix Data'], [d], ['Location: ' + location]]
     mix_table = Table(mix_data, no_cols*[col_size/2*inch], [.25*inch, 1*inch, .3*inch], hAlign="RIGHT")
