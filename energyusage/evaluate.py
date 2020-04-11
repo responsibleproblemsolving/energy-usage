@@ -6,6 +6,7 @@ import os
 import datetime
 import subprocess
 import queue
+import csv
 
 
 import energyusage.utils as utils
@@ -338,3 +339,259 @@ locations=["Mongolia", "Iceland", "Switzerland"], year="2016", printToScreen = T
         utils.log("The energy-usage package only works on Linux kernels "
         "with Intel processors that support the RAPL interface and/or machines with"
         " an Nvidia GPU. Please try again on a different machine.")
+
+
+def opener (filename): #reads the processor info csv file and returns a dictionary of key-value pair (name-TDP)
+    with open("./energyusage/data/csv/" + filename) as csvfile:
+        processor_info = csv.reader(csvfile, delimiter=',')
+    # f = open (filename, 'r')
+    # processor_info = csv.reader(f)
+        processor_dic = {} 
+        next(processor_info)#to remove the header row
+        for row in processor_info:
+            processor_dic[row[0]] = row[1] #adding key-value pairs of processor name and value to dictionary
+    return processor_dic
+
+
+
+
+def energy_region (seconds, processor, printToScreen): #edit powerLoss? year?
+    """ 
+    edit
+
+    """
+    processor_dic = opener('hardware_data.csv')
+    if processor in processor_dic:     #check if the passed pocessor is in the dictionary and then print with an else
+        processor_TDP = int(processor_dic[processor])
+        total_kWh = (processor_TDP/1000)*(seconds/3600)
+        return total_kWh, processor_TDP
+    else:
+        utils.log("The package can compute with specific hardwares") #edit
+
+    if printToScreen:
+        utils.log("Processor Readings", processor, processor_TDP)
+    # if printToScreen? edit
+
+def evaluate_region(region, seconds, processor, region_info = False, pdf=False, powerLoss=0.8, energyOutput=False, \
+locations=["Mongolia", "Iceland", "Switzerland"], year="2016", printToScreen = True):
+    """ Calculates effective emissions of the function
+
+        Parameters:
+            region: location to be computed 
+            pdf (bool): whether a PDF report should be generated
+            powerLoss (float): PSU efficiency rating
+            energyOutput (bool): return value also includes information about energy usage, not just function's return
+            locations (list of strings): list of locations to be compared
+            year (str): year of dataset to be used
+            printToScreen (bool): get information in the command line
+
+    """
+    utils.setGlobal(printToScreen)
+
+    result, processor_TDP = energy_region(seconds, processor, printToScreen = printToScreen)
+    #result, 
+    default_location = False
+    if locations == ["Mongolia", "Iceland", "Switzerland"]:
+        default_location = True
+    breakdown = energy_mix(region, year = year)
+    emission, state_emission = emissions(result, breakdown, region, year, printToScreen)
+
+    """"-------------------------------------------------"""
+    if printToScreen:
+        utils.log("Assumed Carbon Equivalencies")
+    comparison_values = emissions_comparison(result, locations, year, default_location, printToScreen)
+    default_emissions = old_emissions_comparison(result, year, default_location, printToScreen)
+    if printToScreen:
+        utils.log("Process Energy", result)
+    # func_info = [user_func.__name__, *args]
+    func_info = ["Manual Input", ""] #edit
+    watt_averages = [result, seconds] #edit ask?
+    kwh_and_emissions = [result, emission, state_emission]
+    
+    if pdf:
+        #pass
+        report.generate(region, watt_averages, breakdown, kwh_and_emissions,func_info, \
+             comparison_values, default_emissions, default_location, region_info, processor_TDP, processor)  
+             # edit add region_info = False?
+    # if energyOutput: ask?
+    #     return (total_time, result, return_value)
+    # else:
+    #     return return_value
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# def evaluate_location(region, hours, processorTDP, pdf=False, powerLoss=0.8, energyOutput=False, \
+# locations=["Mongolia", "Iceland", "Switzerland"], year="2016", printToScreen = True):
+#     """ Calculates effective emissions of the function
+
+#         Parameters:
+#             user_func: user's function + associated args
+#             pdf (bool): whether a PDF report should be generated
+#             powerLoss (float): PSU efficiency rating
+#             energyOutput (bool): return value also includes information about energy usage, not just function's return
+#             locations (list of strings): list of locations to be compared
+#             year (str): year of dataset to be used
+#             printToScreen (bool): get information in the command line
+
+#     """
+#     utils.setGlobal(printToScreen)
+#     # if (utils.valid_cpu() or utils.valid_gpu()):
+#     # location = locate.get(printToScreen)
+#     # result, return_value, watt_averages, files, total_time = energy(hours, powerLoss = powerLoss, year = year, \
+#     #                                                     printToScreen = printToScreen)
+#     default_location = False
+#     if locations == ["Mongolia", "Iceland", "Switzerland"]:
+#         default_location = True
+#     breakdown = energy_mix(region, year = year)
+#     total_kWh = hours*processorTDP
+
+#     emission, state_emission = emissions(total_kWh, breakdown, region, year, printToScreen)
+#     if printToScreen:
+#         utils.log("Assumed Carbon Equivalencies")
+#     comparison_values = emissions_comparison(total_kWh, locations, year, default_location, printToScreen)
+#     default_emissions = old_emissions_comparison(total_kWh, year, default_location, printToScreen)
+#     if printToScreen:
+#         utils.log("Process Energy", total_kWh)
+#     # func_info = [user_func.__name__, *args]
+#     kwh_and_emissions = [total_kWh, emission, state_emission]
+#     if pdf:
+#         #pass
+#         report.generate_location(region, total_kWh,breakdown, kwh_and_emissions, \ 
+#             comparison_values, default_emissions, default_location)
+#     if energyOutput:
+#         return (hours, total_kWh, total_kWh) #third parameter should be return_value
+     # else:
+     #    return return_value
+    # else:
+    #     utils.log("The energy-usage package only works on Linux kernels "
+    #     "with Intel processors that support the RAPL interface and/or machines with"
+    #     " an Nvidia GPU. Please try again on a different machine.")
+
+
+# def energy_location(time, powerLoss = 0.8, year, printToScreen):
+#     """ Evaluates the kwh needed for your code to run
+
+#     Parameters:
+#        user_func (function): user's function
+
+#     Returns:
+#         (process_kwh, return_value, watt_averages)
+
+#     """
+
+#     baseline_check_seconds = 5
+#     files, multiple_cpus = utils.get_files()
+#     is_nvidia_gpu = utils.valid_gpu()
+#     is_valid_cpu = utils.valid_cpu()
+
+#     # GPU handling if Nvidia
+#     gpu_baseline =[0]
+#     gpu_process = [0]
+#     bash_command = "nvidia-smi -i 0 --format=csv,noheader --query-gpu=power.draw"
+
+#     for i in range(int(baseline_check_seconds / DELAY)):
+#         if is_nvidia_gpu:
+#             output = subprocess.check_output(['bash','-c', bash_command])
+#             output = float(output.decode("utf-8")[:-2])
+#             gpu_baseline.append(output)
+#         if is_valid_cpu:
+#             files = utils.measure_files(files, DELAY)
+#             files = utils.update_files(files)
+#         else:
+#             time.sleep(DELAY)
+#         # Adds the most recent value of GPU; 0 if not Nvidia
+#         last_reading = utils.get_total(files, multiple_cpus) + gpu_baseline[-1]
+#         if last_reading >=0 and printToScreen:
+#             utils.log("Baseline wattage", last_reading)
+#     if printToScreen:
+#         utils.newline()
+
+#     # Running the process and measuring wattage
+#     q = Queue()
+#     p = Process(target = func, args = (user_func, q, *args,))
+
+#     start = timer()
+#     small_delay_counter = 0
+#     return_value = None
+#     p.start()
+#     while(p.is_alive()):
+#         # Checking at a faster rate for quick processes
+#         if (small_delay_counter > DELAY):
+#            delay = DELAY / 10
+#            small_delay_counter+=1
+#         else:
+#            delay = DELAY
+
+#         if is_nvidia_gpu:
+#             output = subprocess.check_output(['bash','-c', bash_command])
+#             output = float(output.decode("utf-8")[:-2])
+#             gpu_process.append(output)
+#         if is_valid_cpu:
+#             files = utils.measure_files(files, delay)
+#             files = utils.update_files(files, True)
+#         else:
+#             time.sleep(delay)
+#         # Just output, not added
+#         last_reading = (utils.get_total(files, multiple_cpus) + gpu_process[-1]) / powerLoss
+#         if last_reading >=0 and printToScreen:
+#             utils.log("Process wattage", last_reading)
+#        # Getting the return value of the user's function
+#         try:
+#             return_value = q.get_nowait()
+#             break
+#         except queue.Empty:
+#             pass
+#     p.join()
+#     end = timer()
+#     for file in files:
+#         file.process = file.process[1:-1]
+#         file.baseline = file.baseline[1:-1]
+#     if is_nvidia_gpu:
+#         gpu_baseline_average = statistics.mean(gpu_baseline[2:-1])
+#         gpu_process_average = statistics.mean(gpu_process[2:-1])
+#     else:
+#         gpu_baseline_average = 0
+#         gpu_process_average = 0
+
+#     total_time = end-start # seconds
+#     # Formatting the time nicely
+#     timedelta = str(datetime.timedelta(seconds=total_time)).split('.')[0]
+
+#     if files[0].process == []:
+#         raise Exception("Process executed too fast to gather energy consumption")
+#     files = utils.average_files(files)
+
+#     process_average = utils.get_process_average(files, multiple_cpus, gpu_process_average)
+#     baseline_average = utils.get_baseline_average(files, multiple_cpus, gpu_baseline_average)
+#     difference_average = process_average - baseline_average
+#     watt_averages = [baseline_average, process_average, difference_average, timedelta]
+
+#     # Subtracting baseline wattage to get more accurate result
+#     process_kwh = convert.to_kwh((process_average - baseline_average)*total_time) / powerLoss
+
+#     if is_nvidia_gpu:
+#         gpu_file = file("GPU", "")
+#         gpu_file.create_gpu(gpu_baseline_average, gpu_process_average)
+#         files.append(file("GPU", ""))
+
+#     # Logging
+#     if printToScreen:
+#         utils.log("Final Readings", baseline_average, process_average, difference_average, timedelta)
+#     return (process_kwh, return_value, watt_averages, files, total_time)
+

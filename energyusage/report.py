@@ -281,7 +281,7 @@ def comparison_graphs(comparison_values, location, emission, default_emissions, 
 
 
 def generate(location, watt_averages, breakdown, kwh_and_emissions, func_info, \
-    comparison_values, default_emissions, default_location):
+    comparison_values, default_emissions, default_location, region_info = False, processor_TDP = 0, processor_name= ""): #edited
     # TODO: remove state_emission and just use location
     """ Generates pdf report
 
@@ -295,42 +295,66 @@ def generate(location, watt_averages, breakdown, kwh_and_emissions, func_info, \
     """
 
     kwh, emission, state_emission = kwh_and_emissions
-    baseline_average, process_average, difference_average, process_duration = watt_averages
 
+    if not region_info:
+        baseline_average, process_average, difference_average, process_duration = watt_averages
+    else:
+        process_average, process_duration = watt_averages
 
     # Initializing document
     doc = SimpleDocTemplate("energy-usage-report.pdf",pagesize=landscape(letter), topMargin=.3*inch)
 
     title("Energy Usage Report")
 
+    if not region_info:
+
     # Handling header with function name and arguments
-    func_name, *func_args = func_info
-    info_text = " for the function " + func_name
-    if len(func_args) > 0:
-        if len(func_args) == 1:
-            info_text += " with the input " + str(func_args[0]) + "."
+        func_name, *func_args = func_info
+        info_text = " for the function " + func_name
+        if len(func_args) > 0:
+            if len(func_args) == 1:
+                info_text += " with the input " + str(func_args[0]) + "."
+            else:
+                info_text += " with the inputs "
+                for arg in func_args:
+                    info_text += arg + ","
+                info_text = info_text[len(info_text)-1] + "."
         else:
-            info_text += " with the inputs "
-            for arg in func_args:
-                info_text += arg + ","
-            info_text = info_text[len(info_text)-1] + "."
+            info_text += "."
+
+        subtitle("Energy usage and carbon emissions" + info_text, spaceBefore=True)
+
+        # Energy Usage Readings and Energy Mix Data
+        readings_data = [['Energy Usage Readings', ''],
+                    ['Average baseline wattage:', "{:.2f} watts".format(baseline_average)],
+                    ['Average total wattage:', "{:.2f} watts".format(process_average)],
+                    ['Average process wattage:', "{:.2f} watts".format(difference_average)],
+                    ['Process duration:', process_duration],
+                    ['','']] #hack for the alignment
+        coal_para = Paragraph('<font face="times" size=12>996 kg CO<sub rise = -10 size = 8>2 </sub>/MWh</font>', style = styles["Normal"])
+        oil_para = Paragraph('<font face="times" size=12>817 kg CO<sub rise = -10 size = 8>2 </sub>/MWh</font>', style = styles["Normal"])
+        gas_para = Paragraph('<font face="times" size=12>744 kg CO<sub rise = -10 size = 8>2 </sub>/MWh</font>', style = styles["Normal"])
+        low_para = Paragraph('<font face="times" size=12>0 kg CO<sub rise = -10 size = 8>2 </sub>/MWh</font>', style = styles["Normal"])
+    
     else:
-        info_text += "."
+        
+        readings_data = [['Processor Info', ''],
+                    ['Processor Name:', "{:.2s} watts".format(processor_name)],
+                    ['Processor TDP in Watts:', "{:.2f} watts".format(processor_TDP)],
+                    ['Process wattage:', "{:.2f} watts".format(process_average)],
+                    ['Process duration:', process_duration],
+                    ['','']] #hack for the alignment
+                    
+        coal_para = Paragraph('<font face="times" size=12>996 kg CO<sub rise = -10 size = 8>2 </sub>/MWh</font>', style = styles["Normal"])
+        oil_para = Paragraph('<font face="times" size=12>817 kg CO<sub rise = -10 size = 8>2 </sub>/MWh</font>', style = styles["Normal"])
+        gas_para = Paragraph('<font face="times" size=12>744 kg CO<sub rise = -10 size = 8>2 </sub>/MWh</font>', style = styles["Normal"])
+        low_para = Paragraph('<font face="times" size=12>0 kg CO<sub rise = -10 size = 8>2 </sub>/MWh</font>', style = styles["Normal"])            
+ 
+    
+   
+        # subtitle("Processor info")
 
-    subtitle("Energy usage and carbon emissions" + info_text, spaceBefore=True)
 
-    # Energy Usage Readings and Energy Mix Data
-    readings_data = [['Energy Usage Readings', ''],
-                ['Average baseline wattage:', "{:.2f} watts".format(baseline_average)],
-                ['Average total wattage:', "{:.2f} watts".format(process_average)],
-                ['Average process wattage:', "{:.2f} watts".format(difference_average)],
-                ['Process duration:', process_duration],
-                ['','']] #hack for the alignment
-
-    coal_para = Paragraph('<font face="times" size=12>996 kg CO<sub rise = -10 size = 8>2 </sub>/MWh</font>', style = styles["Normal"])
-    oil_para = Paragraph('<font face="times" size=12>817 kg CO<sub rise = -10 size = 8>2 </sub>/MWh</font>', style = styles["Normal"])
-    gas_para = Paragraph('<font face="times" size=12>744 kg CO<sub rise = -10 size = 8>2 </sub>/MWh</font>', style = styles["Normal"])
-    low_para = Paragraph('<font face="times" size=12>0 kg CO<sub rise = -10 size = 8>2 </sub>/MWh</font>', style = styles["Normal"])
     if state_emission:
         coal, oil, natural_gas, low_carbon = breakdown
         mix_data = [['Energy Mix Data', ''],
@@ -375,3 +399,110 @@ def generate(location, watt_averages, breakdown, kwh_and_emissions, func_info, \
 
     comparison_graphs(comparison_values, location, emission, default_emissions, default_location)
     doc.build(Elements)
+
+
+
+
+
+
+
+# #watt_averages is passed as the total_kWh
+# def generate_location(location, watt_averages, breakdown, kwh_and_emissions, \
+#     comparison_values, default_emissions, default_location):
+#     # TODO: remove state_emission and just use location
+#     """ Generates pdf report
+
+#     Parameters:
+#         location (str): user's location, locations=["Romania", "Brazil"]
+#         watt_averages (list): list of baseline, total, process wattage, process duration
+#         breakdown (list): [% coal, % oil/petroleum, % natural gas, % low carbon]
+#         kwh_and_emissions (list): [kwh used, emission in kg CO2, state emission > 0 for US states]
+#         func_info (list): [user func name, user func args (0 or more)]
+
+#     """
+
+#     # kwh, emission, state_emission = kwh_and_emissions
+#     # baseline_average, process_average, difference_average, process_duration = watt_averages
+
+
+#     # Initializing document
+#     doc = SimpleDocTemplate("energy-usage-report.pdf",pagesize=landscape(letter), topMargin=.3*inch)
+
+#     title("Energy Usage Report")
+
+#     # Handling header with function name and arguments
+#     # func_name, *func_args = func_info
+#     # info_text = " for the function " + func_name
+#     # if len(func_args) > 0:
+#     #     if len(func_args) == 1:
+#     #         info_text += " with the input " + str(func_args[0]) + "."
+#     #     else:
+#     #         info_text += " with the inputs "
+#     #         for arg in func_args:
+#     #             info_text += arg + ","
+#     #         info_text = info_text[len(info_text)-1] + "."
+#     # else:
+#     #     info_text += "."
+
+#     subtitle("Energy usage and carbon emissions" + info_text, spaceBefore=True)
+
+#     # Energy Usage Readings and Energy Mix Data
+#     # readings_data = [['Energy Usage Readings', ''],
+#     #             ['Average baseline wattage:', "{:.2f} watts".format(baseline_average)],
+#     #             ['Average total wattage:', "{:.2f} watts".format(process_average)],
+#     #             ['Average process wattage:', "{:.2f} watts".format(difference_average)],
+#     #             ['Process duration:', process_duration],
+#     #             ['','']] #hack for the alignment
+
+#         readings_data = [['Average total wattage:', "{:.2f} watts".format(watt_averages)],
+#                     ['','']] #hack for the alignment
+
+#     coal_para = Paragraph('<font face="times" size=12>996 kg CO<sub rise = -10 size = 8>2 </sub>/MWh</font>', style = styles["Normal"])
+#     oil_para = Paragraph('<font face="times" size=12>817 kg CO<sub rise = -10 size = 8>2 </sub>/MWh</font>', style = styles["Normal"])
+#     gas_para = Paragraph('<font face="times" size=12>744 kg CO<sub rise = -10 size = 8>2 </sub>/MWh</font>', style = styles["Normal"])
+#     low_para = Paragraph('<font face="times" size=12>0 kg CO<sub rise = -10 size = 8>2 </sub>/MWh</font>', style = styles["Normal"])
+#     if state_emission:
+#         coal, oil, natural_gas, low_carbon = breakdown
+#         mix_data = [['Energy Mix Data', ''],
+#                     ['Coal', "{:.2f}%".format(coal)],
+#                     ['Oil', "{:.2f}%".format(oil)],
+#                     ['Natural gas', "{:.2f}%".format(natural_gas)],
+#                     ['Low carbon', "{:.2f}%".format(low_carbon)]]
+#         equivs_data = [['Coal:', coal_para],
+#                        ['Oil:', oil_para],
+#                        ['Natural gas:', gas_para],
+#                        ['Low carbon:', low_para]]
+
+#     else:
+#         coal, petroleum, natural_gas, low_carbon = breakdown
+#         mix_data = [['Energy Mix Data', ''],
+#                     ['Coal',  "{:.2f}%".format(coal)],
+#                     ['Petroleum', "{:.2f}%".format(petroleum)],
+#                     ['Natural gas', "{:.2f}%".format(natural_gas)],
+#                     ['Low carbon', "{:.2f}%".format(low_carbon)]]
+#         equivs_data = [['Coal:', coal_para],
+#                        ['Petroleum:', oil_para],
+#                        ['Natural gas:', gas_para],
+#                        ['Low carbon:', low_para]]
+
+#     readings_and_mix_table(readings_data, mix_data, breakdown, state_emission, location)
+#     effective_emission = Paragraph('<font face="times" size=12>{:.2e} kg CO<sub rise = -10 size = 8>2 </sub></font>'.format(emission), style = styles["Normal"])
+#     # Total kWhs used and effective emissions
+#     kwh_and_emissions_data = [["Total kilowatt hours used:", "{:.2e} kWh".format(kwh)],
+#                               ["Effective emissions:", effective_emission]]
+
+#     kwh_and_emissions_table(kwh_and_emissions_data)
+
+#     # Equivalencies and CO2 emission equivalents
+#     per_house = Paragraph('<font face="times" size=12>% of CO<sub rise = -10 size = 8>2</sub> per US house/day:</font>'.format(emission), style = styles["Normal"])
+#     emissions_data = [
+#                  ['Miles driven:', "{:.2e} miles".format(convert.carbon_to_miles(emission))],
+#                  ['Min. of 32-in. LCD TV:', "{:.2e} minutes".format(convert.carbon_to_tv(emission))],
+#                  [per_house, \
+#                    "{:.2e}%".format(convert.carbon_to_home(emission))]]
+
+#     equivs_and_emission_equivs(equivs_data, emissions_data)
+
+#     comparison_graphs(comparison_values, location, emission, default_emissions, default_location)
+#     doc.build(Elements)
+

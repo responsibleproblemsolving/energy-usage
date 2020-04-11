@@ -217,6 +217,15 @@ def log(*args):
         sys.stdout.write("{:<25} {:>48.2f} {:5<}\n".format("Average process wattage:", difference_average, "watts"))
         sys.stdout.write("{:<17} {:>62}\n".format("Process duration:", timedelta))
 
+        
+    elif args[0] == "Processor Readings":
+        newline()
+        processor_name, processor_TDP = args[1], args[2]
+        delete_last_lines()
+        log_header(args[0])
+        sys.stdout.write("{:<25} {:>48.2f} {:5<}\n".format("Processor Name:", processor_name)
+        sys.stdout.write("{:<25} {:>48.2f} {:5<}\n".format("Processor TDP:", str(processor_TDP))  
+        
     elif args[0] == "Energy Data":
         location = args[2]
         log_header('Energy Data')
