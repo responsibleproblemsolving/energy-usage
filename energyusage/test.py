@@ -7,6 +7,6 @@ def exp(n):
     for i in range(2**n):
         linear(1)
         
-import evaluate
-evaluate.evaluate(exp, 10)
+import energyusage
+energyusage.evaluate(exp, 10)
                                                         
