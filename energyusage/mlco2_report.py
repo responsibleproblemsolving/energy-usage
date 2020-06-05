@@ -298,10 +298,15 @@ def generate(kwh, emission):
                  [per_house, \
                    "{:.2e}%".format(convert.carbon_to_home(emission))]]
 
+    coal_para = Paragraph('<font face="times" size=12>996 kg CO<sub rise = -10 size = 8>2 </sub>/MWh</font>', style = styles["Normal"])
+    oil_para = Paragraph('<font face="times" size=12>817 kg CO<sub rise = -10 size = 8>2 </sub>/MWh</font>', style = styles["Normal"])
+    gas_para = Paragraph('<font face="times" size=12>744 kg CO<sub rise = -10 size = 8>2 </sub>/MWh</font>', style = styles["Normal"])
+    low_para = Paragraph('<font face="times" size=12>0 kg CO<sub rise = -10 size = 8>2 </sub>/MWh</font>', style = styles["Normal"])
+
     equivs_data = [['Coal:', coal_para],
-                       ['Petroleum:', oil_para],
-                       ['Natural gas:', gas_para],
-                       ['Low carbon:', low_para]]
+                   ['Petroleum:', oil_para],
+                   ['Natural gas:', gas_para],
+                   ['Low carbon:', low_para]]
 
     equivs_and_emission_equivs(equivs_data, emissions_data)
 
