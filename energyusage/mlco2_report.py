@@ -269,6 +269,36 @@ def equivs_and_emission_equivs(equivs_data, emissions_data):
     t.setStyle(TableStyle([('VALIGN', (-1,-1), (-1,-1), "TOP")]))
     Elements.append(t)
 
+def gen_bar_graphs(comparison_values, location, emission):
+    bc = VerticalBarChart()
+    labels = []
+    data = []
+    comparison_values.append([location, emission])
+    comparison_values.sort(key = lambda x: x[1])
+    for pair in comparison_values:
+        labels.append(pair[0])
+        data.append(pair[1])
+    data = [data]
+    location_index = labels.index(location)
+    bc.x = -150
+    bc.y = -110
+    bc.height = 100
+    bc.width = 150
+    bc.data = data
+    bc.strokeColor = colors.black
+    bc.valueAxis.valueMin = 0
+    bc.valueAxis.valueMax = data[0][-1] + data[0][-1] *.1
+    #bc.valueAxis.valueStep = 10
+    bc.categoryAxis.labels.boxAnchor = 'ne'
+    bc.categoryAxis.labels.dx = 8
+    bc.categoryAxis.labels.dy = -2
+    bc.categoryAxis.labels.angle = 30
+    bc.categoryAxis.categoryNames = labels
+    for i in range(len(labels)):
+        bc.bars[(0, i)].fillColor = colors.Color(166.0/255, 189.0/255, 219.0/255)
+    bc.bars[(0, location_index)].fillColor = colors.Color(28.0/255, 144.0/255, 153.0/255)
+    return bc
+
 def generate(kwh, emission):
     # TODO: remove state_emission and just use location
     """ Generates pdf report
