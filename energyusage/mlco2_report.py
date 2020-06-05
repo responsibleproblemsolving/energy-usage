@@ -2,6 +2,7 @@ import utils as utils
 import convert as convert
 import locate as locate
 import report as report
+import evaluate as evaluate
 
 from reportlab.lib.pagesizes import letter, landscape
 from reportlab.lib.units import inch
@@ -43,79 +44,6 @@ def subtitle(text, style=SubtitleStyle, klass=Paragraph, sep=0.1, spaceBefore=Tr
     Elements.append(d)
     if spaceAfter:
         Elements.append(s)
-
-def old_emissions_comparison(process_kwh, year, default_location, printToScreen):
-      # Calculates emissions in different locations
-
-    intl_data = utils.get_data("data/json/energy-mix-intl_" + year + ".json")
-    global_emissions, europe_emissions, us_emissions = [], [], []
-    # Handling international
-    for country in intl_data:
-           c = intl_data[country]
-           total, breakdown = c['total'], [c['coal'], c['petroleum'], \
-           c['naturalGas'], c['lowCarbon']]
-           if isinstance(total, float) and float(total) > 0:
-               breakdown = list(map(lambda x: 100*x/total, breakdown))
-               coal, petroleum, natural_gas, low_carbon = breakdown
-               breakdown = [convert.coal_to_carbon(process_kwh * coal/100),
-                    convert.petroleum_to_carbon(process_kwh * petroleum/100),
-                    convert.natural_gas_to_carbon(process_kwh * natural_gas/100), 0]
-               emission = sum(breakdown)
-               if locate.in_Europe(country):
-                   europe_emissions.append((country,emission))
-               else:
-                   global_emissions.append((country,emission))
-
-    global_emissions.sort(key=lambda x: x[1])
-    europe_emissions.sort(key=lambda x: x[1])
-
-    # Handling US
-    us_data = utils.get_data("data/json/us-emissions_" + year + ".json")
-    for state in us_data:
-        if ((state != "United States") and state != "_units"):
-            if us_data[state] != "lbs/MWh":
-                emission = convert.lbs_to_kgs(us_data[state]*convert.to_MWh(process_kwh))
-                us_emissions.append((state, emission))
-    us_emissions.sort(key=lambda x: x[1])
-
-    max_global, max_europe, max_us = global_emissions[len(global_emissions)-1], \
-        europe_emissions[len(europe_emissions)-1], us_emissions[len(us_emissions)-1]
-    median_global, median_europe, median_us = global_emissions[len(global_emissions)//2], \
-        europe_emissions[len(europe_emissions)//2], us_emissions[len(us_emissions)//2]
-    min_global, min_europe, min_us= global_emissions[0], europe_emissions[0], us_emissions[0]
-    if default_location and printToScreen:
-        utils.log('Emissions Comparison default', max_global, median_global, min_global, max_europe, \
-            median_europe, min_europe, max_us, median_us, min_us)
-    default_emissions = [max_global, median_global, min_global, max_europe, \
-        median_europe, min_europe, max_us, median_us, min_us]
-    return default_emissions
-
-def emissions_comparison(process_kwh, locations, year, default_location, printToScreen):
-    # TODO: Disambiguation of states such as Georgia, US and Georgia
-    intl_data = utils.get_data("data/json/energy-mix-intl_" + year + ".json")
-    us_data = utils.get_data("data/json/us-emissions_" + year + ".json")
-    emissions = [] # list of tuples w/ format (location, emission)
-
-    for location in locations:
-        if locate.in_US(location):
-            emission = convert.lbs_to_kgs(us_data[location]*convert.to_MWh(process_kwh))
-            emissions.append((location, emission))
-        else:
-             c = intl_data[location]
-             total, breakdown = c['total'], [c['coal'], c['petroleum'], \
-             c['naturalGas'], c['lowCarbon']]
-             if isinstance(total, float) and float(total) > 0:
-                 breakdown = list(map(lambda x: 100*x/total, breakdown))
-                 coal, petroleum, natural_gas, low_carbon = breakdown
-                 breakdown = [convert.coal_to_carbon(process_kwh * coal/100),
-                      convert.petroleum_to_carbon(process_kwh * petroleum/100),
-                      convert.natural_gas_to_carbon(process_kwh * natural_gas/100), 0]
-                 emission = sum(breakdown)
-                 emissions.append((location,emission))
-
-    if emissions != [] and not default_location and printToScreen:
-        utils.log('Emissions Comparison', emissions)
-    return emissions
 
 def kwh_and_emissions_table(data):
 
@@ -335,8 +263,8 @@ def generate(kwh, emission):
     default_location = False
     if locations == ["Mongolia", "Iceland", "Switzerland"]:
         default_location = True
-    comparison_values = emissions_comparison(kwh, locations, year, default_location, printToScreen)
+    comparison_values = evaluate.emissions_comparison(kwh, locations, year, default_location, printToScreen)
 
-    default_emissions = old_emissions_comparison(kwh, year, default_location, printToScreen)
+    default_emissions = evaluate.old_emissions_comparison(kwh, year, default_location, printToScreen)
     comparison_graphs(comparison_values, location, emission, default_emissions, default_location)
     doc.build(Elements)
