@@ -9,10 +9,10 @@ import subprocess
 import queue
 
 
-import utils as utils
-import convert as convert
-import locate as locate
-import report as report
+import energyusage.utils as utils
+import energyusage.convert as convert
+import energyusage.locate as locate
+import energyusage.report as report
 
 from reportlab.lib.pagesizes import letter, landscape
 from reportlab.lib.units import inch
@@ -149,67 +149,6 @@ def kwh_and_emissions_table(data):
                 ('VALIGN', (0,0), (-1,-1), "TOP")])
     Elements.append(t)
 
-def equivs_and_emission_equivs(equivs_data, emissions_data):
-    '''
-    Creates a table with 2 columns, each with their own embedded table
-    The embedded tables contain 2 vertically-stacked tables, one for the header
-    and the other one for the actual data in order to have better alignment
-    The first row of the 2nd vertically-stacked table is smaller than the rest in
-    order to remove the extra space and make these tables look cohesive with the
-    energy usage readings and energy mix tables
-    Setup:
-    * Table(data[array of arrays, one for each row], [column widths], [row heights])
-    * Spacer(width, height)
-    '''
-    s = Spacer(9*inch, .2*inch)
-    Elements.append(s)
-
-    no_rows = 1
-    no_cols = 1
-    col_size = 4.5
-
-    equivs_header_data = [["Assumed Carbon Equivalencies"]]
-
-    # Table(data)
-    equivs_header_table = Table(equivs_header_data, [3*inch], [.25*inch])
-    equivs_header_table.setStyle(TableStyle([('FONT',(0,0),(0,-1),"Times-Bold"),
-                                             ('FONTSIZE', (0,0), (-1,-1), 13)]))
-
-
-    equivs_data_table = Table(equivs_data, [1*inch, 2*inch], [0.17*inch, 0.25*inch, 0.25*inch, 0.25*inch],hAlign="LEFT")
-    equivs_data_table.setStyle(TableStyle([('FONT', (0,0), (-1,-1), "Times-Roman"),
-                                         ('FONTSIZE', (0,0), (-1,-1), 12),
-                                         ('ALIGN', (0,0), (0,-1), "RIGHT"),
-                                         ('VALIGN', (-1,-1), (-1,-1), "TOP")]))
-
-    t1_data = [[equivs_header_table],[equivs_data_table]]
-
-    t1 = Table(t1_data, [3*inch])
-
-    emission_equiv_para = Paragraph('<font face="times" size=13><strong>CO<sub rise = -10 size = 8>2</sub>' +
-    '  Emissions Equivalents</strong></font>', style = styles["Normal"])
-    emissions_header_data = [[emission_equiv_para]]
-    emissions_header_table = Table(emissions_header_data, [3*inch], [.25*inch])
-    emissions_header_table.setStyle(TableStyle([('FONT',(0,0),(0,-1),"Times-Bold"),
-                                             ('FONTSIZE', (0,0), (-1,-1), 13)]))
-
-
-    emissions_data_table = Table(emissions_data, [2.1*inch, 1.5*inch], [0.17*inch, 0.25*inch, 0.25*inch],hAlign="LEFT")
-    emissions_data_table.setStyle(TableStyle([('FONT', (0,0), (-1,-1), "Times-Roman"),
-                                         ('FONTSIZE', (0,0), (-1,-1), 12),
-                                         ('ALIGN', (0,0), (0,-1), "RIGHT"),
-                                         ('VALIGN', (-1,-1), (-1,-1), "TOP")]))
-
-    t2_data = [[emissions_header_table],[emissions_data_table]]
-
-    t2 = Table(t2_data, [3*inch])
-
-
-    table_data = [(t1, t2)]
-    t = Table(table_data, [4.25*inch, 3*inch], hAlign='CENTER')
-    t.setStyle(TableStyle([('VALIGN', (-1,-1), (-1,-1), "TOP")]))
-    Elements.append(t)
-
 def generate(kwh, emission):
     # TODO: remove state_emission and just use location
     """ Generates pdf report
@@ -297,11 +236,6 @@ def generate(kwh, emission):
                  ['Min. of 32-in. LCD TV:', "{:.2e} minutes".format(convert.carbon_to_tv(emission))],
                  [per_house, \
                    "{:.2e}%".format(convert.carbon_to_home(emission))]]
-
-    equivs_data = [['Coal:', coal_para],
-                       ['Petroleum:', oil_para],
-                       ['Natural gas:', gas_para],
-                       ['Low carbon:', low_para]]
 
     equivs_and_emission_equivs(equivs_data, emissions_data)
 
