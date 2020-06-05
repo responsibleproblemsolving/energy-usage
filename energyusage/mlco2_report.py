@@ -310,9 +310,10 @@ def generate(kwh, emission):
 
     equivs_and_emission_equivs(equivs_data, emissions_data)
 
+
+    printToScreen = True
     location = locate.get(printToScreen)
     locations=["Mongolia", "Iceland", "Switzerland"] # why these countries? Shoule we let user input locations?
-    printToScreen = True
     default_location = False
     if locations == ["Mongolia", "Iceland", "Switzerland"]:
         default_location = True
