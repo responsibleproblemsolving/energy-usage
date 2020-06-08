@@ -72,5 +72,5 @@ def generate(kwh, emission):
     comparison_values = evaluate.emissions_comparison(kwh, locations, year, default_location, printToScreen)
 
     default_emissions = evaluate.old_emissions_comparison(kwh, year, default_location, printToScreen)
-    report.(comparison_values, location, emission, default_emissions, default_location)
+    report.comparison_graphs(comparison_values, location, emission, default_emissions, default_location)
     doc.build(Elements)
