@@ -214,14 +214,14 @@ def gen_bar_graphs(comparison_values, location, emission):
     bc.bars[(0, location_index)].fillColor = colors.Color(28.0/255, 144.0/255, 153.0/255)
     return bc
 
-# assumed carbon equivalencies
-def report_assumed_carbon_equivalencies()
-
-# co2 emissions equivalents
-def report_co2_emissions_equivalents()
-
-# emissions comparisons
-def report_emissions_comparisons()
+# # assumed carbon equivalencies
+# def report_assumed_carbon_equivalencies()
+#
+# # co2 emissions equivalents
+# def report_co2_emissions_equivalents()
+#
+# # emissions comparisons
+# def report_emissions_comparisons()
 
 # entire report
 def report_generate(kwh, emission):
