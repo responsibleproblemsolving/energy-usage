@@ -272,9 +272,9 @@ def report_generate(kwh, emission):
     doc.build(Elements)
 
 # assumed carbon equivalencies report
-def report_assumed_carbon_equivalencies(kwh, emission)
-    if printToScreen:
-        utils.log("Assumed Carbon Equivalencies")
+# def report_assumed_carbon_equivalencies(kwh, emission)
+#     if printToScreen:
+#         utils.log("Assumed Carbon Equivalencies")
 
 # # co2 emissions equivalents
 # def report_co2_emissions_equivalents()
