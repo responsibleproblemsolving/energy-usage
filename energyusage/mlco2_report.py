@@ -25,6 +25,7 @@ HeaderStyle = ParagraphStyle(name='Normal',fontSize=16)
 SubheaderStyle = ParagraphStyle(name='Normal', fontName="Times-Roman")
 DescriptorStyle = ParagraphStyle(name='Normal',fontSize=14, alignment= TA_CENTER)
 BodyTextStyle = styles["BodyText"]
+Elements = []
 
 def bold(text):
     return "<b>"+text+"</b>"
@@ -221,7 +222,6 @@ def report_generate(kwh, emission):
         kwh: energy consumption
         emission: co2 emission
     """
-    Elements = []
     # Initializing document
     doc = SimpleDocTemplate("energy-usage-report.pdf",pagesize=landscape(letter), topMargin=.3*inch)
 
@@ -275,6 +275,7 @@ def report_generate(kwh, emission):
 # def report_assumed_carbon_equivalencies(kwh, emission)
 #     if printToScreen:
 #         utils.log("Assumed Carbon Equivalencies")
+#
 
 # # co2 emissions equivalents
 # def report_co2_emissions_equivalents()
