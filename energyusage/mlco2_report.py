@@ -18,6 +18,13 @@ from reportlab.graphics.charts.textlabels import Label
 year = "2016"
 
 styles = getSampleStyleSheet()
+TitleStyle = ParagraphStyle(name='Normal', fontSize=16, alignment= TA_CENTER, fontName="Times-Bold")
+SubtitleStyle = ParagraphStyle(name='Normal',fontSize=12, alignment= TA_CENTER, fontName="Times-Roman")
+# MonospacedSubtitleStyle = ParagraphStyle(name='Normal',fontSize=12, alignment= TA_CENTER, fontName="Courier")
+HeaderStyle = ParagraphStyle(name='Normal',fontSize=16)
+SubheaderStyle = ParagraphStyle(name='Normal', fontName="Times-Roman")
+DescriptorStyle = ParagraphStyle(name='Normal',fontSize=14, alignment= TA_CENTER)
+BodyTextStyle = styles["BodyText"]
 Elements = []
 
 def generate(kwh, emission):
