@@ -18,25 +18,10 @@ from reportlab.graphics.charts.textlabels import Label
 year = "2016"
 
 styles = getSampleStyleSheet()
-TitleStyle = ParagraphStyle(name='Normal', fontSize=16, alignment= TA_CENTER, fontName="Times-Bold")
-SubtitleStyle = ParagraphStyle(name='Normal',fontSize=12, alignment= TA_CENTER, fontName="Times-Roman")
-# MonospacedSubtitleStyle = ParagraphStyle(name='Normal',fontSize=12, alignment= TA_CENTER, fontName="Courier")
-HeaderStyle = ParagraphStyle(name='Normal',fontSize=16)
-SubheaderStyle = ParagraphStyle(name='Normal', fontName="Times-Roman")
-DescriptorStyle = ParagraphStyle(name='Normal',fontSize=14, alignment= TA_CENTER)
-BodyTextStyle = styles["BodyText"]
 Elements = []
 
 def generate(kwh, emission):
     # TODO: remove state_emission and just use location
-    """ Generates pdf report
-    Parameters:
-        location (str): user's location, locations=["Romania", "Brazil"]
-        watt_averages (list): list of baseline, total, process wattage, process duration
-        breakdown (list): [% coal, % oil/petroleum, % natural gas, % low carbon]
-        kwh_and_emissions (list): [kwh used, emission in kg CO2, state emission > 0 for US states]
-        func_info (list): [user func name, user func args (0 or more)]
-    """
     # Initializing document
     doc = SimpleDocTemplate("energy-usage-report.pdf",pagesize=landscape(letter), topMargin=.3*inch)
 
