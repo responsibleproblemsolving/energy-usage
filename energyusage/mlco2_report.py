@@ -25,7 +25,6 @@ HeaderStyle = ParagraphStyle(name='Normal',fontSize=16)
 SubheaderStyle = ParagraphStyle(name='Normal', fontName="Times-Roman")
 DescriptorStyle = ParagraphStyle(name='Normal',fontSize=14, alignment= TA_CENTER)
 BodyTextStyle = styles["BodyText"]
-Elements = []
 
 def bold(text):
     return "<b>"+text+"</b>"
@@ -214,15 +213,6 @@ def gen_bar_graphs(comparison_values, location, emission):
     bc.bars[(0, location_index)].fillColor = colors.Color(28.0/255, 144.0/255, 153.0/255)
     return bc
 
-# # assumed carbon equivalencies
-# def report_assumed_carbon_equivalencies()
-#
-# # co2 emissions equivalents
-# def report_co2_emissions_equivalents()
-#
-# # emissions comparisons
-# def report_emissions_comparisons()
-
 # entire report
 def report_generate(kwh, emission):
     # TODO: remove state_emission and just use location
@@ -231,6 +221,7 @@ def report_generate(kwh, emission):
         kwh: energy consumption
         emission: co2 emission
     """
+    Elements = []
     # Initializing document
     doc = SimpleDocTemplate("energy-usage-report.pdf",pagesize=landscape(letter), topMargin=.3*inch)
 
@@ -279,3 +270,14 @@ def report_generate(kwh, emission):
     default_emissions = evaluate.old_emissions_comparison(kwh, year, default_location, printToScreen)
     comparison_graphs(comparison_values, location, emission, default_emissions, default_location)
     doc.build(Elements)
+
+# assumed carbon equivalencies report
+def report_assumed_carbon_equivalencies(kwh, emission)
+    if printToScreen:
+        utils.log("Assumed Carbon Equivalencies")
+
+# # co2 emissions equivalents
+# def report_co2_emissions_equivalents()
+#
+# # emissions comparisons
+# def report_emissions_comparisons()
