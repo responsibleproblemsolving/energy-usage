@@ -214,15 +214,22 @@ def gen_bar_graphs(comparison_values, location, emission):
     bc.bars[(0, location_index)].fillColor = colors.Color(28.0/255, 144.0/255, 153.0/255)
     return bc
 
-def generate(kwh, emission):
+# assumed carbon equivalencies
+def report_assumed_carbon_equivalencies()
+
+# co2 emissions equivalents
+def report_co2_emissions_equivalents()
+
+# emissions comparisons
+def report_emissions_comparisons()
+
+# entire report
+def report_generate(kwh, emission):
     # TODO: remove state_emission and just use location
     """ Generates pdf report
     Parameters:
-        location (str): user's location, locations=["Romania", "Brazil"]
-        watt_averages (list): list of baseline, total, process wattage, process duration
-        breakdown (list): [% coal, % oil/petroleum, % natural gas, % low carbon]
-        kwh_and_emissions (list): [kwh used, emission in kg CO2, state emission > 0 for US states]
-        func_info (list): [user func name, user func args (0 or more)]
+        kwh: energy consumption
+        emission: co2 emission
     """
     # Initializing document
     doc = SimpleDocTemplate("energy-usage-report.pdf",pagesize=landscape(letter), topMargin=.3*inch)
@@ -263,8 +270,12 @@ def generate(kwh, emission):
     default_location = False
     if locations == ["Mongolia", "Iceland", "Switzerland"]:
         default_location = True
-    comparison_values = evaluate.emissions_comparison(kwh, locations, year, default_location, printToScreen)
+    if printToScreen:
+        utils.log("Assumed Carbon Equivalencies")
+    if printToScreen:
+        utils.log("Emissions", emission)
 
+    comparison_values = evaluate.emissions_comparison(kwh, locations, year, default_location, printToScreen)
     default_emissions = evaluate.old_emissions_comparison(kwh, year, default_location, printToScreen)
     comparison_graphs(comparison_values, location, emission, default_emissions, default_location)
     doc.build(Elements)

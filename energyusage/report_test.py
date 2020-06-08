@@ -1,3 +1,3 @@
 import mlco2_report
 
-mlco2_report.generate(3,1.68)
+mlco2_report.report_generate(3,1.68)
