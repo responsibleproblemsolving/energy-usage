@@ -245,10 +245,8 @@ def report_equivalents(emission):
 
     equivs_and_emission_equivs(equivs_data, emissions_data)
 
-    if printToScreen:
-        utils.log("Assumed Carbon Equivalencies")
-    if printToScreen:
-        utils.log("Emissions", emission)
+    utils.log("Assumed Carbon Equivalencies")
+    utils.log("Emissions", emission)
 
 def report_comparisons(kwh, emission):
     printToScreen = True
