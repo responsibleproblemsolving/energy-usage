@@ -214,17 +214,7 @@ def gen_bar_graphs(comparison_values, location, emission):
     bc.bars[(0, location_index)].fillColor = colors.Color(28.0/255, 144.0/255, 153.0/255)
     return bc
 
-# entire report
-def report_generate(kwh, emission):
-    # TODO: remove state_emission and just use location
-    """ Generates pdf report
-    Parameters:
-        kwh: energy consumption
-        emission: co2 emission
-    """
-    # Initializing document
-    doc = SimpleDocTemplate("energy-usage-report.pdf",pagesize=landscape(letter), topMargin=.3*inch)
-
+def report_header(kwh, emission):
     title("Energy Usage Report")
 
     effective_emission = Paragraph('<font face="times" size=12>{:.2e} kg CO<sub rise = -10 size = 8>2 </sub></font>'.format(emission), style = styles["Normal"])
@@ -234,6 +224,7 @@ def report_generate(kwh, emission):
 
     kwh_and_emissions_table(kwh_and_emissions_data)
 
+def report_equivalents(emission):
     # Equivalencies and CO2 emission equivalents
     per_house = Paragraph('<font face="times" size=12>% of CO<sub rise = -10 size = 8>2</sub> per US house/day:</font>'.format(emission), style = styles["Normal"])
     emissions_data = [
@@ -254,31 +245,52 @@ def report_generate(kwh, emission):
 
     equivs_and_emission_equivs(equivs_data, emissions_data)
 
+    if printToScreen:
+        utils.log("Assumed Carbon Equivalencies")
+    if printToScreen:
+        utils.log("Emissions", emission)
 
+def report_comparisons(kwh, emission):
     printToScreen = True
     location = locate.get(printToScreen)
     locations=["Mongolia", "Iceland", "Switzerland"] # why these countries? Shoule we let user input locations?
     default_location = False
     if locations == ["Mongolia", "Iceland", "Switzerland"]:
         default_location = True
-    if printToScreen:
-        utils.log("Assumed Carbon Equivalencies")
-    if printToScreen:
-        utils.log("Emissions", emission)
-
     comparison_values = evaluate.emissions_comparison(kwh, locations, year, default_location, printToScreen)
     default_emissions = evaluate.old_emissions_comparison(kwh, year, default_location, printToScreen)
     comparison_graphs(comparison_values, location, emission, default_emissions, default_location)
+
+# generate entire report
+def report_all(kwh, emission):
+    # TODO: remove state_emission and just use location
+    """ Generates pdf report
+    Parameters:
+        kwh: energy consumption
+        emission: co2 emission
+    """
+    # Initializing document
+    doc = SimpleDocTemplate("energy-usage-report.pdf",pagesize=landscape(letter), topMargin=.3*inch)
+
+    report_header(kwh, emission)
+    report_equivalents(emission)
+    report_comparisons(kwh, emission)
+
     doc.build(Elements)
 
-# assumed carbon equivalencies report
-# def report_assumed_carbon_equivalencies(kwh, emission)
-#     if printToScreen:
-#         utils.log("Assumed Carbon Equivalencies")
-#
+# generate report with assumed carbon equivalencies and co2 emission equivalents
+def report_without_charts(kwh, emission):
+    # Initializing document
+    doc = SimpleDocTemplate("energy-usage-report-without-charts.pdf",pagesize=landscape(letter), topMargin=.3*inch)
+    report_header(kwh, emission)
+    report_equivalents(emission)
 
-# # co2 emissions equivalents
-# def report_co2_emissions_equivalents()
-#
-# # emissions comparisons
-# def report_emissions_comparisons()
+    doc.build(Elements)
+
+def report_with_charts(kwh, emission):
+    # Initializing document
+    doc = SimpleDocTemplate("energy-usage-report-with-charts.pdf",pagesize=landscape(letter), topMargin=.3*inch)
+    report_header(kwh, emission)
+    report_comparisons(kwh, emission)
+
+    doc.build(Elements)
