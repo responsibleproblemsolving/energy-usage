@@ -109,7 +109,7 @@ def comparison_graphs(comparison_values, location, emission, default_emissions, 
         elif comparison_region == "Global":
             bc1 = gen_bar_graphs(default_emissions[:3], location, emission)
             offset = -257
-            bc1.x = 190 + offset
+            bc1.x = -10 + offset
             bc1.height = 200
             bc1.width = 300
             drawing.add(bc1)
@@ -117,7 +117,7 @@ def comparison_graphs(comparison_values, location, emission, default_emissions, 
             label_offset = offset + 80
             label1 = Label()
             label1.setText("Global (excluding Europe and US)")
-            label1.x, label1.y = 185 + label_offset, -160
+            label1.x, label1.y = -17 + label_offset, -160
             label1.fontName = "Times-Bold"
             drawing.add(label1)
 
