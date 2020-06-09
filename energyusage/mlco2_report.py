@@ -113,7 +113,7 @@ def comparison_graphs(comparison_values, location, emission, default_emissions, 
             label1.setText("Global (excluding Europe and US)")
             bc1.x = 50
             bc1.y = -160
-            bc1.height = 125
+            bc1.height = 200
             bc1.width = 300
             label1.fontName = "Times-Bold"
             drawing.add(label1)
