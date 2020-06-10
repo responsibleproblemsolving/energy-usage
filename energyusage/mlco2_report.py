@@ -110,8 +110,6 @@ def comparison_graphs(comparison_values, location, emission, default_emissions, 
             bc1 = gen_bar_graphs(default_emissions[:3], location, emission)
             offset = -257
             bc1.x = 190 + offset
-            bc1.height = 200
-            bc1.width = 300
             drawing.add(bc1)
 
             label_offset = offset + 80
