@@ -109,8 +109,7 @@ def comparison_graphs(comparison_values, location, emission, default_emissions, 
         elif comparison_region == "Global":
             bc1 = gen_bar_graphs(default_emissions[:3], location, emission)
             offset = -257
-            bc1.x = 50
-            bc1.y = 50
+            bc1.x = -10 + offset
             drawing.add(bc1)
 
             label_offset = offset + 80
