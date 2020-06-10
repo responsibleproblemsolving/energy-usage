@@ -281,9 +281,15 @@ def report_equivalents(emission):
     utils.log("Emissions", emission)
 
 def report_comparisons(kwh, emission, comparison_region):
+    """ Generates the comparison bar charts
+    Parameters:
+        kwh: energy consumption
+        emission: co2 emission
+        comparison_region: "all", "Global", "Europe", or "United States"
+    """
     printToScreen = True
     location = locate.get(printToScreen)
-    locations=["Mongolia", "Iceland", "Switzerland"] # why these countries? Shoule we let user input locations?
+    locations=["Mongolia", "Iceland", "Switzerland"]
     default_location = False
     if locations == ["Mongolia", "Iceland", "Switzerland"]:
         default_location = True
@@ -291,10 +297,9 @@ def report_comparisons(kwh, emission, comparison_region):
     default_emissions = evaluate.old_emissions_comparison(kwh, year, default_location, printToScreen)
     comparison_graphs(comparison_values, location, emission, default_emissions, default_location, comparison_region)
 
-# generate entire report
 def report_all(kwh, emission):
     # TODO: remove state_emission and just use location
-    """ Generates pdf report
+    """ Generates the entire pdf report
     Parameters:
         kwh: energy consumption
         emission: co2 emission
@@ -309,20 +314,28 @@ def report_all(kwh, emission):
 
     doc.build(Elements)
 
-# generate report with assumed carbon equivalencies and co2 emission equivalents
 def report_without_charts(kwh, emission):
+    """ Generates pdf report with assumed carbon equivalencies and co2 emission equivalents
+    Parameters:
+        kwh: energy consumption
+        emission: co2 emission
+    """
     # Initializing document
-    doc = SimpleDocTemplate("energy-usage-report-without-charts.pdf",pagesize=landscape(letter), topMargin=.3*inch)
-    report_header(kwh, emission)
+    doc = SimpleDocTemplate("energy-usage-report-emission-equivalents.pdf",pagesize=landscape(letter), topMargin=.3*inch)
     report_equivalents(emission)
 
     doc.build(Elements)
 
-# generate report with comparison graphs
 def report_with_charts(kwh, emission, comparison_region="all"):
+    """ Generates pdf report with comparison graphs that shows the co2 emission \
+    for the function if the computation had been performed elsewhere
+    Parameters:
+        kwh: energy consumption
+        emission: co2 emission
+        comparison_region: "all" (default), "Global", "Europe", or "United States"
+    """
     # Initializing document
-    doc = SimpleDocTemplate("energy-usage-report-with-charts.pdf",pagesize=landscape(letter), topMargin=.3*inch)
-    # report_header(kwh, emission)
+    doc = SimpleDocTemplate("energy-usage-report-comparison.pdf",pagesize=landscape(letter), topMargin=.3*inch)
     report_comparisons(kwh, emission, comparison_region)
 
     doc.build(Elements)
