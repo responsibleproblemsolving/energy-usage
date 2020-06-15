@@ -1,8 +1,8 @@
-import utils as utils
-import convert as convert
-import locate as locate
-import report as report
-import evaluate as evaluate
+import energyusage.utils as utils
+import energyusage.convert as convert
+import energyusage.locate as locate
+import energyusage.report as report
+import energyusage.evaluate as evaluate
 
 from reportlab.lib.pagesizes import letter, landscape
 from reportlab.lib.units import inch
@@ -288,7 +288,8 @@ def report_comparisons(kwh, emission, comparison_region):
         comparison_region: "all", "Global", "Europe", or "United States"
     """
     printToScreen = True
-    location = locate.get(printToScreen)
+    geo = get_location_information()
+    location = locate.get(printToScreen, geo)
     locations=["Mongolia", "Iceland", "Switzerland"]
     default_location = False
     if locations == ["Mongolia", "Iceland", "Switzerland"]:
