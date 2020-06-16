@@ -75,7 +75,7 @@ def report_comparisons(kwh, emission, comparison_region, Elements):
         default_location = True
     comparison_values = evaluate.emissions_comparison(kwh, locations, year, default_location, printToScreen)
     default_emissions = evaluate.old_emissions_comparison(kwh, year, default_location, printToScreen)
-    report.comparison_graphs(comparison_values, location, emission, default_emissions, default_location, comparison_region, Elements)
+    report.comparison_graphs(comparison_values, location, emission, default_emissions, default_location, Elements, comparison_region)
 
 def report_all(kwh, emission):
     # TODO: remove state_emission and just use location
