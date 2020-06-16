@@ -7,6 +7,22 @@ import evaluate as evaluate
 from reportlab.lib.pagesizes import letter, landscape
 from reportlab.lib.units import inch
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.enums import TA_CENTER
+from reportlab.lib import colors
+from reportlab.graphics.charts.piecharts import Pie
+from reportlab.graphics.shapes import *  # not used?
+from reportlab.graphics.charts.barcharts import VerticalBarChart
+from reportlab.graphics.charts.textlabels import Label
+
+styles = getSampleStyleSheet()
+TitleStyle = ParagraphStyle(name='Normal', fontSize=16, alignment= TA_CENTER, fontName="Times-Bold")
+SubtitleStyle = ParagraphStyle(name='Normal',fontSize=12, alignment= TA_CENTER, fontName="Times-Roman")
+# MonospacedSubtitleStyle = ParagraphStyle(name='Normal',fontSize=12, alignment= TA_CENTER, fontName="Courier")
+HeaderStyle = ParagraphStyle(name='Normal',fontSize=16)
+SubheaderStyle = ParagraphStyle(name='Normal', fontName="Times-Roman")
+DescriptorStyle = ParagraphStyle(name='Normal',fontSize=14, alignment= TA_CENTER)
+BodyTextStyle = styles["BodyText"]
 
 def report_header(kwh, emission, Elements):
     report.title("Energy Usage Report", Elements)
