@@ -26,12 +26,12 @@ BodyTextStyle = styles["BodyText"]
 def bold(text):
     return "<b>"+text+"</b>"
 
-def title(text, style=TitleStyle, klass=Paragraph, sep=0.3, Elements):
+def title(text, Elements, style=TitleStyle, klass=Paragraph, sep=0.3):
     """ Creates title of report """
     t = klass(bold(text), style)
     Elements.append(t)
 
-def subtitle(text, style=SubtitleStyle, klass=Paragraph, sep=0.1, spaceBefore=True, spaceAfter = True, Elements):
+def subtitle(text, Elements, style=SubtitleStyle, klass=Paragraph, sep=0.1, spaceBefore=True, spaceAfter = True):
     """ Creates descriptor text for a (sub)section; sp adds space before text """
     s = Spacer(0, 1.5*sep*inch)
     if spaceBefore:
@@ -317,7 +317,7 @@ def generate(location, watt_averages, breakdown, kwh_and_emissions, func_info, \
     else:
         info_text += "."
 
-    subtitle("Energy usage and carbon emissions" + info_text, spaceBefore=True, Elements)
+    subtitle("Energy usage and carbon emissions" + info_text, Elements, spaceBefore=True)
 
     # Energy Usage Readings and Energy Mix Data
     readings_data = [['Energy Usage Readings', ''],

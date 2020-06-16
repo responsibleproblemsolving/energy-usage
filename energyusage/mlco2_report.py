@@ -16,7 +16,7 @@ def report_header(kwh, emission, Elements):
     kwh_and_emissions_data = [["Total kilowatt hours used:", "{:.2e} kWh".format(kwh)],
                               ["Effective emissions:", effective_emission]]
 
-    report.kwh_and_emissions_table(kwh_and_emissions_data, Elements, Elements)
+    report.kwh_and_emissions_table(kwh_and_emissions_data, Elements)
 
 def report_equivalents(emission, Elements):
     # Equivalencies and CO2 emission equivalents
