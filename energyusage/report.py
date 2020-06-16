@@ -21,18 +21,17 @@ HeaderStyle = ParagraphStyle(name='Normal',fontSize=16)
 SubheaderStyle = ParagraphStyle(name='Normal', fontName="Times-Roman")
 DescriptorStyle = ParagraphStyle(name='Normal',fontSize=14, alignment= TA_CENTER)
 BodyTextStyle = styles["BodyText"]
-Elements = []
 
 
 def bold(text):
     return "<b>"+text+"</b>"
 
-def title(text, style=TitleStyle, klass=Paragraph, sep=0.3):
+def title(text, style=TitleStyle, klass=Paragraph, sep=0.3, Elements):
     """ Creates title of report """
     t = klass(bold(text), style)
     Elements.append(t)
 
-def subtitle(text, style=SubtitleStyle, klass=Paragraph, sep=0.1, spaceBefore=True, spaceAfter = True):
+def subtitle(text, style=SubtitleStyle, klass=Paragraph, sep=0.1, spaceBefore=True, spaceAfter = True, Elements):
     """ Creates descriptor text for a (sub)section; sp adds space before text """
     s = Spacer(0, 1.5*sep*inch)
     if spaceBefore:
@@ -44,7 +43,7 @@ def subtitle(text, style=SubtitleStyle, klass=Paragraph, sep=0.1, spaceBefore=Tr
 
 
 
-def readings_and_mix_table(reading_data, mix_data, breakdown, state_emission, location):
+def readings_and_mix_table(reading_data, mix_data, breakdown, state_emission, location, Elements):
     '''
     Creates 2 tables that are then embedded as the columns of 1 bigger table
     '''
@@ -102,7 +101,7 @@ def readings_and_mix_table(reading_data, mix_data, breakdown, state_emission, lo
     Elements.append(t)
 
 
-def kwh_and_emissions_table(data):
+def kwh_and_emissions_table(data, Elements):
 
     s = Spacer(9*inch, .2*inch)
     Elements.append(s)
@@ -122,7 +121,7 @@ def kwh_and_emissions_table(data):
     Elements.append(t)
 
 
-def equivs_and_emission_equivs(equivs_data, emissions_data):
+def equivs_and_emission_equivs(equivs_data, emissions_data, Elements):
     '''
     Creates a table with 2 columns, each with their own embedded table
     The embedded tables contain 2 vertically-stacked tables, one for the header
@@ -219,7 +218,7 @@ def gen_bar_graphs(comparison_values, location, emission):
     return bc
 
 
-def comparison_graphs(comparison_values, location, emission, default_emissions, default_location):
+def comparison_graphs(comparison_values, location, emission, default_emissions, default_location, Elements):
     s = Spacer(9*inch, .2*inch)
     Elements.append(s)
     drawing = Drawing(0, 0)
@@ -281,7 +280,7 @@ def comparison_graphs(comparison_values, location, emission, default_emissions, 
 
 
 def generate(location, watt_averages, breakdown, kwh_and_emissions, func_info, \
-    comparison_values, default_emissions, default_location):
+    comparison_values, default_emissions, default_location, Elements):
     # TODO: remove state_emission and just use location
     """ Generates pdf report
 
@@ -294,6 +293,7 @@ def generate(location, watt_averages, breakdown, kwh_and_emissions, func_info, \
 
     """
 
+    Elements = []
     kwh, emission, state_emission = kwh_and_emissions
     baseline_average, process_average, difference_average, process_duration = watt_averages
 
@@ -301,7 +301,7 @@ def generate(location, watt_averages, breakdown, kwh_and_emissions, func_info, \
     # Initializing document
     doc = SimpleDocTemplate("energy-usage-report.pdf",pagesize=landscape(letter), topMargin=.3*inch)
 
-    title("Energy Usage Report")
+    title("Energy Usage Report", Elements)
 
     # Handling header with function name and arguments
     func_name, *func_args = func_info
@@ -317,7 +317,7 @@ def generate(location, watt_averages, breakdown, kwh_and_emissions, func_info, \
     else:
         info_text += "."
 
-    subtitle("Energy usage and carbon emissions" + info_text, spaceBefore=True)
+    subtitle("Energy usage and carbon emissions" + info_text, spaceBefore=True, Elements)
 
     # Energy Usage Readings and Energy Mix Data
     readings_data = [['Energy Usage Readings', ''],
