@@ -288,7 +288,7 @@ def report_comparisons(kwh, emission, comparison_region):
         comparison_region: "all", "Global", "Europe", or "United States"
     """
     printToScreen = True
-    geo = get_location_information()
+    geo = locate.get_location_information()
     location = locate.get(printToScreen, geo)
     locations=["Mongolia", "Iceland", "Switzerland"]
     default_location = False

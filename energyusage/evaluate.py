@@ -309,7 +309,7 @@ locations=["Mongolia", "Iceland", "Switzerland"], year="2016", printToScreen = T
     """
     utils.setGlobal(printToScreen)
     if (utils.valid_cpu() or utils.valid_gpu()):
-        geo = get_location_information()
+        geo = locate.get_location_information()
         location = locate.get(printToScreen, geo)
         result, return_value, watt_averages, files, total_time = energy(user_func, *args, powerLoss = powerLoss, year = year, \
                                                             printToScreen = printToScreen)

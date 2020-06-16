@@ -37,7 +37,6 @@ def get(printToScreen, geo):
     """
 
     location = "Unknown"
-    geo = get_location_information()
     try:
         if geo["country"] == "United States":
             try:
