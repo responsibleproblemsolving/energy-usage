@@ -1,8 +1,12 @@
-import energyusage.utils as utils
-import energyusage.convert as convert
-import energyusage.locate as locate
-import energyusage.report as report
-import energyusage.evaluate as evaluate
+import utils as utils
+import convert as convert
+import locate as locate
+import report as report
+import evaluate as evaluate
+
+from reportlab.lib.pagesizes import letter, landscape
+from reportlab.lib.units import inch
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
 
 def report_header(kwh, emission, Elements):
     report.title("Energy Usage Report", Elements)
