@@ -6,7 +6,7 @@ import locate as locate
 class Test(unittest.TestCase):
     def test_kwh_to_co2(self):
         process_kwh = 0.1
-        year = 2016
+        year = "2016"
         printToScreen = False
 
         # US locations
@@ -19,10 +19,10 @@ class Test(unittest.TestCase):
         # Unknown and international location
         breakdown = [10, 20, 30, 40] # [coal, petroleum, gas, low carbon]
         location = "New Zealand"
-        year = 2016
+        year = "2016"
         printToScreen = False
         emission, state_emission = evaluate.emissions(process_kwh, breakdown, location, year, printToScreen)
-        self.assertAlmostEqual(emission, 0.05084898172, places=4)
+        self.assertAlmostEqual(emission, 0.05083272721075440, places=4)
         self.assertEqual(state_emission, 0)
 
     def test_ip_to_location(self):
@@ -41,27 +41,27 @@ class Test(unittest.TestCase):
 
         # Unknown or international locations
         location = "Unknown"
-        self.assertAlmostEqual(evaluate.energy_mix((location, year)[0], 0.1434624948)
-        self.assertAlmostEqual(evaluate.energy_mix(location, year)[1], 0.3945439942)
-        self.assertAlmostEqual(evaluate.energy_mix(location, year)[2], 0.2864046947)
-        self.assertAlmostEqual(evaluate.energy_mix(location, year)[3], 0.1755888163)
+        self.assertAlmostEqual(evaluate.energy_mix(location, year)[0], 14.22597264)
+        self.assertAlmostEqual(evaluate.energy_mix(location, year)[1], 39.12361956)
+        self.assertAlmostEqual(evaluate.energy_mix(location, year)[2], 28.400352)
+        self.assertAlmostEqual(evaluate.energy_mix(location, year)[3], 17.41167056)
 
     def test_emissions_comparison(self):
         process_kwh = 0.1
         locations = ["New Zealand"]
-        year = 2016
+        year = "2016"
         default_location = False
         printToScreen = False
-        comparison_values = emissions_comparison(process_kwh, locations, year, default_location, printToScreen)
-        self.assertTupleEqual(comparison_values, [("New Zealand", 0.05084898172)])
+        comparison_values = evaluate.emissions_comparison(process_kwh, locations, year, default_location, printToScreen)
+        self.assertListEqual(comparison_values, [("New Zealand", 0.05083272721075440)])
 
     def test_old_emissions_comparison(self):
         process_kwh = 0.1
-        year = 2016
+        year = "2016"
         default_location = True
         printToScreen = False
-        default_emissions = old_emissions_comparison(process_kwh, year, default_location, printToScreen)
-        self.assertTupleEqual(default_emissions, [("Mongolia", 0.09236681492), \
+        default_emissions = evaluate.old_emissions_comparison(process_kwh, year, default_location, printToScreen)
+        self.assertListEqual(default_emissions, [("Mongolia", 0.09233947594), \
         ("Korea, South", 0.07543616588), ("Bhutan", 0.01050256992), ("Kosovo", 0.09435875313), \
         ("Ukraine", 0.06592509932), ("Iceland", 0.01697882193), ("Wyoming", 8.680138), \
         ("Mississippi", 6.775571984), ("Vermont", 0.02482178507)])

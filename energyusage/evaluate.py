@@ -145,7 +145,8 @@ def energy_mix(location, year = 2016):
         Returns:
             breakdown (list): percentages of each energy type
     """
-
+    if location == "Unknown":
+        location = "United States"
 
     if locate.in_US(location):
         # Default to U.S. average for unknown location
