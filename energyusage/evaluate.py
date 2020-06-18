@@ -196,10 +196,10 @@ def emissions(process_kwh, breakdown, location, year, printToScreen):
     state_emission = 0
 
     # Case 1: Unknown location, default to US data
+    if location == "Unknown":
+        location = "United States"
     # Case 2: United States location
     if locate.in_US(location):
-        if location == "Unknown":
-            location = "United States"
         # US Emissions data is in lbs/Mwh
         data = utils.get_data("data/json/us-emissions_" + year + ".json")
         state_emission = data[location]
