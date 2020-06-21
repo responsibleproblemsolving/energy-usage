@@ -309,6 +309,56 @@ def comparison_graphs(comparison_values, location, emission, default_emissions, 
 
     Elements.append(graph_table)
 
+def report_header(kwh, emission, Elements):
+    effective_emission = Paragraph('<font face="times" size=12>{:.2e} kg CO<sub rise = -10 size = 8>2 </sub></font>'.format(emission), style = styles["Normal"])
+    # Total kWhs used and effective emissions
+    kwh_and_emissions_data = [["Total kilowatt hours used:", "{:.2e} kWh".format(kwh)],
+                              ["Effective emissions:", effective_emission]]
+
+    kwh_and_emissions_table(kwh_and_emissions_data, Elements)
+
+def report_equivalents(emission, Elements):
+    # Equivalencies and CO2 emission equivalents
+    per_house = Paragraph('<font face="times" size=12>% of CO<sub rise = -10 size = 8>2</sub> per US house/day:</font>'.format(emission), style = styles["Normal"])
+    emissions_data = [
+                 ['Miles driven:', "{:.2e} miles".format(convert.carbon_to_miles(emission))],
+                 ['Min. of 32-in. LCD TV:', "{:.2e} minutes".format(convert.carbon_to_tv(emission))],
+                 [per_house, \
+                   "{:.2e}%".format(convert.carbon_to_home(emission))]]
+
+    coal_para = Paragraph('<font face="times" size=12>996 kg CO<sub rise = -10 size = 8>2 </sub>/MWh</font>', style = styles["Normal"])
+    oil_para = Paragraph('<font face="times" size=12>817 kg CO<sub rise = -10 size = 8>2 </sub>/MWh</font>', style = styles["Normal"])
+    gas_para = Paragraph('<font face="times" size=12>744 kg CO<sub rise = -10 size = 8>2 </sub>/MWh</font>', style = styles["Normal"])
+    low_para = Paragraph('<font face="times" size=12>0 kg CO<sub rise = -10 size = 8>2 </sub>/MWh</font>', style = styles["Normal"])
+
+    if state_emission:
+        coal, oil, natural_gas, low_carbon = breakdown
+        mix_data = [['Energy Mix Data', ''],
+                    ['Coal', "{:.2f}%".format(coal)],
+                    ['Oil', "{:.2f}%".format(oil)],
+                    ['Natural gas', "{:.2f}%".format(natural_gas)],
+                    ['Low carbon', "{:.2f}%".format(low_carbon)]]
+        equivs_data = [['Coal:', coal_para],
+                       ['Oil:', oil_para],
+                       ['Natural gas:', gas_para],
+                       ['Low carbon:', low_para]]
+
+    else:
+        coal, petroleum, natural_gas, low_carbon = breakdown
+        mix_data = [['Energy Mix Data', ''],
+                    ['Coal',  "{:.2f}%".format(coal)],
+                    ['Petroleum', "{:.2f}%".format(petroleum)],
+                    ['Natural gas', "{:.2f}%".format(natural_gas)],
+                    ['Low carbon', "{:.2f}%".format(low_carbon)]]
+        equivs_data = [['Coal:', coal_para],
+                       ['Petroleum:', oil_para],
+                       ['Natural gas:', gas_para],
+                       ['Low carbon:', low_para]]
+
+    equivs_and_emission_equivs(equivs_data, emissions_data, Elements)
+
+    # utils.log("Assumed Carbon Equivalencies")
+    # utils.log("Emissions", emission)
 
 
 def generate(location, watt_averages, breakdown, kwh_and_emissions, func_info, \
@@ -359,51 +409,10 @@ def generate(location, watt_averages, breakdown, kwh_and_emissions, func_info, \
                 ['Process duration:', process_duration],
                 ['','']] #hack for the alignment
 
-    coal_para = Paragraph('<font face="times" size=12>996 kg CO<sub rise = -10 size = 8>2 </sub>/MWh</font>', style = styles["Normal"])
-    oil_para = Paragraph('<font face="times" size=12>817 kg CO<sub rise = -10 size = 8>2 </sub>/MWh</font>', style = styles["Normal"])
-    gas_para = Paragraph('<font face="times" size=12>744 kg CO<sub rise = -10 size = 8>2 </sub>/MWh</font>', style = styles["Normal"])
-    low_para = Paragraph('<font face="times" size=12>0 kg CO<sub rise = -10 size = 8>2 </sub>/MWh</font>', style = styles["Normal"])
-    if state_emission:
-        coal, oil, natural_gas, low_carbon = breakdown
-        mix_data = [['Energy Mix Data', ''],
-                    ['Coal', "{:.2f}%".format(coal)],
-                    ['Oil', "{:.2f}%".format(oil)],
-                    ['Natural gas', "{:.2f}%".format(natural_gas)],
-                    ['Low carbon', "{:.2f}%".format(low_carbon)]]
-        equivs_data = [['Coal:', coal_para],
-                       ['Oil:', oil_para],
-                       ['Natural gas:', gas_para],
-                       ['Low carbon:', low_para]]
+    readings_and_mix_table(readings_data, mix_data, breakdown, state_emission, location, Elements)
 
-    else:
-        coal, petroleum, natural_gas, low_carbon = breakdown
-        mix_data = [['Energy Mix Data', ''],
-                    ['Coal',  "{:.2f}%".format(coal)],
-                    ['Petroleum', "{:.2f}%".format(petroleum)],
-                    ['Natural gas', "{:.2f}%".format(natural_gas)],
-                    ['Low carbon', "{:.2f}%".format(low_carbon)]]
-        equivs_data = [['Coal:', coal_para],
-                       ['Petroleum:', oil_para],
-                       ['Natural gas:', gas_para],
-                       ['Low carbon:', low_para]]
-
-    readings_and_mix_table(readings_data, mix_data, breakdown, state_emission, location)
-    effective_emission = Paragraph('<font face="times" size=12>{:.2e} kg CO<sub rise = -10 size = 8>2 </sub></font>'.format(emission), style = styles["Normal"])
-    # Total kWhs used and effective emissions
-    kwh_and_emissions_data = [["Total kilowatt hours used:", "{:.2e} kWh".format(kwh)],
-                              ["Effective emissions:", effective_emission]]
-
-    kwh_and_emissions_table(kwh_and_emissions_data)
-
-    # Equivalencies and CO2 emission equivalents
-    per_house = Paragraph('<font face="times" size=12>% of CO<sub rise = -10 size = 8>2</sub> per US house/day:</font>'.format(emission), style = styles["Normal"])
-    emissions_data = [
-                 ['Miles driven:', "{:.2e} miles".format(convert.carbon_to_miles(emission))],
-                 ['Min. of 32-in. LCD TV:', "{:.2e} minutes".format(convert.carbon_to_tv(emission))],
-                 [per_house, \
-                   "{:.2e}%".format(convert.carbon_to_home(emission))]]
-
-    equivs_and_emission_equivs(equivs_data, emissions_data)
+    report_header(kwh, emission, Elements)
+    report_equivalents(emission, Elements)
 
     comparison_graphs(comparison_values, location, emission, default_emissions, default_location, Elements)
     doc.build(Elements)
