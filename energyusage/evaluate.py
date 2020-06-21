@@ -8,10 +8,10 @@ import subprocess
 import queue
 
 
-import energyusage.utils as utils
-import energyusage.convert as convert
-import energyusage.locate as locate
-import energyusage.report as report
+import utils as utils
+import convert as convert
+import locate as locate
+import report as report
 
 
 DELAY = .1 # in seconds
