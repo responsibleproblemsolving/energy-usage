@@ -331,32 +331,12 @@ def report_equivalents(emission, Elements):
     gas_para = Paragraph('<font face="times" size=12>744 kg CO<sub rise = -10 size = 8>2 </sub>/MWh</font>', style = styles["Normal"])
     low_para = Paragraph('<font face="times" size=12>0 kg CO<sub rise = -10 size = 8>2 </sub>/MWh</font>', style = styles["Normal"])
 
-    if state_emission:
-        coal, oil, natural_gas, low_carbon = breakdown
-        mix_data = [['Energy Mix Data', ''],
-                    ['Coal', "{:.2f}%".format(coal)],
-                    ['Oil', "{:.2f}%".format(oil)],
-                    ['Natural gas', "{:.2f}%".format(natural_gas)],
-                    ['Low carbon', "{:.2f}%".format(low_carbon)]]
-        equivs_data = [['Coal:', coal_para],
-                       ['Oil:', oil_para],
-                       ['Natural gas:', gas_para],
-                       ['Low carbon:', low_para]]
-
-    else:
-        coal, petroleum, natural_gas, low_carbon = breakdown
-        mix_data = [['Energy Mix Data', ''],
-                    ['Coal',  "{:.2f}%".format(coal)],
-                    ['Petroleum', "{:.2f}%".format(petroleum)],
-                    ['Natural gas', "{:.2f}%".format(natural_gas)],
-                    ['Low carbon', "{:.2f}%".format(low_carbon)]]
-        equivs_data = [['Coal:', coal_para],
-                       ['Petroleum:', oil_para],
-                       ['Natural gas:', gas_para],
-                       ['Low carbon:', low_para]]
+    equivs_data = [['Coal:', coal_para],
+                   ['Petroleum:', oil_para],
+                   ['Natural gas:', gas_para],
+                   ['Low carbon:', low_para]]
 
     equivs_and_emission_equivs(equivs_data, emissions_data, Elements)
-
     # utils.log("Assumed Carbon Equivalencies")
     # utils.log("Emissions", emission)
 
