@@ -260,7 +260,7 @@ def comparison_graphs(comparison_values, location, emission, default_emissions, 
             drawing.add(label1)
             drawing.add(label2)
             drawing.add(label3)
-        elif comparison_region == "Global":
+        else:
             bc1 = gen_bar_graphs(default_emissions[:3], location, emission)
             offset = -257
             bc1.x = 190 + offset
@@ -268,34 +268,17 @@ def comparison_graphs(comparison_values, location, emission, default_emissions, 
 
             label_offset = offset + 80
             label1 = Label()
-            label1.setText("Global (excluding Europe and US)")
             label1.x, label1.y = 185 + label_offset, -160
             label1.fontName = "Times-Bold"
-            drawing.add(label1)
-        elif comparison_region == "Eurpoe":
-            bc1 = gen_bar_graphs(default_emissions[:3], location, emission)
-            offset = -257
-            bc1.x = 190 + offset
-            drawing.add(bc1)
-
-            label_offset = offset + 80
-            label1 = Label()
-            label1.setText("Europe")
-            label1.x, label1.y = 185 + label_offset, -160
-            label1.fontName = "Times-Bold"
-            drawing.add(label1)
-        elif comparison_region == "United States":
-            bc1 = gen_bar_graphs(default_emissions[:3], location, emission)
-            offset = -257
-            bc1.x = 190 + offset
-            drawing.add(bc1)
-
-            label_offset = offset + 80
-            label1 = Label()
-            label1.setText("United States")
-            label1.x, label1.y = 185 + label_offset, -160
-            label1.fontName = "Times-Bold"
-            drawing.add(label1)
+            if comparison_region == "Global":
+                label1.setText("Global (excluding Europe and US)")
+                drawing.add(label1)
+            if comparison_region == "Eurpoe":
+                label1.setText("Europe")
+                drawing.add(label1)
+            if comparison_region == "United States":
+                label1.setText("United States")
+                drawing.add(label1)
 
     if_elsewhere_para = Paragraph('<font face="times" size=12>Kilograms of CO<sub rise = -10 size' +
     ' = 8>2 </sub> emissions for the function if the computation had been performed elsewhere</font>', style = styles["Normal"])
