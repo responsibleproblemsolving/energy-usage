@@ -71,14 +71,14 @@ class Test(unittest.TestCase):
 
         default_emissions = evaluate.old_emissions_comparison(process_kwh, year,\
          default_location, printToScreen)
-        for i in range(0, 8):
-            default_emissions_list = list(comparison_values[i])
+        for i in range(0, 9):
+            default_emissions_list = list(default_emissions[i])
             rounded_default_emissions = round(default_emissions_list[1], 11)
-            rounded_default_emissions_list[i] = rounded_default_emissions
+            rounded_default_emissions_list.append(rounded_default_emissions)
 
-        self.assertListEqual(rounded_default_emissions_list, [0.09233947594, \
-        0.07543616588, 0.01050256992, 0.09435875313, 0.06592509932, 0.01697882193, \
-        8.680138, 6.775571984, 0.02482178507])
+        self.assertListEqual(rounded_default_emissions_list, [0.09233947591, \
+        0.07541226821, 0.01049881617, 0.09433027569, 0.06590723112, 0.01697252192, \
+                                                              0.09190960756, 0.04500865546, 0.00258048699])
 
 
 if __name__ == '__main__':
