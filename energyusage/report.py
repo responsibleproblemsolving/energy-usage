@@ -10,6 +10,7 @@ from reportlab.graphics.charts.barcharts import VerticalBarChart
 from reportlab.graphics.charts.textlabels import Label
 
 import energyusage.convert as convert
+import evaluate as evaluate
 
 year = "2016"
 
@@ -327,7 +328,7 @@ def report_equivalents(emission, Elements):
 def generate(location, watt_averages, breakdown, kwh_and_emissions, func_info, \
     comparison_values, default_emissions, default_location, Elements):
     # TODO: remove state_emission and just use location
-    """ Generates pdf report
+    """ Generates the entire pdf report
 
     Parameters:
         location (str): user's location, locations=["Romania", "Brazil"]
@@ -341,7 +342,6 @@ def generate(location, watt_averages, breakdown, kwh_and_emissions, func_info, \
     Elements = []
     kwh, emission, state_emission = kwh_and_emissions
     baseline_average, process_average, difference_average, process_duration = watt_averages
-
 
     # Initializing document
     doc = SimpleDocTemplate("energy-usage-report.pdf",pagesize=landscape(letter), topMargin=.3*inch)
@@ -376,6 +376,26 @@ def generate(location, watt_averages, breakdown, kwh_and_emissions, func_info, \
 
     report_header(kwh, emission, Elements)
     report_equivalents(emission, Elements)
-
     comparison_graphs(comparison_values, location, emission, default_emissions, default_location, Elements)
+
+    doc.build(Elements)
+
+
+def generate_mlco2(kwh, emission, printToScreen=True, locations = ["Mongolia", "Iceland", "Switzerland"], comparison_region = "all"):
+    # TODO: remove state_emission and just use location
+    """ Generates pdf report with input of energy consumption and co2 emissions
+    Parameters:
+        kwh: energy consumption
+        emission: co2 emission
+    """
+    Elements = []
+    # Initializing document
+    doc = SimpleDocTemplate("mlco2-energy-usage-report.pdf",pagesize=landscape(letter), topMargin=.3*inch)
+
+    title("Energy Usage Report", Elements)
+    report_header(kwh, emission, Elements)
+    report_equivalents(emission, Elements)
+    evaluate.get_comparison_data(kwh, locations, year, printToScreen)
+    comparison_graphs(comparison_values, location, emission, default_emissions, default_location, Elements, comparison_region)
+
     doc.build(Elements)

@@ -294,6 +294,17 @@ def emissions_comparison(process_kwh, locations, year, default_location, printTo
         utils.log('Emissions Comparison', emissions)
     return emissions
 
+
+def get_comparison_data(result, locations, year, printToScreen):
+    geo = locate.get_location_information()
+    location = locate.get(printToScreen, geo)
+    default_location = False
+    if locations == ["Mongolia", "Iceland", "Switzerland"]:
+        default_location = True
+    comparison_values = emissions_comparison(result, locations, year, default_location, printToScreen)
+    default_emissions = old_emissions_comparison(result, year, default_location, printToScreen)
+
+
 def evaluate(user_func, *args, pdf=False, powerLoss=0.8, energyOutput=False, \
 locations=["Mongolia", "Iceland", "Switzerland"], year="2016", printToScreen = True):
     """ Calculates effective emissions of the function
@@ -310,19 +321,13 @@ locations=["Mongolia", "Iceland", "Switzerland"], year="2016", printToScreen = T
     """
     utils.setGlobal(printToScreen)
     if (utils.valid_cpu() or utils.valid_gpu()):
-        geo = locate.get_location_information()
-        location = locate.get(printToScreen, geo)
         result, return_value, watt_averages, files, total_time = energy(user_func, *args, powerLoss = powerLoss, year = year, \
                                                             printToScreen = printToScreen)
-        default_location = False
-        if locations == ["Mongolia", "Iceland", "Switzerland"]:
-            default_location = True
         breakdown = energy_mix(location, year = year)
         emission, state_emission = emissions(result, breakdown, location, year, printToScreen)
         if printToScreen:
             utils.log("Assumed Carbon Equivalencies")
-        comparison_values = emissions_comparison(result, locations, year, default_location, printToScreen)
-        default_emissions = old_emissions_comparison(result, year, default_location, printToScreen)
+        get_comparison_data(result, locations, year, default_location, printToScreen)
         if printToScreen:
             utils.log("Process Energy", result)
         func_info = [user_func.__name__, *args]
