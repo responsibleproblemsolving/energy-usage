@@ -303,6 +303,7 @@ def get_comparison_data(result, locations, year, printToScreen):
         default_location = True
     comparison_values = emissions_comparison(result, locations, year, default_location, printToScreen)
     default_emissions = old_emissions_comparison(result, year, default_location, printToScreen)
+    return (location, default_location, comparison_values, default_emissions)
 
 
 def evaluate(user_func, *args, pdf=False, powerLoss=0.8, energyOutput=False, \
@@ -323,11 +324,11 @@ locations=["Mongolia", "Iceland", "Switzerland"], year="2016", printToScreen = T
     if (utils.valid_cpu() or utils.valid_gpu()):
         result, return_value, watt_averages, files, total_time = energy(user_func, *args, powerLoss = powerLoss, year = year, \
                                                             printToScreen = printToScreen)
+        location, default_location, comparison_values, default_emissions = get_comparison_data(result, locations, year, printToScreen)
         breakdown = energy_mix(location, year = year)
         emission, state_emission = emissions(result, breakdown, location, year, printToScreen)
         if printToScreen:
             utils.log("Assumed Carbon Equivalencies")
-        get_comparison_data(result, locations, year, default_location, printToScreen)
         if printToScreen:
             utils.log("Process Energy", result)
         func_info = [user_func.__name__, *args]

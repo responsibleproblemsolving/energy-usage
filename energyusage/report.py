@@ -219,7 +219,7 @@ def gen_bar_graphs(comparison_values, location, emission):
     return bc
 
 
-def comparison_graphs(comparison_values, location, emission, default_emissions, default_location, Elements, comparison_region="all"):
+def comparison_graphs(comparison_values, location, emission, default_emissions, default_location, Elements):
     s = Spacer(9*inch, .2*inch)
     Elements.append(s)
     drawing = Drawing(0, 0)
@@ -231,56 +231,36 @@ def comparison_graphs(comparison_values, location, emission, default_emissions, 
         bc.width = 300
         drawing.add(bc)
     else:
-        if comparison_region == "all":
-            bc1 = gen_bar_graphs(default_emissions[:3], location, emission)
-            bc2 = gen_bar_graphs(default_emissions[3:6], location, emission)
-            bc3 = gen_bar_graphs(default_emissions[6:], location, emission)
-
-            offset = -257
-            bc1.x = -10 + offset
-            bc2.x = 190 + offset
-            bc3.x = 390 + offset
-            drawing.add(bc1)
-            drawing.add(bc2)
-            drawing.add(bc3)
-
-            label_offset = offset + 80
-            label1, label2, label3 = Label(), Label(), Label()
-            label1.setText("Global (excluding Europe and US)")
-            label1.x, label1.y = -17 + label_offset, -160
-            label1.fontName = "Times-Bold"
-
-            label2.setText("Europe")
-            label2.x, label2.y = 185 + label_offset, -160
-            label2.fontName = "Times-Bold"
-
-            label3.setText("United States")
-            label3.x, label3.y = 385 + label_offset, -160
-            label3.fontName = "Times-Bold"
-
-            drawing.add(label1)
-            drawing.add(label2)
-            drawing.add(label3)
-        else:
-            bc1 = gen_bar_graphs(default_emissions[:3], location, emission)
-            offset = -257
-            bc1.x = 190 + offset
-            drawing.add(bc1)
-
-            label_offset = offset + 80
-            label1 = Label()
-            label1.x, label1.y = 185 + label_offset, -160
-            label1.fontName = "Times-Bold"
-            if comparison_region == "Global":
-                label1.setText("Global (excluding Europe and US)")
-                drawing.add(label1)
-            if comparison_region == "Eurpoe":
-                label1.setText("Europe")
-                drawing.add(label1)
-            if comparison_region == "United States":
-                label1.setText("United States")
-                drawing.add(label1)
-
+        bc1 = gen_bar_graphs(default_emissions[:3], location, emission)
+        bc2 = gen_bar_graphs(default_emissions[3:6], location, emission)
+        bc3 = gen_bar_graphs(default_emissions[6:], location, emission)
+        
+        offset = -257
+        bc1.x = -10 + offset
+        bc2.x = 190 + offset
+        bc3.x = 390 + offset
+        drawing.add(bc1)
+        drawing.add(bc2)
+        drawing.add(bc3)
+        
+        label_offset = offset + 80
+        label1, label2, label3 = Label(), Label(), Label()
+        label1.setText("Global (excluding Europe and US)")
+        label1.x, label1.y = -17 + label_offset, -160
+        label1.fontName = "Times-Bold"
+        
+        label2.setText("Europe")
+        label2.x, label2.y = 185 + label_offset, -160
+        label2.fontName = "Times-Bold"
+    
+        label3.setText("United States")
+        label3.x, label3.y = 385 + label_offset, -160
+        label3.fontName = "Times-Bold"
+    
+        drawing.add(label1)
+        drawing.add(label2)
+        drawing.add(label3)
+        
     if_elsewhere_para = Paragraph('<font face="times" size=12>Kilograms of CO<sub rise = -10 size' +
     ' = 8>2 </sub> emissions for the function if the computation had been performed elsewhere</font>', style = styles["Normal"])
     graph_data = [['Emission Comparison'], [if_elsewhere_para], [drawing]]
@@ -381,7 +361,7 @@ def generate(location, watt_averages, breakdown, kwh_and_emissions, func_info, \
     doc.build(Elements)
 
 
-def generate_mlco2(kwh, emission, printToScreen=True, locations = ["Mongolia", "Iceland", "Switzerland"], comparison_region = "all"):
+def generate_mlco2(kwh, emission, printToScreen=True, locations = ["Mongolia", "Iceland", "Switzerland"]):
     # TODO: remove state_emission and just use location
     """ Generates pdf report with input of energy consumption and co2 emissions
     Parameters:
@@ -395,7 +375,7 @@ def generate_mlco2(kwh, emission, printToScreen=True, locations = ["Mongolia", "
     title("Energy Usage Report", Elements)
     report_header(kwh, emission, Elements)
     report_equivalents(emission, Elements)
-    evaluate.get_comparison_data(kwh, locations, year, printToScreen)
-    comparison_graphs(comparison_values, location, emission, default_emissions, default_location, Elements, comparison_region)
+    location, default_location, comparison_values, default_emissions = evaluate.get_comparison_data(kwh, locations, year, printToScreen)
+    comparison_graphs(comparison_values, location, emission, default_emissions, default_location, Elements)
 
     doc.build(Elements)
