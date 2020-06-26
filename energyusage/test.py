@@ -3,12 +3,11 @@ import requests
 import evaluate as evaluate
 import locate as locate
 
+YEAR = "2016"
+PROCESS_KWH = 0.1
+printToScreen = False
+
 class Test(unittest.TestCase):
-    YEAR = "2016"
-    PROCESS_KWH = 0.1
-    printToScreen = False
-
-
     def test_kwh_to_co2(self):
         # US locations
         breakdown = [5.868023799, 1.321624392, 66.17474207, 26.63395815]

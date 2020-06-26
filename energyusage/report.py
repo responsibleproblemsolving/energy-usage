@@ -381,5 +381,5 @@ def generate_mlco2(kwh, emission, png=False, locations = ["Mongolia", "Iceland",
     doc.build(Elements)
 
     if png:
-        # generate emissions bar charts
-        evaluate.png_bar_chart(location, emission, comparison_values)
+        # generate emissions comparison bar charts
+        evaluate.png_bar_chart(location, emission, default_emissions)

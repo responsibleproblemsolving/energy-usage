@@ -306,11 +306,11 @@ def get_comparison_data(result, locations, year, printToScreen):
     default_emissions = old_emissions_comparison(result, year, default_location, printToScreen)
     return (location, default_location, comparison_values, default_emissions)
 
-def png_bar_chart(location, emission, comparison_values):
-    global_dict = {"Mongolia" : (comparison_values[0])[1], "South Korea" : (comparison_values[1])[1], "Bhutan" : (comparison_values[2])[1]}
-    eu_dict = {"Kosovo" : (comparison_values[3])[1], "Ukraine" : (comparison_values[4])[1], "Iceland" : (comparison_values[5])[1]}
-    us_dict = {"Wyoming" : (comparison_values[6])[1], "Mississippi" : (comparison_values[7])[1], "Vermont" : (comparison_values[8])[1]}
-    make_comparison_bar_charts(location, emission, us_dict, eu_dict, global_dict)
+def png_bar_chart(location, emission, default_emissions):
+    global_dict = {"Mongolia" : (default_emissions[0])[1], "South Korea" : (default_emissions[1])[1], "Bhutan" : (default_emissions[2])[1]}
+    eu_dict = {"Kosovo" : (default_emissions[3])[1], "Ukraine" : (default_emissions[4])[1], "Iceland" : (default_emissions[5])[1]}
+    us_dict = {"Wyoming" : (default_emissions[6])[1], "Mississippi" : (default_emissions[7])[1], "Vermont" : (default_emissions[8])[1]}
+    graph.make_comparison_bar_charts(location, emission, us_dict, eu_dict, global_dict)
 
 def evaluate(user_func, *args, pdf=False, png = False, powerLoss=0.8, energyOutput=False, \
 locations=["Mongolia", "Iceland", "Switzerland"], year="2016", printToScreen = True):
@@ -356,7 +356,8 @@ locations=["Mongolia", "Iceland", "Switzerland"], year="2016", printToScreen = T
                 energy_dict["Oil"] = energy_dict.pop("Petroleum")
                 figtitle = figtitle + ", USA"
             graph.pie_chart(energy_dict, figtitle, filename)
-            png_bar_chart(location, emission, comparison_values)
+            # generate emissions comparison bar charts
+            png_bar_chart(location, emission, default_emissions)
         if energyOutput:
             return (total_time, result, return_value)
         else:
