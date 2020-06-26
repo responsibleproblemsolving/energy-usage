@@ -12,6 +12,7 @@ import utils as utils
 import convert as convert
 import locate as locate
 import report as report
+import graph
 
 
 DELAY = .1 # in seconds
@@ -305,8 +306,13 @@ def get_comparison_data(result, locations, year, printToScreen):
     default_emissions = old_emissions_comparison(result, year, default_location, printToScreen)
     return (location, default_location, comparison_values, default_emissions)
 
+def png_bar_chart(location, emission, comparison_values):
+    global_dict = {"Mongolia" : (comparison_values[0])[1], "South Korea" : (comparison_values[1])[1], "Bhutan" : (comparison_values[2])[1]}
+    eu_dict = {"Kosovo" : (comparison_values[3])[1], "Ukraine" : (comparison_values[4])[1], "Iceland" : (comparison_values[5])[1]}
+    us_dict = {"Wyoming" : (comparison_values[6])[1], "Mississippi" : (comparison_values[7])[1], "Vermont" : (comparison_values[8])[1]}
+    make_comparison_bar_charts(location, emission, us_dict, eu_dict, global_dict)
 
-def evaluate(user_func, *args, pdf=False, powerLoss=0.8, energyOutput=False, \
+def evaluate(user_func, *args, pdf=False, png = False, powerLoss=0.8, energyOutput=False, \
 locations=["Mongolia", "Iceland", "Switzerland"], year="2016", printToScreen = True):
     """ Calculates effective emissions of the function
 
@@ -337,6 +343,20 @@ locations=["Mongolia", "Iceland", "Switzerland"], year="2016", printToScreen = T
             #pass
             report.generate(location, watt_averages, breakdown, kwh_and_emissions, \
                 func_info, comparison_values, default_emissions, default_location)
+        if png:
+            # generate energy mix pie chart
+            energy_dict = {"Coal" : breakdown[0], "Petroleum"  : breakdown[1], "Natural Gas" : breakdown[2], "Low Carbon" : breakdown[3]}
+            figtitle = "Location: " + location
+            location_split = location.split()
+            filename = location_split[0]
+            for i in range(1, len(location_split)):
+                filename += "_" + location_split[i]
+            filename += ".png"
+            if locate.in_US(location):
+                energy_dict["Oil"] = energy_dict.pop("Petroleum")
+                figtitle = figtitle + ", USA"
+            graph.pie_chart(energy_dict, figtitle, filename)
+            png_bar_chart(location, emission, comparison_values)
         if energyOutput:
             return (total_time, result, return_value)
         else:
