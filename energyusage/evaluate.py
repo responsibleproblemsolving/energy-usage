@@ -307,9 +307,19 @@ def get_comparison_data(result, locations, year, printToScreen):
     return (location, default_location, comparison_values, default_emissions)
 
 def png_bar_chart(location, emission, default_emissions):
-    global_dict = {"Mongolia" : (default_emissions[0])[1], "South Korea" : (default_emissions[1])[1], "Bhutan" : (default_emissions[2])[1]}
-    eu_dict = {"Kosovo" : (default_emissions[3])[1], "Ukraine" : (default_emissions[4])[1], "Iceland" : (default_emissions[5])[1]}
-    us_dict = {"Wyoming" : (default_emissions[6])[1], "Mississippi" : (default_emissions[7])[1], "Vermont" : (default_emissions[8])[1]}
+    default_emissions_list = []
+    for i in range(0, 9):
+        emission_decimal = (default_emissions[i])[1]
+        rounded_emission = round(emission_decimal, 2)
+        default_emissions_list.append(rounded_emission)
+    global_dict = {"Mongolia" : default_emissions_list[0], "South Korea" : default_emissions_list[1], "Bhutan" : default_emissions_list[2]}
+    eu_dict = {"Kosovo" : default_emissions_list[3], "Ukraine" : default_emissions_list[4], "Iceland" : default_emissions_list[5]}
+    us_dict = {"Wyoming" : default_emissions_list[6], "Mississippi" : default_emissions_list[7], "Vermont" : default_emissions_list[8]}
+    print(global_dict)
+    print(eu_dict)
+    print(us_dict)
+    print(location)
+    print(emission)
     graph.make_comparison_bar_charts(location, emission, us_dict, eu_dict, global_dict)
 
 def evaluate(user_func, *args, pdf=False, png = False, powerLoss=0.8, energyOutput=False, \
