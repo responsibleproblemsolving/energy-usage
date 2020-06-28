@@ -312,14 +312,9 @@ def png_bar_chart(location, emission, default_emissions):
         emission_decimal = (default_emissions[i])[1]
         rounded_emission = round(emission_decimal, 2)
         default_emissions_list.append(rounded_emission)
-    global_dict = {"Mongolia" : default_emissions_list[0], "South Korea" : default_emissions_list[1], "Bhutan" : default_emissions_list[2]}
-    eu_dict = {"Kosovo" : default_emissions_list[3], "Ukraine" : default_emissions_list[4], "Iceland" : default_emissions_list[5]}
-    us_dict = {"Wyoming" : default_emissions_list[6], "Mississippi" : default_emissions_list[7], "Vermont" : default_emissions_list[8]}
-    print(global_dict)
-    print(eu_dict)
-    print(us_dict)
-    print(location)
-    print(emission)
+    global_dict = {"Bhutan" : default_emissions_list[0], "South Korea" : default_emissions_list[1], "Mongolia" : default_emissions_list[2]}
+    eu_dict = {"KosovoIceland" : default_emissions_list[3], "Ukraine" : default_emissions_list[4], "Kosovo" : default_emissions_list[5]}
+    us_dict = {"Vermont" : default_emissions_list[6], "Mississippi" : default_emissions_list[7], "Wyoming" : default_emissions_list[8]}
     graph.make_comparison_bar_charts(location, emission, us_dict, eu_dict, global_dict)
 
 def evaluate(user_func, *args, pdf=False, png = False, powerLoss=0.8, energyOutput=False, \
