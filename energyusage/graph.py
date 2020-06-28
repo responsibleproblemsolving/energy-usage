@@ -96,3 +96,11 @@ def modify_dict(comparison_dict, location_key, location_value):
     new_key = "Maximum:\n" + sorted_keys[2]
     comparison_dict[new_key] = comparison_dict.pop(sorted_keys[2])
     comparison_dict[location_key] = location_value
+
+us_dict = {"Wyoming" : 4.21e-03, "Mississippi" : 1.95e-03, "Vermont" : 1.18e-04}
+eu_dict = {"Kosovo" : 4.32e-03, "Ukraine" : 3.02e-03, "Iceland" : 7.77e-04}
+global_dict = {"Mongolia" : 4.23e-03, "South Korea" : 3.45e-03, "Bhutan" : 4.81e-04}
+print(us_dict)
+print(eu_dict)
+print(global_dict)
+global_dict = {"Mongolia" : 4.23e-03, "South Korea" : 3.45e-03, "Bhutan" : 4.81e-04}
