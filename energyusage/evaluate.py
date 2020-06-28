@@ -316,7 +316,7 @@ def png_bar_chart(location, emission, default_emissions):
     print(global_dict)
     print(eu_dict)
     print(us_dict)
-    graph.make_comparison_bar_charts(location, 1.78e-03, us_dict, eu_dict, global_dict)
+    graph.make_comparison_bar_charts(location, emission, us_dict, eu_dict, global_dict)
 
 def evaluate(user_func, *args, pdf=False, png = False, powerLoss=0.8, energyOutput=False, \
 locations=["Mongolia", "Iceland", "Switzerland"], year="2016", printToScreen = True):

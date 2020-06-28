@@ -11,4 +11,4 @@ def exp(n):
         linear(1)
         
 #evaluate.evaluate(exp, 10, pdf=True,  png=True)
-report.generate_mlco2(3, 1.78e-03, png=True)
+report.generate_mlco2(3, 1.68, png=True)
