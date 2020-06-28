@@ -49,7 +49,7 @@ Takes a dictionary mapping "Min", "Median", "Max", and whatever the current loca
 to the kg CO2 values for those locations.  Min/Med/Max will be graphed in grey and current
 location in black on the same chart.
 """
-def bar_chart(bar_dict, location_key, title, filename, figsize = None):
+def bar_chart(bar_dict, location_key, title, filename, y_step, figsize = None):
 
     plt.figure(figsize=figsize)
 
@@ -67,7 +67,7 @@ def bar_chart(bar_dict, location_key, title, filename, figsize = None):
     plt.bar(y_pos, co2, align='center', color = colors)
     plt.xticks(y_pos, objects, fontsize = FONTSIZE)
     yticks = []
-    plt.yticks([x*0.0005 for x in range(0, 11)])
+    plt.yticks([x*y_step for x in range(0, 11)])
     label = plt.ylabel('kg CO2', fontsize = FONTSIZE)
     title = plt.title(title, fontsize = TITLESIZE)
 
@@ -77,15 +77,18 @@ def bar_chart(bar_dict, location_key, title, filename, figsize = None):
     plt.close()
 
 def make_comparison_bar_charts(currlocation_key, currlocation_co2, us_dict, eu_dict, global_dict):
-    modify_dict(us_dict, currlocation_key, currlocation_co2)
-    bar_chart(us_dict, currlocation_key, "US Comparison CO2 Emissions", "us.png", figsize = (10,4))
-    modify_dict(eu_dict, currlocation_key, currlocation_co2)
+    us_max = modify_dict(us_dict, currlocation_key, currlocation_co2)
+    us_y_step = float(format(us_max, '.1g')) / 10
+    bar_chart(us_dict, currlocation_key, "US Comparison CO2 Emissions", "us.png", us_y_step, figsize = (10,4))
+    eu_max = modify_dict(eu_dict, currlocation_key, currlocation_co2)
+    eu_y_step = float(format(eu_max, '.1g')) / 10
     bar_chart(eu_dict, currlocation_key, "Europe Comparison CO2 Emissions", "europe.png",
-              figsize = (10,4))
-    modify_dict(global_dict, currlocation_key, currlocation_co2)
+              eu_y_step, figsize = (10,4))
+    global_max = modify_dict(global_dict, currlocation_key, currlocation_co2)
+    global_y_step = float(format(global_max, '.1g')) / 10
     bar_chart(global_dict, currlocation_key,
               "Global (Excluding Europe and US)\nComparison CO2 Emissions", "global.png",
-              figsize = (10,4))
+              global_y_step, figsize = (10,4))
 
 def modify_dict(comparison_dict, location_key, location_value):
     sorted_keys = sorted(comparison_dict.keys(), key = comparison_dict.get)
@@ -96,3 +99,4 @@ def modify_dict(comparison_dict, location_key, location_value):
     new_key = "Maximum:\n" + sorted_keys[2]
     comparison_dict[new_key] = comparison_dict.pop(sorted_keys[2])
     comparison_dict[location_key] = location_value
+    return comparison_dict[new_key]
