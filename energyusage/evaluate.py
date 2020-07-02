@@ -345,7 +345,7 @@ locations=["Mongolia", "Iceland", "Switzerland"], year="2016", printToScreen = T
         if pdf:
             #pass
             report.generate(location, watt_averages, breakdown, kwh_and_emissions, \
-                func_info, comparison_values, default_emissions, default_location)
+                            func_info, comparison_values, default_emissions, default_location)
         if png:
             # generate energy mix pie chart
             energy_dict = {"Coal" : breakdown[0], "Petroleum"  : breakdown[1], "Natural Gas" : breakdown[2], "Low Carbon" : breakdown[3]}

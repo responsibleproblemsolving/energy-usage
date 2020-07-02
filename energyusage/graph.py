@@ -11,13 +11,15 @@ plt.rcdefaults()
 Creates a pie chart based on the energy composition.  Takes a dictionary mapping energy to percent
 based on energy types:
 - Coal
-- Oil
+- Oil/Petroleum
 - Natural Gas
 - Low Carbon
 """
 def pie_chart(energy_dict, figtitle, filename):
     # Pie chart
     labels = ["Coal", "Oil", "Natural Gas", "Low Carbon"]
+    if "Petroleum" in energy_dict:
+        labels[1] = "Petroleum"
     sizes = [energy_dict[key] for key in labels]
     #colors
     colors = ['#b2182b','#ef8a62','#fddbc7','#2166ac']
@@ -40,7 +42,7 @@ def pie_chart(energy_dict, figtitle, filename):
 
     bb = (texts, autotexts)
     plt.savefig(filename, bbox_extra_artists = bb) #, bbox_inches = 'tight')
-    print("plot saved to:" + filename)
+    print("plot saved to: " + filename)
     plt.clf()
     plt.close()
 

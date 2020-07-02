@@ -11,6 +11,7 @@ from reportlab.graphics.charts.textlabels import Label
 
 import energyusage.convert as convert
 import evaluate as evaluate
+import locate
 
 year = "2016"
 
@@ -281,7 +282,7 @@ def report_header(kwh, emission, Elements):
 
     kwh_and_emissions_table(kwh_and_emissions_data, Elements)
 
-def report_equivalents(emission, Elements):
+def report_equivalents(emission, state_emission, Elements):
     # Equivalencies and CO2 emission equivalents
     per_house = Paragraph('<font face="times" size=12>% of CO<sub rise = -10 size = 8>2</sub> per US house/day:</font>'.format(emission), style = styles["Normal"])
     emissions_data = [
@@ -295,18 +296,24 @@ def report_equivalents(emission, Elements):
     gas_para = Paragraph('<font face="times" size=12>744 kg CO<sub rise = -10 size = 8>2 </sub>/MWh</font>', style = styles["Normal"])
     low_para = Paragraph('<font face="times" size=12>0 kg CO<sub rise = -10 size = 8>2 </sub>/MWh</font>', style = styles["Normal"])
 
-    equivs_data = [['Coal:', coal_para],
-                   ['Petroleum:', oil_para],
-                   ['Natural gas:', gas_para],
-                   ['Low carbon:', low_para]]
-
+    if state_emission:
+        equivs_data = [['Coal:', coal_para],
+                       ['Oil:', oil_para],
+                       ['Natural gas:', gas_para],
+                       ['Low carbon:', low_para]]
+    else:
+        equivs_data = [['Coal:', coal_para],
+                       ['Petroleum:', oil_para],
+                       ['Natural gas:', gas_para],
+                       ['Low carbon:', low_para]]
+        
     equivs_and_emission_equivs(equivs_data, emissions_data, Elements)
     # utils.log("Assumed Carbon Equivalencies")
     # utils.log("Emissions", emission)
 
 
 def generate(location, watt_averages, breakdown, kwh_and_emissions, func_info, \
-    comparison_values, default_emissions, default_location, Elements):
+    comparison_values, default_emissions, default_location):
     # TODO: remove state_emission and just use location
     """ Generates the entire pdf report
 
@@ -352,10 +359,24 @@ def generate(location, watt_averages, breakdown, kwh_and_emissions, func_info, \
                 ['Process duration:', process_duration],
                 ['','']] #hack for the alignment
 
-    readings_and_mix_table(readings_data, mix_data, breakdown, state_emission, location, Elements)
-
+    if state_emission:
+        coal, oil, natural_gas, low_carbon = breakdown
+        mix_data = [['Energy Mix Data', ''],
+                    ['Coal', "{:.2f}%".format(coal)],
+                    ['Oil', "{:.2f}%".format(oil)],
+                    ['Natural gas', "{:.2f}%".format(natural_gas)],
+                    ['Low carbon', "{:.2f}%".format(low_carbon)]]
+    else:
+        coal, petroleum, natural_gas, low_carbon = breakdown
+        mix_data = [['Energy Mix Data', ''],
+                    ['Coal',  "{:.2f}%".format(coal)],
+                    ['Petroleum', "{:.2f}%".format(petroleum)],
+                    ['Natural gas', "{:.2f}%".format(natural_gas)],
+                    ['Low carbon', "{:.2f}%".format(low_carbon)]]
+        
     report_header(kwh, emission, Elements)
-    report_equivalents(emission, Elements)
+    report_equivalents(emission, state_emission, Elements)
+    readings_and_mix_table(readings_data, mix_data, breakdown, state_emission, location, Elements)
     comparison_graphs(comparison_values, location, emission, default_emissions, default_location, Elements)
 
     doc.build(Elements)
@@ -374,8 +395,11 @@ def generate_mlco2(kwh, emission, png=False, locations = ["Mongolia", "Iceland",
 
     title("Energy Usage Report", Elements)
     report_header(kwh, emission, Elements)
-    report_equivalents(emission, Elements)
     location, default_location, comparison_values, default_emissions = evaluate.get_comparison_data(kwh, locations, year, printToScreen)
+    state_emission = 0
+    if locate.in_US(location):
+        state_emission = 1
+    report_equivalents(emission, state_emission, Elements)
     comparison_graphs(comparison_values, location, emission, default_emissions, default_location, Elements)
 
     doc.build(Elements)
