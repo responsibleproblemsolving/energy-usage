@@ -10,7 +10,10 @@ def linear(n):
 def exp(n):
     for i in range(2**n):
         linear(1)
+
+def small_function(n):
+    n+1
         
-evaluate.evaluate(linear, 10, pdf=True,  png=True)
+evaluate.evaluate(small_function, 10, pdf=True,  png=True)
 #energyusage.evaluate(exp, 10, pdf=True)
-report.generate_mlco2(3, 1.68, png=True)
+#report.generate_mlco2(3, 1.68, png=True)

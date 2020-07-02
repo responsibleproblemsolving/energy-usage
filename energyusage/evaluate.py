@@ -329,44 +329,47 @@ locations=["Mongolia", "Iceland", "Switzerland"], year="2016", printToScreen = T
             printToScreen (bool): get information in the command line
 
     """
-    utils.setGlobal(printToScreen)
-    if (utils.valid_cpu() or utils.valid_gpu()):
-        result, return_value, watt_averages, files, total_time = energy(user_func, *args, powerLoss = powerLoss, year = year, \
+    try:
+        utils.setGlobal(printToScreen)
+        if (utils.valid_cpu() or utils.valid_gpu()):
+            result, return_value, watt_averages, files, total_time = energy(user_func, *args, powerLoss = powerLoss, year = year, \
                                                             printToScreen = printToScreen)
-        location, default_location, comparison_values, default_emissions = get_comparison_data(result, locations, year, printToScreen)
-        breakdown = energy_mix(location, year = year)
-        emission, state_emission = emissions(result, breakdown, location, year, printToScreen)
-        if printToScreen:
-            utils.log("Assumed Carbon Equivalencies")
-        if printToScreen:
-            utils.log("Process Energy", result)
-        func_info = [user_func.__name__, *args]
-        kwh_and_emissions = [result, emission, state_emission]
-        if pdf:
-            #pass
-            report.generate(location, watt_averages, breakdown, kwh_and_emissions, \
+            location, default_location, comparison_values, default_emissions = get_comparison_data(result, locations, year, printToScreen)
+            breakdown = energy_mix(location, year = year)
+            emission, state_emission = emissions(result, breakdown, location, year, printToScreen)
+            if printToScreen:
+                utils.log("Assumed Carbon Equivalencies")
+            if printToScreen:
+                utils.log("Process Energy", result)
+            func_info = [user_func.__name__, *args]
+            kwh_and_emissions = [result, emission, state_emission]
+            if pdf:
+                #pass
+                report.generate(location, watt_averages, breakdown, kwh_and_emissions, \
                             func_info, comparison_values, default_emissions, default_location)
-        if png:
-            # generate energy mix pie chart
-            energy_dict = {"Coal" : breakdown[0], "Petroleum"  : breakdown[1], "Natural Gas" : breakdown[2], "Low Carbon" : breakdown[3]}
-            figtitle = "Location: " + location
-            location_split = location.split()
-            filename = location_split[0]
-            for i in range(1, len(location_split)):
-                filename += "_" + location_split[i]
-            filename += ".png"
-            if locate.in_US(location):
-                energy_dict["Oil"] = energy_dict.pop("Petroleum")
-                figtitle = figtitle + ", USA"
-            graph.pie_chart(energy_dict, figtitle, filename)
-            # generate emissions comparison bar charts
-            png_bar_chart(location, emission, default_emissions)
-        if energyOutput:
-            return (total_time, result, return_value)
+            if png:
+                # generate energy mix pie chart
+                energy_dict = {"Coal" : breakdown[0], "Petroleum"  : breakdown[1], "Natural Gas" : breakdown[2], "Low Carbon" : breakdown[3]}
+                figtitle = "Location: " + location
+                location_split = location.split()
+                filename = location_split[0]
+                for i in range(1, len(location_split)):
+                    filename += "_" + location_split[i]
+                    filename += ".png"
+                if locate.in_US(location):
+                    energy_dict["Oil"] = energy_dict.pop("Petroleum")
+                    figtitle = figtitle + ", USA"
+                graph.pie_chart(energy_dict, figtitle, filename)
+                # generate emissions comparison bar charts
+                png_bar_chart(location, emission, default_emissions)
+            if energyOutput:
+                return (total_time, result, return_value)
+            else:
+                return return_value
+            
         else:
-            return return_value
-
-    else:
-        utils.log("The energy-usage package only works on Linux kernels "
-        "with Intel processors that support the RAPL interface and/or machines with"
+            utils.log("The energy-usage package only works on Linux kernels "
+                      "with Intel processors that support the RAPL interface and/or machines with"
         " an Nvidia GPU. Please try again on a different machine.")
+    except Exception:
+        print("Process executed too fast to gather energy consumption. Try running a more GPU-intensive program.")
