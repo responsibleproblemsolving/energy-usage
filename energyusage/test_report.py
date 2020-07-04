@@ -14,6 +14,6 @@ def exp(n):
 def small_function(n):
     n+1
         
-evaluate.evaluate(small_function, 10, pdf=True,  png=True)
+evaluate.evaluate(linear, 10, pdf=True,  png=True)
 #energyusage.evaluate(exp, 10, pdf=True)
 #report.generate_mlco2(3, 1.68, png=True)

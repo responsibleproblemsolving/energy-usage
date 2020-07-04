@@ -6,7 +6,7 @@ import os
 import datetime
 import subprocess
 import queue
-
+import csv
 
 import utils as utils
 import convert as convert
@@ -43,20 +43,25 @@ def energy(user_func, *args, powerLoss = 0.8, year, printToScreen):
     gpu_process = [0]
     bash_command = "nvidia-smi -i 0 --format=csv,noheader --query-gpu=power.draw"
 
-    for i in range(int(baseline_check_seconds / DELAY)):
-        if is_nvidia_gpu:
-            output = subprocess.check_output(['bash','-c', bash_command])
-            output = float(output.decode("utf-8")[:-2])
-            gpu_baseline.append(output)
-        if is_valid_cpu:
-            files = utils.measure_files(files, DELAY)
-            files = utils.update_files(files)
-        else:
-            time.sleep(DELAY)
-        # Adds the most recent value of GPU; 0 if not Nvidia
-        last_reading = utils.get_total(files, multiple_cpus) + gpu_baseline[-1]
-        if last_reading >=0 and printToScreen:
-            utils.log("Baseline wattage", last_reading)
+    time = 0
+    with open('baseline_wattage.csv', 'w') as baseline_wattage_file:
+        for i in range(int(baseline_check_seconds / DELAY)):
+            if is_nvidia_gpu:
+                output = subprocess.check_output(['bash','-c', bash_command])
+                output = float(output.decode("utf-8")[:-2])
+                gpu_baseline.append(output)
+            if is_valid_cpu:
+                files = utils.measure_files(files, DELAY)
+                files = utils.update_files(files)
+            else:
+                time.sleep(DELAY)
+            # Adds the most recent value of GPU; 0 if not Nvidia
+            last_reading = utils.get_total(files, multiple_cpus) + gpu_baseline[-1]
+            if last_reading >=0 and printToScreen:
+                utils.log("Baseline wattage", last_reading)
+                baseline_wattage_writer = csv.writer(baseline_wattage_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+                time = i* DELAY
+                baseline_wattage_writer.writerow([time, last_reading])
     if printToScreen:
         utils.newline()
 
@@ -371,5 +376,5 @@ locations=["Mongolia", "Iceland", "Switzerland"], year="2016", printToScreen = T
             utils.log("The energy-usage package only works on Linux kernels "
                       "with Intel processors that support the RAPL interface and/or machines with"
         " an Nvidia GPU. Please try again on a different machine.")
-    except Exception:
-        print("Process executed too fast to gather energy consumption. Try running a more GPU-intensive program.")
+    except Exception as e:
+        print("\n" + str(e) + ". Try running a more GPU-intensive program.")
