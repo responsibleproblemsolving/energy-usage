@@ -43,7 +43,6 @@ def energy(user_func, *args, powerLoss = 0.8, year, printToScreen):
     gpu_process = [0]
     bash_command = "nvidia-smi -i 0 --format=csv,noheader --query-gpu=power.draw"
 
-    time = 0
     with open('baseline_wattage.csv', 'w') as baseline_wattage_file:
         for i in range(int(baseline_check_seconds / DELAY)):
             if is_nvidia_gpu:
@@ -60,7 +59,7 @@ def energy(user_func, *args, powerLoss = 0.8, year, printToScreen):
             if last_reading >=0 and printToScreen:
                 utils.log("Baseline wattage", last_reading)
                 baseline_wattage_writer = csv.writer(baseline_wattage_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-                time = i* DELAY
+                time = round(i* DELAY, 1)
                 baseline_wattage_writer.writerow([time, last_reading])
     if printToScreen:
         utils.newline()
@@ -73,33 +72,37 @@ def energy(user_func, *args, powerLoss = 0.8, year, printToScreen):
     small_delay_counter = 0
     return_value = None
     p.start()
-    while(p.is_alive()):
-        # Checking at a faster rate for quick processes
-        if (small_delay_counter > DELAY):
-           delay = DELAY / 10
-           small_delay_counter+=1
-        else:
-           delay = DELAY
-
-        if is_nvidia_gpu:
-            output = subprocess.check_output(['bash','-c', bash_command])
-            output = float(output.decode("utf-8")[:-2])
-            gpu_process.append(output)
-        if is_valid_cpu:
-            files = utils.measure_files(files, delay)
-            files = utils.update_files(files, True)
-        else:
-            time.sleep(delay)
-        # Just output, not added
-        last_reading = (utils.get_total(files, multiple_cpus) + gpu_process[-1]) / powerLoss
-        if last_reading >=0 and printToScreen:
-            utils.log("Process wattage", last_reading)
-       # Getting the return value of the user's function
-        try:
-            return_value = q.get_nowait()
-            break
-        except queue.Empty:
-            pass
+    with open('process_wattage.csv', 'w') as process_wattage_file:
+        while(p.is_alive()):
+            # Checking at a faster rate for quick processes
+            if (small_delay_counter > DELAY):
+                delay = DELAY / 10
+                small_delay_counter+=1
+            else:
+                delay = DELAY
+                
+            if is_nvidia_gpu:
+                output = subprocess.check_output(['bash','-c', bash_command])
+                output = float(output.decode("utf-8")[:-2])
+                gpu_process.append(output)
+            if is_valid_cpu:
+                files = utils.measure_files(files, delay)
+                files = utils.update_files(files, True)
+            else:
+                time.sleep(delay)
+            # Just output, not added
+            last_reading = (utils.get_total(files, multiple_cpus) + gpu_process[-1]) / powerLoss
+            if last_reading >=0 and printToScreen:
+                utils.log("Process wattage", last_reading)
+                process_wattage_writer = csv.writer(process_wattage_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+                time = round(timer()-start, 1)
+                process_wattage_writer.writerow([time, last_reading])
+            # Getting the return value of the user's function
+            try:
+                return_value = q.get_nowait()
+                break
+            except queue.Empty:
+                pass
     p.join()
     end = timer()
     for file in files:
