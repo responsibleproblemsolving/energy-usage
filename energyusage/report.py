@@ -207,10 +207,9 @@ def gen_bar_graphs(comparison_values, location, emission):
     bc.data = data
     bc.strokeColor = colors.black
     bc.valueAxis.valueMin = 0
-    #bc.valueAxis.valueMax = data[0][-1] + data[0][-1] * .1
-    y_step = float(format(data[0][-1], '.1g')) / 3
-    bc.valueAxis.valueStep = float(format(y_step, '.1g'))
-    bc.valueAxis.valueMax = y_step*3 + bc.valueAxis.valueStep
+    bc.valueAxis.valueMax = data[0][-1] + data[0][-1] * .1
+    bc.valueAxis.valueStep = float(format(data[0][-1], '.1g')) / 3
+    bc.valueAxis.labelTextFormat = '%0.1f'
     bc.categoryAxis.labels.boxAnchor = 'ne'
     bc.categoryAxis.labels.dx = 8
     bc.categoryAxis.labels.dy = -2
