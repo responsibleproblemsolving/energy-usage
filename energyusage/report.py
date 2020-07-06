@@ -13,6 +13,8 @@ import energyusage.convert as convert
 import evaluate as evaluate
 import locate
 
+import math
+
 year = "2016"
 
 styles = getSampleStyleSheet()
@@ -208,8 +210,9 @@ def gen_bar_graphs(comparison_values, location, emission):
     bc.strokeColor = colors.black
     bc.valueAxis.valueMin = 0
     bc.valueAxis.valueMax = data[0][-1] + data[0][-1] * .1
+    distance = abs(int(math.log10(abs(data[0][-1])))) + 1 # distance of 1 significant figure to decimal point
     bc.valueAxis.valueStep = float(format(data[0][-1], '.1g')) / 3
-    bc.valueAxis.labelTextFormat = '%0.1f'
+    bc.valueAxis.labelTextFormat = '%0.' + str(distance) + 'f'
     bc.categoryAxis.labels.boxAnchor = 'ne'
     bc.categoryAxis.labels.dx = 8
     bc.categoryAxis.labels.dy = -2
