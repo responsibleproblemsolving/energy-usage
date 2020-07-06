@@ -44,6 +44,8 @@ def energy(user_func, *args, powerLoss = 0.8, year, printToScreen):
     bash_command = "nvidia-smi -i 0 --format=csv,noheader --query-gpu=power.draw"
 
     with open('baseline_wattage.csv', 'w') as baseline_wattage_file:
+        baseline_wattage_writer = csv.writer(baseline_wattage_file)
+        baseline_wattage_writer.writerow(["time", "baseline wattage reading"])
         for i in range(int(baseline_check_seconds / DELAY)):
             if is_nvidia_gpu:
                 output = subprocess.check_output(['bash','-c', bash_command])
@@ -58,7 +60,6 @@ def energy(user_func, *args, powerLoss = 0.8, year, printToScreen):
             last_reading = utils.get_total(files, multiple_cpus) + gpu_baseline[-1]
             if last_reading >=0 and printToScreen:
                 utils.log("Baseline wattage", last_reading)
-                baseline_wattage_writer = csv.writer(baseline_wattage_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
                 time = round(i* DELAY, 1)
                 baseline_wattage_writer.writerow([time, last_reading])
     if printToScreen:
@@ -73,6 +74,8 @@ def energy(user_func, *args, powerLoss = 0.8, year, printToScreen):
     return_value = None
     p.start()
     with open('process_wattage.csv', 'w') as process_wattage_file:
+        process_wattage_writer = csv.writer(process_wattage_file)
+        process_wattage_writer.writerow(["time", "process wattage reading"])
         while(p.is_alive()):
             # Checking at a faster rate for quick processes
             if (small_delay_counter > DELAY):
@@ -94,7 +97,6 @@ def energy(user_func, *args, powerLoss = 0.8, year, printToScreen):
             last_reading = (utils.get_total(files, multiple_cpus) + gpu_process[-1]) / powerLoss
             if last_reading >=0 and printToScreen:
                 utils.log("Process wattage", last_reading)
-                process_wattage_writer = csv.writer(process_wattage_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
                 time = round(timer()-start, 1)
                 process_wattage_writer.writerow([time, last_reading])
             # Getting the return value of the user's function
