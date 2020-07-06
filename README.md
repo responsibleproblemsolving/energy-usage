@@ -22,12 +22,13 @@ def recursive_fib(n):
     if (n <= 2): return 1
     else: return recursive_fib(n-1) + recursive_fib(n-2)
 
-energyusage.evaluate(recursive_fib, 40, pdf=True)
+energyusage.evaluate(recursive_fib, 40, pdf=True, png=True)
 # returns 102,334,155
 ```
 It will return the value of your function, while also printing out the energy usage report on the command line.
 Optional keyword arguments:
 * `pdf`(default = `False`): generates a PDF report, alongside the command-line utility
+* `png`(default = `False`): generates a local energy mix pie chart and three emissions comparison bar charts, alongside the command-line utility
 * `powerLoss` (default = `0.8`): accounts for PSU loss, can be set by user if known for higher accuracy of results
 * `energyOutput` (default = `False`): prints amount of energy used by the process and time taken. The order is time, energy used, return of function
 * `printToScreen` (default = `True`): controls whether there is a terminal printout of the package running
