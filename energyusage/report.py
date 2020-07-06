@@ -377,9 +377,9 @@ def generate(location, watt_averages, breakdown, kwh_and_emissions, func_info, \
                     ['Petroleum', "{:.2f}%".format(petroleum)],
                     ['Natural gas', "{:.2f}%".format(natural_gas)],
                     ['Low carbon', "{:.2f}%".format(low_carbon)]]
-        
-    report_header(kwh, emission, Elements)
+
     readings_and_mix_table(readings_data, mix_data, breakdown, state_emission, location, Elements)
+    report_header(kwh, emission, Elements)
     report_equivalents(emission, state_emission, Elements)
     comparison_graphs(comparison_values, location, emission, default_emissions, default_location, Elements)
 
