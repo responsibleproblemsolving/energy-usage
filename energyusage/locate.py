@@ -25,7 +25,11 @@ EUROPE = ['Albania','Andorra','Armenia','Austria','Azerbaijan', \
 
 """ LOCATION UTILS """
 
-def get(printToScreen):
+def get_location_information():
+    geo = requests.get("https://get.geojs.io/v1/ip/geo.json").json()
+    return geo
+
+def get(printToScreen, geo):
     """ Gets user's location via GeoJS API
 
     Returns:
@@ -33,7 +37,6 @@ def get(printToScreen):
     """
 
     location = "Unknown"
-    geo = requests.get("https://get.geojs.io/v1/ip/geo.json").json()
     try:
         if geo["country"] == "United States":
             try:

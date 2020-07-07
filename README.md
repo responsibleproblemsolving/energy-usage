@@ -12,7 +12,7 @@ To install, simply `$ pip install energyusage`.
 ## Usage
 
 To evaluate the emissions of a function, just call `energyusage.evaluate` with the function
-name and the arguments it requires.
+name and the arguments it requires. Use `python3` to run your code.
 
 ```python
 import energyusage
@@ -22,12 +22,13 @@ def recursive_fib(n):
     if (n <= 2): return 1
     else: return recursive_fib(n-1) + recursive_fib(n-2)
 
-energyusage.evaluate(recursive_fib, 40, pdf=True)
+energyusage.evaluate(recursive_fib, 40, pdf=True, png=True)
 # returns 102,334,155
 ```
 It will return the value of your function, while also printing out the energy usage report on the command line.
 Optional keyword arguments:
 * `pdf`(default = `False`): generates a PDF report, alongside the command-line utility
+* `png`(default = `False`): generates a local energy mix pie chart and three emissions comparison bar charts, alongside the command-line utility
 * `powerLoss` (default = `0.8`): accounts for PSU loss, can be set by user if known for higher accuracy of results
 * `energyOutput` (default = `False`): prints amount of energy used by the process and time taken. The order is time, energy used, return of function
 * `printToScreen` (default = `True`): controls whether there is a terminal printout of the package running
@@ -93,7 +94,7 @@ The report is divided into several sections.
 
 * **Assumed Carbon Equivalencies**: The formulas used to convert from kWh to CO<sub>2</sub> based on the energy mix of the location (for international locations, see below for more information).
 
-* **Emissions Comparison**: What the emissions would be for the same energy used in a representative group of US states and countries. Note that if these locations are specified as described below these default values are not shown. 
+* **Emissions Comparison**: What the emissions would be for the same energy used in a representative group of US states and countries. Note that if these locations are specified as described below these default values are not shown.
 
 * **Process used**: The amount of energy running the program used in total.
 
@@ -155,7 +156,7 @@ As of July 2019, the most recent eGRID data was from the year 2016. We elected t
 #### Conversion to CO<sub>2</sub>
 Since the international data only contained an energy mix, and no emission data, we reverse-engineered the formulas used in the eGRID data. This gives us additionally consistency between the separate datasets.
 * *Coal*: 2195.20 lbs CO<sub>2</sub>/MWh = 995.725971 kg CO<sub>2</sub>/MWh
-* *Petroleum*: lbs CO<sub>2</sub>/MWh = 816.6885263 kg CO<sub>2</sub>/MWh
+* *Petroleum*: 1800.49 lbs CO<sub>2</sub>/MWh = 816.6885263 kg CO<sub>2</sub>/MWh
 * *Natural gas*: 1639.89 lbs CO<sub>2</sub>/MWh = 743.8415916 kg CO<sub>2</sub>/MWh
 
 #### Using Different Years of Data

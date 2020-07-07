@@ -10,6 +10,10 @@ from reportlab.graphics.charts.barcharts import VerticalBarChart
 from reportlab.graphics.charts.textlabels import Label
 
 import energyusage.convert as convert
+import evaluate as evaluate
+import locate
+
+import math
 
 year = "2016"
 
@@ -21,18 +25,17 @@ HeaderStyle = ParagraphStyle(name='Normal',fontSize=16)
 SubheaderStyle = ParagraphStyle(name='Normal', fontName="Times-Roman")
 DescriptorStyle = ParagraphStyle(name='Normal',fontSize=14, alignment= TA_CENTER)
 BodyTextStyle = styles["BodyText"]
-Elements = []
 
 
 def bold(text):
     return "<b>"+text+"</b>"
 
-def title(text, style=TitleStyle, klass=Paragraph, sep=0.3):
+def title(text, Elements, style=TitleStyle, klass=Paragraph, sep=0.3):
     """ Creates title of report """
     t = klass(bold(text), style)
     Elements.append(t)
 
-def subtitle(text, style=SubtitleStyle, klass=Paragraph, sep=0.1, spaceBefore=True, spaceAfter = True):
+def subtitle(text, Elements, style=SubtitleStyle, klass=Paragraph, sep=0.1, spaceBefore=True, spaceAfter = True):
     """ Creates descriptor text for a (sub)section; sp adds space before text """
     s = Spacer(0, 1.5*sep*inch)
     if spaceBefore:
@@ -44,7 +47,7 @@ def subtitle(text, style=SubtitleStyle, klass=Paragraph, sep=0.1, spaceBefore=Tr
 
 
 
-def readings_and_mix_table(reading_data, mix_data, breakdown, state_emission, location):
+def readings_and_mix_table(reading_data, mix_data, breakdown, state_emission, location, Elements):
     '''
     Creates 2 tables that are then embedded as the columns of 1 bigger table
     '''
@@ -102,7 +105,7 @@ def readings_and_mix_table(reading_data, mix_data, breakdown, state_emission, lo
     Elements.append(t)
 
 
-def kwh_and_emissions_table(data):
+def kwh_and_emissions_table(data, Elements):
 
     s = Spacer(9*inch, .2*inch)
     Elements.append(s)
@@ -122,7 +125,7 @@ def kwh_and_emissions_table(data):
     Elements.append(t)
 
 
-def equivs_and_emission_equivs(equivs_data, emissions_data):
+def equivs_and_emission_equivs(equivs_data, emissions_data, Elements):
     '''
     Creates a table with 2 columns, each with their own embedded table
     The embedded tables contain 2 vertically-stacked tables, one for the header
@@ -206,8 +209,10 @@ def gen_bar_graphs(comparison_values, location, emission):
     bc.data = data
     bc.strokeColor = colors.black
     bc.valueAxis.valueMin = 0
-    bc.valueAxis.valueMax = data[0][-1] + data[0][-1] *.1
-    #bc.valueAxis.valueStep = 10
+    bc.valueAxis.valueMax = data[0][-1] + data[0][-1] * .1
+    distance = abs(int(math.log10(abs(data[0][-1])))) + 1 # distance of 1 significant figure to decimal point
+    bc.valueAxis.valueStep = float(format(data[0][-1], '.1g')) / 3
+    bc.valueAxis.labelTextFormat = '%0.' + str(distance) + 'g'
     bc.categoryAxis.labels.boxAnchor = 'ne'
     bc.categoryAxis.labels.dx = 8
     bc.categoryAxis.labels.dy = -2
@@ -219,7 +224,7 @@ def gen_bar_graphs(comparison_values, location, emission):
     return bc
 
 
-def comparison_graphs(comparison_values, location, emission, default_emissions, default_location):
+def comparison_graphs(comparison_values, location, emission, default_emissions, default_location, Elements):
     s = Spacer(9*inch, .2*inch)
     Elements.append(s)
     drawing = Drawing(0, 0)
@@ -261,10 +266,6 @@ def comparison_graphs(comparison_values, location, emission, default_emissions, 
         drawing.add(label2)
         drawing.add(label3)
 
-
-
-
-
     if_elsewhere_para = Paragraph('<font face="times" size=12>Kilograms of CO<sub rise = -10 size' +
     ' = 8>2 </sub> emissions for the function if the computation had been performed elsewhere</font>', style = styles["Normal"])
     graph_data = [['Emission Comparison'], [if_elsewhere_para], [drawing]]
@@ -275,15 +276,50 @@ def comparison_graphs(comparison_values, location, emission, default_emissions, 
                                      ('FONTSIZE', (0,1), (0,1), 12),
                                      ('ALIGN', (0,0), (-1,-1), "CENTER")]))
 
-
     Elements.append(graph_table)
 
+def report_header(kwh, emission, Elements):
+    effective_emission = Paragraph('<font face="times" size=12>{:.2e} kg CO<sub rise = -10 size = 8>2 </sub></font>'.format(emission), style = styles["Normal"])
+    # Total kWhs used and effective emissions
+    kwh_and_emissions_data = [["Total kilowatt hours used:", "{:.2e} kWh".format(kwh)],
+                              ["Effective emissions:", effective_emission]]
+
+    kwh_and_emissions_table(kwh_and_emissions_data, Elements)
+
+def report_equivalents(emission, state_emission, Elements):
+    # Equivalencies and CO2 emission equivalents
+    per_house = Paragraph('<font face="times" size=12>% of CO<sub rise = -10 size = 8>2</sub> per US house/day:</font>'.format(emission), style = styles["Normal"])
+    emissions_data = [
+                 ['Miles driven:', "{:.2e} miles".format(convert.carbon_to_miles(emission))],
+                 ['Min. of 32-in. LCD TV:', "{:.2e} minutes".format(convert.carbon_to_tv(emission))],
+                 [per_house, \
+                   "{:.2e}%".format(convert.carbon_to_home(emission))]]
+
+    coal_para = Paragraph('<font face="times" size=12>996 kg CO<sub rise = -10 size = 8>2 </sub>/MWh</font>', style = styles["Normal"])
+    oil_para = Paragraph('<font face="times" size=12>817 kg CO<sub rise = -10 size = 8>2 </sub>/MWh</font>', style = styles["Normal"])
+    gas_para = Paragraph('<font face="times" size=12>744 kg CO<sub rise = -10 size = 8>2 </sub>/MWh</font>', style = styles["Normal"])
+    low_para = Paragraph('<font face="times" size=12>0 kg CO<sub rise = -10 size = 8>2 </sub>/MWh</font>', style = styles["Normal"])
+
+    if state_emission:
+        equivs_data = [['Coal:', coal_para],
+                       ['Oil:', oil_para],
+                       ['Natural gas:', gas_para],
+                       ['Low carbon:', low_para]]
+    else:
+        equivs_data = [['Coal:', coal_para],
+                       ['Petroleum:', oil_para],
+                       ['Natural gas:', gas_para],
+                       ['Low carbon:', low_para]]
+        
+    equivs_and_emission_equivs(equivs_data, emissions_data, Elements)
+    # utils.log("Assumed Carbon Equivalencies")
+    # utils.log("Emissions", emission)
 
 
 def generate(location, watt_averages, breakdown, kwh_and_emissions, func_info, \
     comparison_values, default_emissions, default_location):
     # TODO: remove state_emission and just use location
-    """ Generates pdf report
+    """ Generates the entire pdf report
 
     Parameters:
         location (str): user's location, locations=["Romania", "Brazil"]
@@ -294,14 +330,14 @@ def generate(location, watt_averages, breakdown, kwh_and_emissions, func_info, \
 
     """
 
+    Elements = []
     kwh, emission, state_emission = kwh_and_emissions
     baseline_average, process_average, difference_average, process_duration = watt_averages
-
 
     # Initializing document
     doc = SimpleDocTemplate("energy-usage-report.pdf",pagesize=landscape(letter), topMargin=.3*inch)
 
-    title("Energy Usage Report")
+    title("Energy Usage Report", Elements)
 
     # Handling header with function name and arguments
     func_name, *func_args = func_info
@@ -317,7 +353,7 @@ def generate(location, watt_averages, breakdown, kwh_and_emissions, func_info, \
     else:
         info_text += "."
 
-    subtitle("Energy usage and carbon emissions" + info_text, spaceBefore=True)
+    subtitle("Energy usage and carbon emissions" + info_text, Elements, spaceBefore=True)
 
     # Energy Usage Readings and Energy Mix Data
     readings_data = [['Energy Usage Readings', ''],
@@ -327,10 +363,6 @@ def generate(location, watt_averages, breakdown, kwh_and_emissions, func_info, \
                 ['Process duration:', process_duration],
                 ['','']] #hack for the alignment
 
-    coal_para = Paragraph('<font face="times" size=12>996 kg CO<sub rise = -10 size = 8>2 </sub>/MWh</font>', style = styles["Normal"])
-    oil_para = Paragraph('<font face="times" size=12>817 kg CO<sub rise = -10 size = 8>2 </sub>/MWh</font>', style = styles["Normal"])
-    gas_para = Paragraph('<font face="times" size=12>744 kg CO<sub rise = -10 size = 8>2 </sub>/MWh</font>', style = styles["Normal"])
-    low_para = Paragraph('<font face="times" size=12>0 kg CO<sub rise = -10 size = 8>2 </sub>/MWh</font>', style = styles["Normal"])
     if state_emission:
         coal, oil, natural_gas, low_carbon = breakdown
         mix_data = [['Energy Mix Data', ''],
@@ -338,11 +370,6 @@ def generate(location, watt_averages, breakdown, kwh_and_emissions, func_info, \
                     ['Oil', "{:.2f}%".format(oil)],
                     ['Natural gas', "{:.2f}%".format(natural_gas)],
                     ['Low carbon', "{:.2f}%".format(low_carbon)]]
-        equivs_data = [['Coal:', coal_para],
-                       ['Oil:', oil_para],
-                       ['Natural gas:', gas_para],
-                       ['Low carbon:', low_para]]
-
     else:
         coal, petroleum, natural_gas, low_carbon = breakdown
         mix_data = [['Energy Mix Data', ''],
@@ -350,28 +377,37 @@ def generate(location, watt_averages, breakdown, kwh_and_emissions, func_info, \
                     ['Petroleum', "{:.2f}%".format(petroleum)],
                     ['Natural gas', "{:.2f}%".format(natural_gas)],
                     ['Low carbon', "{:.2f}%".format(low_carbon)]]
-        equivs_data = [['Coal:', coal_para],
-                       ['Petroleum:', oil_para],
-                       ['Natural gas:', gas_para],
-                       ['Low carbon:', low_para]]
 
-    readings_and_mix_table(readings_data, mix_data, breakdown, state_emission, location)
-    effective_emission = Paragraph('<font face="times" size=12>{:.2e} kg CO<sub rise = -10 size = 8>2 </sub></font>'.format(emission), style = styles["Normal"])
-    # Total kWhs used and effective emissions
-    kwh_and_emissions_data = [["Total kilowatt hours used:", "{:.2e} kWh".format(kwh)],
-                              ["Effective emissions:", effective_emission]]
+    readings_and_mix_table(readings_data, mix_data, breakdown, state_emission, location, Elements)
+    report_header(kwh, emission, Elements)
+    report_equivalents(emission, state_emission, Elements)
+    comparison_graphs(comparison_values, location, emission, default_emissions, default_location, Elements)
 
-    kwh_and_emissions_table(kwh_and_emissions_data)
-
-    # Equivalencies and CO2 emission equivalents
-    per_house = Paragraph('<font face="times" size=12>% of CO<sub rise = -10 size = 8>2</sub> per US house/day:</font>'.format(emission), style = styles["Normal"])
-    emissions_data = [
-                 ['Miles driven:', "{:.2e} miles".format(convert.carbon_to_miles(emission))],
-                 ['Min. of 32-in. LCD TV:', "{:.2e} minutes".format(convert.carbon_to_tv(emission))],
-                 [per_house, \
-                   "{:.2e}%".format(convert.carbon_to_home(emission))]]
-
-    equivs_and_emission_equivs(equivs_data, emissions_data)
-
-    comparison_graphs(comparison_values, location, emission, default_emissions, default_location)
     doc.build(Elements)
+
+
+def generate_mlco2(kwh, emission, png=False, locations = ["Mongolia", "Iceland", "Switzerland"], printToScreen=True):
+    # TODO: remove state_emission and just use location
+    """ Generates pdf report with input of energy consumption and co2 emissions
+    Parameters:
+        kwh: energy consumption
+        emission: co2 emission
+    """
+    Elements = []
+    # Initializing document
+    doc = SimpleDocTemplate("mlco2-energy-usage-report.pdf",pagesize=landscape(letter), topMargin=.3*inch)
+
+    title("Energy Usage Report", Elements)
+    report_header(kwh, emission, Elements)
+    location, default_location, comparison_values, default_emissions = evaluate.get_comparison_data(kwh, locations, year, printToScreen)
+    state_emission = 0
+    if locate.in_US(location):
+        state_emission = 1
+    report_equivalents(emission, state_emission, Elements)
+    comparison_graphs(comparison_values, location, emission, default_emissions, default_location, Elements)
+
+    doc.build(Elements)
+
+    if png:
+        # generate emissions comparison bar charts
+        evaluate.png_bar_chart(location, emission, default_emissions)
