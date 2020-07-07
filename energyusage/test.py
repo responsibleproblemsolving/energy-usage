@@ -80,6 +80,15 @@ class Test(unittest.TestCase):
         0.07541226821, 0.01049881617, 0.09433027569, 0.06590723112, 0.01697252192, \
         0.09190960756, 0.04500865546, 0.00258048699])
 
+        
+    def test_small_energy_consumption_exception(self):        
+        def small_function(n):
+            n+1
+
+        with self.assertRaises(Exception) as e:
+            evaluate.evaluate(small_function(), 10)
+            self.assertTrue("Process executed too fast to gather energy consumption" in e.exception)
+
 
 if __name__ == '__main__':
     unittest.main()
