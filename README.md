@@ -12,7 +12,7 @@ To install, simply `$ pip install energyusage`.
 ## Usage
 
 To evaluate the emissions of a function, just call `energyusage.evaluate` with the function
-name and the arguments it requires. Use `python3` when running your code.
+name and the arguments it requires. Use `python3` to run your code.
 
 ```python
 import energyusage
