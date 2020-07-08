@@ -22,7 +22,7 @@ def func(user_func, q, *args):
     value = user_func(*args)
     q.put(value)
 
-def energy(user_func, *args, powerLoss = 0.8, year, printToScreen):
+def energy(user_func, *args, powerLoss = 0.8, year, printToScreen, timeseries):
     """ Evaluates the kwh needed for your code to run
 
     Parameters:
@@ -43,6 +43,12 @@ def energy(user_func, *args, powerLoss = 0.8, year, printToScreen):
     gpu_process = [0]
     bash_command = "nvidia-smi -i 0 --format=csv,noheader --query-gpu=power.draw"
 
+    time_baseline = []
+    reading_baseline_wattage = []
+
+    time_process = []
+    reading_process_wattage = []
+
     with open('baseline_wattage.csv', 'w') as baseline_wattage_file:
         baseline_wattage_writer = csv.writer(baseline_wattage_file)
         baseline_wattage_writer.writerow(["time", "baseline wattage reading"])
@@ -62,6 +68,8 @@ def energy(user_func, *args, powerLoss = 0.8, year, printToScreen):
                 utils.log("Baseline wattage", last_reading)
                 time = round(i* DELAY, 1)
                 baseline_wattage_writer.writerow([time, last_reading])
+                time_baseline.append(time)
+                reading_baseline_wattage.append(last_reading)
     if printToScreen:
         utils.newline()
 
@@ -99,6 +107,8 @@ def energy(user_func, *args, powerLoss = 0.8, year, printToScreen):
                 utils.log("Process wattage", last_reading)
                 time = round(timer()-start, 1)
                 process_wattage_writer.writerow([time, last_reading])
+                time_process.append(time)
+                reading_process_wattage.append(last_reading)
             # Getting the return value of the user's function
             try:
                 return_value = q.get_nowait()
@@ -141,7 +151,7 @@ def energy(user_func, *args, powerLoss = 0.8, year, printToScreen):
     # Logging
     if printToScreen:
         utils.log("Final Readings", baseline_average, process_average, difference_average, timedelta)
-    return (process_kwh, return_value, watt_averages, files, total_time)
+    return (process_kwh, return_value, watt_averages, files, total_time, time_baseline, reading_baseline_wattage, time_process, reading_process_wattage)
 
 
 def energy_mix(location, year = 2016):
@@ -325,7 +335,7 @@ def png_bar_chart(location, emission, default_emissions):
     us_dict = {"Wyoming" : default_emissions_list[6], "Mississippi" : default_emissions_list[7], "Vermont" : default_emissions_list[8]}
     graph.make_comparison_bar_charts(location, emission, us_dict, eu_dict, global_dict)
 
-def evaluate(user_func, *args, pdf=False, png = False, powerLoss=0.8, energyOutput=False, \
+def evaluate(user_func, *args, pdf=False, png = False, timeseries=False, powerLoss=0.8, energyOutput=False, \
 locations=["Mongolia", "Iceland", "Switzerland"], year="2016", printToScreen = True):
     """ Calculates effective emissions of the function
 
@@ -342,8 +352,8 @@ locations=["Mongolia", "Iceland", "Switzerland"], year="2016", printToScreen = T
     try:
         utils.setGlobal(printToScreen)
         if (utils.valid_cpu() or utils.valid_gpu()):
-            result, return_value, watt_averages, files, total_time = energy(user_func, *args, powerLoss = powerLoss, year = year, \
-                                                            printToScreen = printToScreen)
+            result, return_value, watt_averages, files, total_time, time_baseline, reading_baseline_wattage, time_process, reading_process_wattage = energy(user_func, *args, powerLoss = powerLoss, year = year, \
+                                                                            printToScreen = printToScreen, timeseries = timeseries)
             location, default_location, comparison_values, default_emissions = get_comparison_data(result, locations, year, printToScreen)
             breakdown = energy_mix(location, year = year)
             emission, state_emission = emissions(result, breakdown, location, year, printToScreen)
@@ -372,6 +382,9 @@ locations=["Mongolia", "Iceland", "Switzerland"], year="2016", printToScreen = T
                 graph.pie_chart(energy_dict, figtitle, filename)
                 # generate emissions comparison bar charts
                 png_bar_chart(location, emission, default_emissions)
+            if timeseries:
+                graph.timeseries(time_baseline, reading_baseline_wattage, "Baseline Wattage Timeseries")
+                graph.timeseries(time_process, reading_process_wattage, "Process Wattage Timeseries")
             if energyOutput:
                 return (total_time, result, return_value)
             else:

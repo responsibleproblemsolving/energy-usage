@@ -102,3 +102,23 @@ def modify_dict(comparison_dict, location_key, location_value):
     comparison_dict[new_key] = comparison_dict.pop(sorted_keys[2])
     comparison_dict[location_key] = location_value
     return comparison_dict[new_key]
+
+def timeseries(time, reading, title):
+    fig, ax = plt.subplots()
+    ax.plot(time, reading)
+
+    if "Baseline" in title:
+        ylabel = "baseline wattage (watts)"
+        filename = "baseline_wattage.png"
+    else:
+        ylabel = "process wattage (watts)"
+        filename = "process_wattage.png"
+
+    ax.set(xlabel='time (s)', ylabel=ylabel, title=title)
+    ax.grid()
+
+    fig.savefig(filename)
+    print("plot saved to: " + filename)
+    plt.clf()
+    plt.close()
+        
