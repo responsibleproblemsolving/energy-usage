@@ -70,8 +70,8 @@ def energy(user_func, *args, powerLoss = 0.8, year, printToScreen, timeseries):
         with open('baseline_wattage.csv', 'w') as baseline_wattage_file:
             baseline_wattage_writer = csv.writer(baseline_wattage_file)
             baseline_wattage_writer.writerow(["time", "baseline wattage reading"])
-            for i in range(len(time)):
-                baseline_wattage_writer.writerow([time[i], baseline_wattage_reading[i]])
+            for i in range(len(time_baseline)):
+                baseline_wattage_writer.writerow([time_baseline[i], reading_baseline_wattage[i]])
     if printToScreen:
         utils.newline()
 
@@ -118,8 +118,8 @@ def energy(user_func, *args, powerLoss = 0.8, year, printToScreen, timeseries):
         with open('process_wattage.csv', 'w') as process_wattage_file:
             process_wattage_writer = csv.writer(process_wattage_file)
             process_wattage_writer.writerow(["time", "process wattage reading"])
-            for i in range(len(time)):
-                process_wattage_writer.writerow([time[i], process_wattage_reading[i]])
+            for i in range(len(time_process)):
+                process_wattage_writer.writerow([time_process[i], reading_process_wattage[i]])
     p.join()
     end = timer()
     for file in files:
@@ -400,4 +400,4 @@ locations=["Mongolia", "Iceland", "Switzerland"], year="2016", printToScreen = T
                       "with Intel processors that support the RAPL interface and/or machines with"
         " an Nvidia GPU. Please try again on a different machine.")
     except Exception as e:
-        print("\n" + str(e) + ". Try running a more GPU-intensive program.")
+        print("\n" + str(e))
