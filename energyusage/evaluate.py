@@ -22,7 +22,7 @@ def func(user_func, q, *args):
     value = user_func(*args)
     q.put(value)
 
-def energy(user_func, *args, powerLoss = 0.8, year, printToScreen):
+def energy(user_func, *args, powerLoss = 0.8, year, printToScreen, timeseries):
     """ Evaluates the kwh needed for your code to run
 
     Parameters:
@@ -43,25 +43,35 @@ def energy(user_func, *args, powerLoss = 0.8, year, printToScreen):
     gpu_process = [0]
     bash_command = "nvidia-smi -i 0 --format=csv,noheader --query-gpu=power.draw"
 
-    with open('baseline_wattage.csv', 'w') as baseline_wattage_file:
-        baseline_wattage_writer = csv.writer(baseline_wattage_file)
-        baseline_wattage_writer.writerow(["time", "baseline wattage reading"])
-        for i in range(int(baseline_check_seconds / DELAY)):
-            if is_nvidia_gpu:
-                output = subprocess.check_output(['bash','-c', bash_command])
-                output = float(output.decode("utf-8")[:-2])
-                gpu_baseline.append(output)
-            if is_valid_cpu:
-                files = utils.measure_files(files, DELAY)
-                files = utils.update_files(files)
-            else:
-                time.sleep(DELAY)
-            # Adds the most recent value of GPU; 0 if not Nvidia
-            last_reading = utils.get_total(files, multiple_cpus) + gpu_baseline[-1]
-            if last_reading >=0 and printToScreen:
-                utils.log("Baseline wattage", last_reading)
-                time = round(i* DELAY, 1)
-                baseline_wattage_writer.writerow([time, last_reading])
+    time_baseline = []
+    reading_baseline_wattage = []
+
+    time_process = []
+    reading_process_wattage = []
+
+    for i in range(int(baseline_check_seconds / DELAY)):
+        if is_nvidia_gpu:
+            output = subprocess.check_output(['bash','-c', bash_command])
+            output = float(output.decode("utf-8")[:-2])
+            gpu_baseline.append(output)
+        if is_valid_cpu:
+            files = utils.measure_files(files, DELAY)
+            files = utils.update_files(files)
+        else:
+            time.sleep(DELAY)
+        # Adds the most recent value of GPU; 0 if not Nvidia
+        last_reading = utils.get_total(files, multiple_cpus) + gpu_baseline[-1]
+        if last_reading >=0 and printToScreen:
+            utils.log("Baseline wattage", last_reading)
+            time = round(i* DELAY, 1)
+            time_baseline.append(time)
+            reading_baseline_wattage.append(last_reading)
+    if timeseries:
+        with open('baseline_wattage.csv', 'w') as baseline_wattage_file:
+            baseline_wattage_writer = csv.writer(baseline_wattage_file)
+            baseline_wattage_writer.writerow(["time", "baseline wattage reading"])
+            for i in range(len(time_baseline)):
+                baseline_wattage_writer.writerow([time_baseline[i], reading_baseline_wattage[i]])
     if printToScreen:
         utils.newline()
 
@@ -73,38 +83,43 @@ def energy(user_func, *args, powerLoss = 0.8, year, printToScreen):
     small_delay_counter = 0
     return_value = None
     p.start()
-    with open('process_wattage.csv', 'w') as process_wattage_file:
-        process_wattage_writer = csv.writer(process_wattage_file)
-        process_wattage_writer.writerow(["time", "process wattage reading"])
-        while(p.is_alive()):
-            # Checking at a faster rate for quick processes
-            if (small_delay_counter > DELAY):
-                delay = DELAY / 10
-                small_delay_counter+=1
-            else:
-                delay = DELAY
-                
-            if is_nvidia_gpu:
-                output = subprocess.check_output(['bash','-c', bash_command])
-                output = float(output.decode("utf-8")[:-2])
-                gpu_process.append(output)
-            if is_valid_cpu:
-                files = utils.measure_files(files, delay)
-                files = utils.update_files(files, True)
-            else:
-                time.sleep(delay)
-            # Just output, not added
-            last_reading = (utils.get_total(files, multiple_cpus) + gpu_process[-1]) / powerLoss
-            if last_reading >=0 and printToScreen:
-                utils.log("Process wattage", last_reading)
-                time = round(timer()-start, 1)
-                process_wattage_writer.writerow([time, last_reading])
-            # Getting the return value of the user's function
-            try:
-                return_value = q.get_nowait()
-                break
-            except queue.Empty:
-                pass
+
+    while(p.is_alive()):
+        # Checking at a faster rate for quick processes
+        if (small_delay_counter > DELAY):
+            delay = DELAY / 10
+            small_delay_counter+=1
+        else:
+            delay = DELAY
+
+        if is_nvidia_gpu:
+            output = subprocess.check_output(['bash','-c', bash_command])
+            output = float(output.decode("utf-8")[:-2])
+            gpu_process.append(output)
+        if is_valid_cpu:
+            files = utils.measure_files(files, delay)
+            files = utils.update_files(files, True)
+        else:
+            time.sleep(delay)
+        # Just output, not added
+        last_reading = (utils.get_total(files, multiple_cpus) + gpu_process[-1]) / powerLoss
+        if last_reading >=0 and printToScreen:
+            utils.log("Process wattage", last_reading)
+            time = round(timer()-start, 1)
+            time_process.append(time)
+            reading_process_wattage.append(last_reading)
+        # Getting the return value of the user's function
+        try:
+            return_value = q.get_nowait()
+            break
+        except queue.Empty:
+            pass
+    if timeseries:
+        with open('process_wattage.csv', 'w') as process_wattage_file:
+            process_wattage_writer = csv.writer(process_wattage_file)
+            process_wattage_writer.writerow(["time", "process wattage reading"])
+            for i in range(len(time_process)):
+                process_wattage_writer.writerow([time_process[i], reading_process_wattage[i]])
     p.join()
     end = timer()
     for file in files:
@@ -141,7 +156,7 @@ def energy(user_func, *args, powerLoss = 0.8, year, printToScreen):
     # Logging
     if printToScreen:
         utils.log("Final Readings", baseline_average, process_average, difference_average, timedelta)
-    return (process_kwh, return_value, watt_averages, files, total_time)
+    return (process_kwh, return_value, watt_averages, files, total_time, time_baseline, reading_baseline_wattage, time_process, reading_process_wattage)
 
 
 def energy_mix(location, year = 2016):
@@ -325,7 +340,7 @@ def png_bar_chart(location, emission, default_emissions):
     us_dict = {"Wyoming" : default_emissions_list[6], "Mississippi" : default_emissions_list[7], "Vermont" : default_emissions_list[8]}
     graph.make_comparison_bar_charts(location, emission, us_dict, eu_dict, global_dict)
 
-def evaluate(user_func, *args, pdf=False, png = False, powerLoss=0.8, energyOutput=False, \
+def evaluate(user_func, *args, pdf=False, png = False, timeseries=False, powerLoss=0.8, energyOutput=False, \
 locations=["Mongolia", "Iceland", "Switzerland"], year="2016", printToScreen = True):
     """ Calculates effective emissions of the function
 
@@ -342,8 +357,8 @@ locations=["Mongolia", "Iceland", "Switzerland"], year="2016", printToScreen = T
     try:
         utils.setGlobal(printToScreen)
         if (utils.valid_cpu() or utils.valid_gpu()):
-            result, return_value, watt_averages, files, total_time = energy(user_func, *args, powerLoss = powerLoss, year = year, \
-                                                            printToScreen = printToScreen)
+            result, return_value, watt_averages, files, total_time, time_baseline, reading_baseline_wattage, time_process, reading_process_wattage = energy(user_func, *args, powerLoss = powerLoss, year = year, \
+                                                                            printToScreen = printToScreen, timeseries = timeseries)
             location, default_location, comparison_values, default_emissions = get_comparison_data(result, locations, year, printToScreen)
             breakdown = energy_mix(location, year = year)
             emission, state_emission = emissions(result, breakdown, location, year, printToScreen)
@@ -372,14 +387,17 @@ locations=["Mongolia", "Iceland", "Switzerland"], year="2016", printToScreen = T
                 graph.pie_chart(energy_dict, figtitle, filename)
                 # generate emissions comparison bar charts
                 png_bar_chart(location, emission, default_emissions)
+            if timeseries:
+                graph.timeseries(time_baseline, reading_baseline_wattage, "Baseline Wattage Timeseries")
+                graph.timeseries(time_process, reading_process_wattage, "Process Wattage Timeseries")
             if energyOutput:
                 return (total_time, result, return_value)
             else:
                 return return_value
-            
+
         else:
             utils.log("The energy-usage package only works on Linux kernels "
                       "with Intel processors that support the RAPL interface and/or machines with"
         " an Nvidia GPU. Please try again on a different machine.")
     except Exception as e:
-        print("\n" + str(e) + ". Try running a more GPU-intensive program.")
+        print("\n" + str(e))
