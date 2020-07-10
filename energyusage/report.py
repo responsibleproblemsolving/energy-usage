@@ -310,7 +310,7 @@ def report_equivalents(emission, state_emission, Elements):
                        ['Petroleum:', oil_para],
                        ['Natural gas:', gas_para],
                        ['Low carbon:', low_para]]
-        
+
     equivs_and_emission_equivs(equivs_data, emissions_data, Elements)
     # utils.log("Assumed Carbon Equivalencies")
     # utils.log("Emissions", emission)
@@ -384,30 +384,3 @@ def generate(location, watt_averages, breakdown, kwh_and_emissions, func_info, \
     comparison_graphs(comparison_values, location, emission, default_emissions, default_location, Elements)
 
     doc.build(Elements)
-
-
-def generate_mlco2(kwh, emission, png=False, locations = ["Mongolia", "Iceland", "Switzerland"], printToScreen=True):
-    # TODO: remove state_emission and just use location
-    """ Generates pdf report with input of energy consumption and co2 emissions
-    Parameters:
-        kwh: energy consumption
-        emission: co2 emission
-    """
-    Elements = []
-    # Initializing document
-    doc = SimpleDocTemplate("mlco2-energy-usage-report.pdf",pagesize=landscape(letter), topMargin=.3*inch)
-
-    title("Energy Usage Report", Elements)
-    report_header(kwh, emission, Elements)
-    location, default_location, comparison_values, default_emissions = evaluate.get_comparison_data(kwh, locations, year, printToScreen)
-    state_emission = 0
-    if locate.in_US(location):
-        state_emission = 1
-    report_equivalents(emission, state_emission, Elements)
-    comparison_graphs(comparison_values, location, emission, default_emissions, default_location, Elements)
-
-    doc.build(Elements)
-
-    if png:
-        # generate emissions comparison bar charts
-        evaluate.png_bar_chart(location, emission, default_emissions)
