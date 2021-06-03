@@ -1,3 +1,6 @@
+# See [CodeCarbon](https://codecarbon.io/) instead!
+We are no longer actively maintaining this project, since we have merged its functionality into another project that is being actively maintained and has more features than this one.  We recommend using that project instead!
+
 # energyusage
 
 A Python package that measures the environmental impact of computation. Provides a function to
