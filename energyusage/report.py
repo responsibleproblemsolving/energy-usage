@@ -348,8 +348,11 @@ def generate(location, watt_averages, breakdown, kwh_and_emissions, func_info, \
         else:
             info_text += " with the inputs "
             for arg in func_args:
-                info_text += arg + ","
-            info_text = info_text[len(info_text)-1] + "."
+                if hasattr(arg, 'shape'):
+                    info_text += "arr" + str(arg.shape) + ", "
+                else:
+                    info_text += str(arg) + ", "
+            info_text = info_text[:-2] + "."
     else:
         info_text += "."
 
