@@ -10,8 +10,8 @@ from reportlab.graphics.charts.barcharts import VerticalBarChart
 from reportlab.graphics.charts.textlabels import Label
 
 import energyusage.convert as convert
-import evaluate as evaluate
-import locate
+from . import evaluate as evaluate
+from . import locate
 
 import math
 

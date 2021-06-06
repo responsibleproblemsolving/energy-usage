@@ -8,11 +8,11 @@ import subprocess
 import queue
 import csv
 
-import utils as utils
-import convert as convert
-import locate as locate
-import report as report
-import graph
+from . import utils as utils
+from . import convert as convert
+from . import locate as locate
+from . import report as report
+from . import graph
 
 DELAY = .1 # in seconds
 
@@ -147,11 +147,6 @@ def energy(user_func, *args, powerLoss = 0.8, year, printToScreen, timeseries):
 
     # Subtracting baseline wattage to get more accurate result
     process_kwh = convert.to_kwh((process_average - baseline_average)*total_time) / powerLoss
-
-    if is_nvidia_gpu:
-        gpu_file = file("GPU", "")
-        gpu_file.create_gpu(gpu_baseline_average, gpu_process_average)
-        files.append(file("GPU", ""))
 
     # Logging
     if printToScreen:
